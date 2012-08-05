@@ -46,6 +46,13 @@ class PasswordSafe:
 
         return keyringid
 
+    def get_config_value(self, section, parameter):
+        value = self.configparser.get(section, parameter)
+        if not value:
+            value = input("Input " + section + " " + parameter)
+
+        return value
+
     def askcredentials(self, authfunction, section, usernameparameter):
         if not self.configparser.has_section(section):
             self.configparser.add_section(section)

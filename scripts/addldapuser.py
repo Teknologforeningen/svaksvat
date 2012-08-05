@@ -19,6 +19,7 @@ from backend.ldaplogin import (get_member_with_real_name,
         DuplicateNamesException, PersonNotFoundException)
 from backend import connect
 from backend.orm import *
+import passwordsafe
 
 # constants
 # exception classes
@@ -77,15 +78,35 @@ def encode_base64_ondemand(s):
         s = " " + s
     return s
 
-def generate_ldifs(member, uidnumber, passwd):
-    """Generates the strings needed to create the ldap user."""
-    username = member.username_fld
-    preferredname = member.preferredName_fld
-    surname = member.surName_fld
-    email = member.contactinfo.email_fld
 
-    # LDIF used to create the user account.
-    userldif = """
+class LDAPAccountManager:
+    def __init__(self, dry_run=False):
+        self.dry_run = dry_run
+
+        self.ps = PasswordSafe()
+
+
+
+        servicelogin, servicepassword = ps.askcredentials(check_ldap_login, "ldap",
+                "servicelogin")
+
+    def check_ldap_login(username, password):
+        ldaphost = self.ps.get_config_value("ldap", "host")
+        ldapquery = shlex.split("""ldapsearch -h %s\
+                -b dc=fi -D cn=%s,dc=teknologforeningen,dc=fi -w\
+                %s cn=ServiceUser""")
+        output = check_output(ldapquery, universal_newlines=True)
+        return "\nuserPassword:: " in output
+
+    def generate_ldifs(member, uidnumber, passwd):
+        """Generates the strings needed to create the ldap user."""
+        username = member.username_fld
+        preferredname = member.preferredName_fld
+        surname = member.surName_fld
+        email = member.contactinfo.email_fld
+
+        # LDIF used to create the user account.
+        userldif = """
 dn: uid=%s,ou=People,dc=teknologforeningen,dc=fi
 changetype: add
 uid: %s
@@ -109,86 +130,93 @@ objectClass: billAccount
 krbName: %s
 mail: %s
 userPassword: %s
-    """ % (username, username, preferredname + " " + surname, username,
-            uidnumber, surname, preferredname, username, email, passwd)
+        """ % (username, username, preferredname + " " + surname, username,
+                uidnumber, surname, preferredname, username, email, passwd)
 
-    # LDIF used to add the user to the medlem group.
-    usergroupldif = """
+        # LDIF used to add the user to the medlem group.
+        usergroupldif = """
 dn: cn=medlem,ou=Group,dc=teknologforeningen,dc=fi
 changetype: modify
 add: memberUid
 memberUid: %s
-""" % username
+    """ % username
 
-    return userldif, usergroupldif
+        return userldif, usergroupldif
 
-def get_next_uidnumber():
-    """Returns the next free uidnumber greater than 1000"""
-    uidquery = shlex.split("""ldapsearch -h ldap-master.teknologforeningen.fi \
-            -b dc=fi -D cn=*serviceuser*,dc=teknologforeningen,dc=fi -w\
-            *servicepassword* uidNumber""")
-    output = check_output(uidquery, universal_newlines=True)
-    uidnumbers = [int(line.split(": ")[1]) for line in output.split("\n") if
-            "uidNumber: " in line]
-    uidnumbers.sort()
+    def get_next_uidnumber():
+        """Returns the next free uidnumber greater than 1000"""
+        uidquery = shlex.split("""ldapsearch -h ldap-master.teknologforeningen.fi \
+                -b dc=fi -D cn=*serviceuser*,dc=teknologforeningen,dc=fi -w\
+                *servicepassword* uidNumber""")
+        output = check_output(uidquery, universal_newlines=True)
+        uidnumbers = [int(line.split(": ")[1]) for line in output.split("\n") if
+                "uidNumber: " in line]
+        uidnumbers.sort()
 
-    # Find first free uid over 1000.
-    last = 1000
-    for uid in uidnumbers:
-        if uid > last + 1:
-            break
-        last = uid
-    return last + 1
+        # Find first free uid over 1000.
+        last = 1000
+        for uid in uidnumbers:
+            if uid > last + 1:
+                break
+            last = uid
+        return last + 1
 
-def checkldapuser(member):
+    def checkldapuser(member):
 
 
-def delldapuser(member):
-    # Delete LDAP user account
-    delusercmd = shlex.split("ldapdelete -h \
-            ldap-master.teknologforeningen.fi -xD \
-            cn=*serviceuser*,dc=teknologforeningen,dc=fi -w \
-            *servicepassword* uid=""" + member.username_fld +
-            ",ou=People,dc=teknologforeningen,dc=fi")
-    print(check_output(delusercmd))
 
-    # Delete user from Members group
-    deluserfromgroupldif = """
+    def delldapuser(member):
+        # Delete LDAP user account
+        delusercmd = shlex.split("ldapdelete -h \
+                ldap-master.teknologforeningen.fi -xD \
+                cn=*serviceuser*,dc=teknologforeningen,dc=fi -w \
+                *servicepassword* uid=""" + member.username_fld +
+                ",ou=People,dc=teknologforeningen,dc=fi")
+
+        if self.dry_run:
+            cmd.append("-n")
+
+        print(check_output(delusercmd))
+
+        # Delete user from Members group
+        deluserfromgroupldif = """
 dn: cn=medlem,ou=Group,dc=teknologforeningen,dc=fi
 changetype: modify
 delete: memberUid
 memberUid: """ + member.username_fld
-    cmd = LDAPMODIFY_CMD
-    groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    out = groupmodproc.communicate(input=deluserfromgroupldif.encode())
-    print(out[0].decode())
+        cmd = LDAPMODIFY_CMD
+        groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        out = groupmodproc.communicate(input=deluserfromgroupldif.encode())
+        print(out[0].decode())
 
-    return True
+        return True
 
-def addldapuser(member, dry_run=False):
-    uidnumber = get_next_uidnumber()
-    passwd = "passwd"
-    userldif, usergroupldif = generate_ldifs(member, uidnumber, passwd)
-    # Add the user to LDAP
-    cmd = LDAPMODIFY_CMD
-    if dry_run:
-        cmd.append("-n")
+    def addldapuser(member):
+        uidnumber = get_next_uidnumber()
+        passwd = "passwd"
+        userldif, usergroupldif = generate_ldifs(member, uidnumber, passwd)
+        # Add the user to LDAP
+        cmd = LDAPMODIFY_CMD
+        if self.dry_run:
+            cmd.append("-n")
 
-    adduserproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    out1 = adduserproc.communicate(input=userldif.encode())
-    print(out1[0].decode())
-    if adduserproc.returncode: # Failed command
-        return False
+        adduserproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        out1 = adduserproc.communicate(input=userldif.encode())
+        print(out1[0].decode())
+        if adduserproc.returncode: # Failed command
+            return False
 
-    # Add the user to Members-group
-    groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    out2 = groupmodproc.communicate(input=usergroupldif.encode())
-    print(out2[0].decode())
+        # Add the user to Members-group
+        groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        out2 = groupmodproc.communicate(input=usergroupldif.encode())
+        print(out2[0].decode())
 
-    return True
+        return True
 
 
 def main():
+    lm = LDAPAccountManager()
+
     member = Member()
     member.username_fld = "test123"
     member.preferredName_fld = "John"
