@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+{{ message }} <br>
+    <form method="POST" action="doLogin">
+      Användarnamn: <input type="text" name="username"/><br>
+      Lösenord: <input type="password" name="password"/><br>
+      <div align="center">
+        <p><input type="submit" value="Logga in" /></p>
+      </div>
+    </form>
+{% endblock %}
+

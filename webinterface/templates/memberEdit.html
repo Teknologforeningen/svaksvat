@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% import 'forms.html' as forms %}
+
+{% block content %}
+    {{ message }}
+    {{ member.givenNames_fld }} {{ member.surName_fld }}
+    <form method="POST" action="updateMember">
+
+        {% for publicfield in member.publicfields %}
+            {% set fieldvalue = member.__dict__[publicfield] %}
+            {{ publicfield }} {{ forms.input(publicfield, value=fieldvalue) }} <br>
+        {% endfor %}
+
+        {% set contactinfo = member.contactinfo %}
+        {% for publicfield in contactinfo.publicfields %}
+            {% set field = contactinfo.__dict__[publicfield] %}
+            {{ publicfield }} {{ forms.input(publicfield, value=field) }} <br>
+        {% endfor %}
+
+        <div align="center">
+            <p><input type="submit" value="Spara" /></p>
+        </div>
+    </form>
+{% endblock %}

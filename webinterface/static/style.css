@@ -1,0 +1,10 @@
+.errorMsg
+{
+    font-weight: bold;
+    color: red
+}
+
+.successMsg
+{
+    color: green
+}

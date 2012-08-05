@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>630</width>
+    <height>590</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QFormLayout" name="formLayout_2">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="allaFornamnLabel">
+           <property name="text">
+            <string>Alla förnamn</string>
+           </property>
+           <property name="buddy">
+            <cstring>givenNames_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="givenNames_fld"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="efternamnLabel">
+           <property name="text">
+            <string>Efternamn</string>
+           </property>
+           <property name="buddy">
+            <cstring>surName_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="surName_fld"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="tidigareEfternamnLabel">
+           <property name="text">
+            <string>Tidigare efternamn</string>
+           </property>
+           <property name="buddy">
+            <cstring>maidenName_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="maidenName_fld"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="tilltalsnamnLabel">
+           <property name="text">
+            <string>Tilltalsnamn</string>
+           </property>
+           <property name="buddy">
+            <cstring>preferredName_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="preferredName_fld"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="studienummerLabel">
+           <property name="text">
+            <string>Studienummer</string>
+           </property>
+           <property name="buddy">
+            <cstring>studentId_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="studentId_fld"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="avlidenLabel">
+           <property name="text">
+            <string>Avliden</string>
+           </property>
+           <property name="buddy">
+            <cstring>dead_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QCheckBox" name="dead_fld"/>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="fDelsedatumLabel">
+           <property name="text">
+            <string>Födelsedatum</string>
+           </property>
+           <property name="buddy">
+            <cstring>birthDate_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QDateEdit" name="birthDate_fld">
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="nationalitetLabel">
+           <property name="text">
+            <string>Nationalitet</string>
+           </property>
+           <property name="buddy">
+            <cstring>nationality_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="nationality_fld"/>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="kNLabel">
+           <property name="text">
+            <string>Kön</string>
+           </property>
+           <property name="buddy">
+            <cstring>gender_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QComboBox" name="gender_fld"/>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="username_fldLabel">
+           <property name="text">
+            <string>Användarnamn</string>
+           </property>
+           <property name="buddy">
+            <cstring>username_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QLineEdit" name="username_fld"/>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="subscribedToModulen_fld">
+           <property name="text">
+            <string>Vill ha Modulen</string>
+           </property>
+           <property name="buddy">
+            <cstring>subscribedToModulen_fld_checkbox</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QCheckBox" name="subscribedToModulen_fld_checkbox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="notes_fldLabel">
+         <property name="text">
+          <string>Kommentarer (Max 255 st. tecken)</string>
+         </property>
+         <property name="buddy">
+          <cstring>notes_fld</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="notes_fld"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="createLDAPAccount">
+         <property name="text">
+          <string>Skapa användarkonto</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="makeOrdinaryMember">
+         <property name="text">
+          <string>Gör till ordinarie medlem</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="gatuadressLabel">
+           <property name="text">
+            <string>Gatuadress</string>
+           </property>
+           <property name="buddy">
+            <cstring>streetAddress_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="streetAddress_fld"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="postnummerLabel">
+           <property name="text">
+            <string>Postnummer</string>
+           </property>
+           <property name="buddy">
+            <cstring>postalCode_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="postalCode_fld"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="stadLabel">
+           <property name="text">
+            <string>Stad</string>
+           </property>
+           <property name="buddy">
+            <cstring>city_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="city_fld"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="landLabel">
+           <property name="text">
+            <string>Land</string>
+           </property>
+           <property name="buddy">
+            <cstring>country_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="country_fld"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="telefonLabel">
+           <property name="text">
+            <string>Telefon</string>
+           </property>
+           <property name="buddy">
+            <cstring>phone_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="phone_fld"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="emailLabel">
+           <property name="text">
+            <string>Email</string>
+           </property>
+           <property name="buddy">
+            <cstring>email_fld</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="email_fld"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Grupper:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QListWidget" name="groupList"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_4">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Lägg till grupp:</string>
+           </property>
+           <property name="buddy">
+            <cstring>comboBox</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::InsertAlphabetically</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Poster:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QListWidget" name="postList"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Lägg till post:</string>
+           </property>
+           <property name="buddy">
+            <cstring>comboBox_2</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_2">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>givenNames_fld</tabstop>
+  <tabstop>surName_fld</tabstop>
+  <tabstop>maidenName_fld</tabstop>
+  <tabstop>preferredName_fld</tabstop>
+  <tabstop>studentId_fld</tabstop>
+  <tabstop>dead_fld</tabstop>
+  <tabstop>birthDate_fld</tabstop>
+  <tabstop>nationality_fld</tabstop>
+  <tabstop>gender_fld</tabstop>
+  <tabstop>username_fld</tabstop>
+  <tabstop>subscribedToModulen_fld_checkbox</tabstop>
+  <tabstop>notes_fld</tabstop>
+  <tabstop>createLDAPAccount</tabstop>
+  <tabstop>makeOrdinaryMember</tabstop>
+  <tabstop>streetAddress_fld</tabstop>
+  <tabstop>postalCode_fld</tabstop>
+  <tabstop>city_fld</tabstop>
+  <tabstop>country_fld</tabstop>
+  <tabstop>phone_fld</tabstop>
+  <tabstop>email_fld</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>257</x>
+     <y>580</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>325</x>
+     <y>580</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
