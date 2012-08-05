@@ -1,1 +1,5 @@
-Take a look in /doc.
+SvakSvat uses Sphinx (sphinx.pocoo.org) for the documentation.
+
+To build the documentation just run:
+sphinx-build doc/source doc/build 
+and open doc/build/index.html in your favorite browser.
