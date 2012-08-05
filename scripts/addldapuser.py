@@ -21,9 +21,6 @@ from backend import connect
 from backend.orm import *
 
 # constants
-LDAPMODIFY_CMD = shlex.split("""ldapmodify -h \
-        ldap-master.teknologforeningen.fi -xD \
-        cn=*serviceuser*,dc=teknologforeningen,dc=fi -w *servicepassword*""")
 # exception classes
 # interface functions
 # classes
@@ -79,9 +76,6 @@ def encode_base64_ondemand(s):
     else:
         s = " " + s
     return s
-
-
-
 
 def generate_ldifs(member, uidnumber, passwd):
     """Generates the strings needed to create the ldap user."""
@@ -145,6 +139,9 @@ def get_next_uidnumber():
             break
         last = uid
     return last + 1
+
+def checkldapuser(member):
+
 
 def delldapuser(member):
     # Delete LDAP user account

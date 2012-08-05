@@ -117,20 +117,6 @@ class MemberEdit(QWidget):
         if not self.member.username_fld:
             print("No username field")
             return
-        os.system('''ssh patrik@odin.teknolog.fi "echo '%s %s %s' | sudo \
-                /root/adduser2.sh"''' % (
-            self.member.surName_fld, self.member.preferredName_fld,
-            self.member.username_fld))
-
-        #addusercommand = ['''ssh yrjola@odin \
-        #echo '%s %s %s' | sudo /root/adduser2.sh"''' % (
-            #self.member.surName_fld, self.member.preferredName_fld,
-            #self.member.username_fld)]
-        #output = ""
-        #try:
-            #output = subprocess.check_output(addusercommand)
-        #except subprocess.CalledProcessError:
-            #print("FAILURE:\n", output)
 
     def updateTextFieldToDB(self, fieldname, row=None):
         "Write the value of the textfield to database."
