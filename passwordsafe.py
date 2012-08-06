@@ -31,20 +31,11 @@ class PasswordSafe:
         if gui_interface:
             self.askcredentialsfunc = self.askcredentialsQt
 
-    def get_password(self, service, username):
-        return keyring.get_password(service, username)
+    def get_password(self, service, usernameparameter, username):
+        return keyring.get_password(service + ":" + usernameparameter, username)
 
     def set_password(self, service, username, password):
         keyring.set_password(service, username, password)
-
-    def get_keyringidfromsection(self, section):
-        """
-        Returns hostname:port/database from configfile.
-        """
-        keyringid = config.get(section, "host") + ":" + config.get(section,
-            "port") + "/" + config.get(section, database)
-
-        return keyringid
 
     def get_config_value(self, section, parameter):
         value = self.configparser.get(section, parameter)
@@ -54,15 +45,11 @@ class PasswordSafe:
         return value
 
     def askcredentials(self, authfunction, section, usernameparameter):
-        if not self.configparser.has_section(section):
-            self.configparser.add_section(section)
-            self.configparser.set(section, usernameparameter, "")
-
         username = self.configparser.get(section, usernameparameter)
         password = None
         if username != '':
             password = self.get_password(
-                    self.get_keyringidfromsection(section),
+                    section, usernameparameter,
                     username)
 
         authreturn = None
@@ -90,7 +77,7 @@ class PasswordSafe:
         self.configparser.set(section, usernameparameter, username)
         self.configparser.write(open(configfile, 'w'))
         try:
-            keyring.set_password(section, username, password)
+            keyring.set_password(section + ":" + usernameparameter, username, password)
             print("Lösenordet sparat")
         except keyring.backend.PasswordError:
             print("Det gick inte att spara lösenordet")
@@ -111,7 +98,7 @@ class PasswordSafe:
         database = self.configparser.get(configsection, "database")
         dbtype = self.configparser.get(configsection, "dbtype")
         dbusername = self.configparser.get(configsection, usernameparameter)
-        dbpassword = self.get_password(configsection,dbusername)
+        dbpassword = self.get_password(configsection, usernameparameter, dbusername)
         create_metadata = bool(self.configparser.get(configsection, "create_metadata"))
         sshusername = self.configparser.get(configsection,
                 "sshusername")

@@ -83,19 +83,20 @@ class LDAPAccountManager:
     def __init__(self, dry_run=False):
         self.dry_run = dry_run
 
-        self.ps = PasswordSafe()
+        self.ps = passwordsafe.PasswordSafe()
 
-
-
-        servicelogin, servicepassword = ps.askcredentials(check_ldap_login, "ldap",
+        self.ps.askcredentials(self.check_ldap_login, "ldap",
                 "servicelogin")
 
-    def check_ldap_login(username, password):
+    def check_ldap_login(self, username, password):
         ldaphost = self.ps.get_config_value("ldap", "host")
         ldapquery = shlex.split("""ldapsearch -h %s\
                 -b dc=fi -D cn=%s,dc=teknologforeningen,dc=fi -w\
-                %s cn=ServiceUser""")
-        output = check_output(ldapquery, universal_newlines=True)
+                %s cn=ServiceUser""" % (ldaphost, username, password))
+        try:
+            output = check_output(ldapquery, universal_newlines=True)
+        except:
+            return False
         return "\nuserPassword:: " in output
 
     def generate_ldifs(member, uidnumber, passwd):
@@ -162,8 +163,7 @@ memberUid: %s
         return last + 1
 
     def checkldapuser(member):
-
-
+        ...
 
     def delldapuser(member):
         # Delete LDAP user account
@@ -216,6 +216,7 @@ memberUid: """ + member.username_fld
 
 def main():
     lm = LDAPAccountManager()
+    return 0
 
     member = Member()
     member.username_fld = "test123"
