@@ -31,11 +31,17 @@ class PasswordSafe:
         if gui_interface:
             self.askcredentialsfunc = self.askcredentialsQt
 
-    def get_password(self, service, usernameparameter, username):
-        return keyring.get_password(service + ":" + usernameparameter, username)
+    def get_passid(self, service, usernameparameter):
+        """Returns identifier for the password."""
+        return service + ":" + usernameparameter
 
-    def set_password(self, service, username, password):
-        keyring.set_password(service, username, password)
+    def get_password(self, service, usernameparameter, username):
+        return keyring.get_password(self.get_passid(service, usernameparameter),
+            username)
+
+    def set_password(self, service, usernameparameter, username, password):
+        keyring.set_password(self.get_passid(service, usernameparameter),
+                username, password)
 
     def get_config_value(self, section, parameter):
         value = self.configparser.get(section, parameter)
@@ -45,6 +51,10 @@ class PasswordSafe:
         return value
 
     def askcredentials(self, authfunction, section, usernameparameter):
+        if not self.configparser.has_section(section):
+            self.configparser.add_section(section)
+            self.configparser.set(section, usernameparameter, "")
+
         username = self.configparser.get(section, usernameparameter)
         password = None
         if username != '':
@@ -53,12 +63,14 @@ class PasswordSafe:
                     username)
 
         authreturn = None
+        passwordchanged = False
 
         try:
             while True:
                 authreturn = authfunction(username, password)
                 if authreturn:
                     break
+                passwordchanged = True
                 username, password = self.askcredentialsfunc(section + " " +
                         usernameparameter)
 
@@ -66,8 +78,9 @@ class PasswordSafe:
                 print(e)
                 return None
 
-        self.store_credentials(self.configfile, section, usernameparameter,
-                username, password)
+        if passwordchanged:
+            self.store_credentials(self.configfile, section, usernameparameter,
+                    username, password)
 
         return authreturn
 
@@ -77,9 +90,9 @@ class PasswordSafe:
         self.configparser.set(section, usernameparameter, username)
         self.configparser.write(open(configfile, 'w'))
         try:
-            keyring.set_password(section + ":" + usernameparameter, username, password)
+            self.set_password(section, usernameparameter, username, password)
             print("Lösenordet sparat")
-        except keyring.backend.PasswordError:
+        except keyring.backend.PasswordSetError:
             print("Det gick inte att spara lösenordet")
 
     def askcredentialsQt(self, context=""):
@@ -156,14 +169,15 @@ def testfunction():
     tempfilehandle, tempfilename = tempfile.mkstemp(suffix=".cfg")
     ps = PasswordSafe(configfile=tempfilename)
     testservice = "PasswordSafePasswordIdentifier"
+    testuserparameter = "PasswordSafePasswordIdentifierUserParameter"
     testuser = "PasswordSafePasswordIdentifierUser"
-    ps.set_password(testservice, testuser, "")
-    if ps.get_password(testservice, testuser):
+    ps.set_password(testservice, testuserparameter, testuser, "")
+    if ps.get_password(testservice, testuserparameter, testuser):
         return False
 
     testpass = "!#?R¤?FI?AF"
-    ps.set_password(testservice, testuser, testpass)
-    if ps.get_password(testservice, testuser) != testpass:
+    ps.set_password(testservice, testuserparameter, testuser, testpass)
+    if ps.get_password(testservice, testuserparameter, testuser) != testpass:
         return False
 
     ps.askcredentials(testauth, "testsection",
@@ -173,7 +187,7 @@ def testfunction():
 
 def main():
     ps = PasswordSafe()
-    ps.connect_with_config("mimer")
+    ps.connect_with_config("memberslocalhost")
 
     if testfunction():
         return 0

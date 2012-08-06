@@ -84,7 +84,6 @@ class LDAPAccountManager:
         self.dry_run = dry_run
 
         self.ps = passwordsafe.PasswordSafe()
-
         self.ps.askcredentials(self.check_ldap_login, "ldap",
                 "servicelogin")
 
