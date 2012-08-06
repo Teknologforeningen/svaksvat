@@ -88,13 +88,22 @@ class LDAPAccountManager:
         self.ps.askcredentials(self.check_ldap_login, "ldap",
                 "servicelogin")
 
-    def check_ldap_login(self, username, password):
-        ldaphost = self.ps.get_config_value("ldap", "host")
+
+    def ldapsearch(self, ldaphost, username, password, query):
+        """"Execute ldapsearch command."""
         ldapquery = shlex.split("""ldapsearch -h %s\
                 -b dc=fi -D cn=%s,dc=teknologforeningen,dc=fi -w\
-                %s cn=ServiceUser""" % (ldaphost, username, password))
+                %s %s""" % (ldaphost, username, password, query))
+        return check_output(ldapquery, universal_newlines=True)
+
+    def check_ldap_login(self, username, password):
+        """Determine if LDAP credentials have sufficient privileges
+
+        Done by searching for ServiceUser, if userPassword is shown the
+        credentials have privileges."""
+        ldaphost = self.ps.get_config_value("ldap", "host")
         try:
-            output = check_output(ldapquery, universal_newlines=True)
+            output = self.ldapsearch(ldaphost, username, password, "cn=ServiceUser")
         except:
             return False
         return "\nuserPassword:: " in output
