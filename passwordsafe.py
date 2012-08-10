@@ -82,7 +82,7 @@ class PasswordSafe:
             self.store_credentials(self.configfile, section, usernameparameter,
                     username, password)
 
-        return authreturn
+        return authreturn, username, password
 
     def store_credentials(self, configfile, section,
             usernameparameter, username, password):
