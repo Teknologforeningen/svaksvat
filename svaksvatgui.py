@@ -245,13 +245,12 @@ Användarnamn: %s
                 "\n".join(["\n\nGrupper:"] + currentgroups))
 
 def main():
-    app = QApplication(sys.argv)
-    ps = passwordsafe.PasswordSafe()
+    ps = passwordsafe.PasswordSafe(enablegui=True)
     SessionMaker = ps.connect_with_config("mimer")
+    app = QApplication(sys.argv)
     sr = SimpleRegister(SessionMaker)
     sr.show()
     return app.exec_()
-
 
 if __name__ == '__main__':
     sys.exit(main())

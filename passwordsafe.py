@@ -12,6 +12,7 @@ import time
 import socket
 import _thread as thread
 
+from PyQt4 import QtGui
 import sqlalchemy
 
 import keyring
@@ -21,15 +22,60 @@ from backend import connect, sshwrapper
 # exception classes
 # interface functions
 # classes
+import sys
+from PyQt4 import QtGui
 
+
+class PasswordDialog(QtGui.QDialog):
+
+    def __init__(self, context=""):
+        super(PasswordDialog, self).__init__()
+
+        self.initUI(context)
+
+    def initUI(self, context):
+        self.formlayout = QtGui.QFormLayout(self)
+
+        self.username_le = QtGui.QLineEdit(self)
+        self.username_le.returnPressed.connect(self.accept)
+
+        self.password_le = QtGui.QLineEdit(self)
+        self.password_le.setEchoMode(QtGui.QLineEdit.Password)
+        self.password_le.returnPressed.connect(self.accept)
+
+        self.okbutton = QtGui.QPushButton('OK', self)
+        self.okbutton.clicked.connect(self.accept)
+        self.cancelbutton = QtGui.QPushButton('Avbryt', self)
+        self.cancelbutton.clicked.connect(self.reject)
+
+        self.buttonrow = QtGui.QHBoxLayout()
+        self.buttonrow.addWidget(self.okbutton)
+        self.buttonrow.addWidget(self.cancelbutton)
+
+        self.formlayout.addRow("Användarnamn:", self.username_le)
+        self.formlayout.addRow("Lösenord:", self.password_le)
+        self.formlayout.addRow("", self.buttonrow)
+
+        self.setWindowTitle(context)
+
+        self.show()
+
+    def clearCredentialsAndClose(self):
+        self.username_le.clear()
+        self.password_le.clear()
+
+    def getCredentials(self):
+        if self.result(): # Accepted?
+            return self.username_le.text(), self.password_le.text()
+        return "",""
 
 class PasswordSafe:
-    def __init__(self, configfile="svaksvat.cfg", gui_interface=False):
+    def __init__(self, configfile="svaksvat.cfg", enablegui=False):
         self.configfile = configfile
         self.configparser = configparser.ConfigParser()
         self.configparser.read(configfile)
         self.askcredentialsfunc = self.askcredentialsCLI
-        if gui_interface:
+        if not sys.stdin.isatty() or enablegui:
             self.askcredentialsfunc = self.askcredentialsQt
 
     def get_passid(self, service, usernameparameter):
@@ -97,7 +143,10 @@ class PasswordSafe:
             print("Det gick inte att spara lösenordet")
 
     def askcredentialsQt(self, context=""):
-        ...
+        app = QtGui.QApplication(sys.argv)
+        pd = PasswordDialog(context)
+        app.exec_()
+        return pd.getCredentials()
 
     def askcredentialsCLI(self, context=""):
         print(context)
@@ -206,6 +255,10 @@ def main():
     return 1
 
 if __name__ == '__main__':
-    status = main()
-    sys.exit(status)
+    app = QtGui.QApplication(sys.argv)
+    pd = PasswordDialog("Hello")
+    app.exec_()
+    print(pd.getCredentials())
+    #status = main()
+    #sys.exit(status)
 
