@@ -247,7 +247,7 @@ Användarnamn: %s
 def main():
     app = QApplication(sys.argv)
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = ps.connect_with_config("memberslocalhost")
+    SessionMaker = ps.connect_with_config("mimer")
     sr = SimpleRegister(SessionMaker)
     sr.show()
     return app.exec_()

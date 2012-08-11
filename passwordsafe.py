@@ -9,6 +9,7 @@ import getpass
 import configparser
 import re
 import time
+import socket
 import _thread as thread
 
 import sqlalchemy
@@ -111,7 +112,8 @@ class PasswordSafe:
         database = self.configparser.get(configsection, "database")
         dbtype = self.configparser.get(configsection, "dbtype")
         dbusername = self.configparser.get(configsection, usernameparameter)
-        dbpassword = self.get_password(configsection, usernameparameter, dbusername)
+        dbpassword = self.get_password(configsection, usernameparameter,
+                dbusername) or "" # Can be None which doesn't store.
         create_metadata = bool(self.configparser.get(configsection, "create_metadata"))
         sshusername = self.configparser.get(configsection,
                 "sshusername")
@@ -138,15 +140,25 @@ class PasswordSafe:
                            "Fel inloggningsinformation för databasen!")
 
                 elif re.match(".*no pg_hba.conf entry for host.*", repr(e)):
-                    print("Du måste logga in på servern.")
-                    if not sshusername:
-                        sshusername = input("SSH användarnamn:")
+                    # Test if port is open
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    try:
+                        s.connect(("localhost", int(port)))
+                        s.shutdown(2)
+                        print("Nätverksporten är redan öppen. Testar om" +
+                                " portforwarding är redan igång...")
 
-                    thread.start_new_thread(sshwrapper.portforward_to_localhost,
-                            (host, sshusername, port, threadfinishedmutex))
+                    except: # Port not open. Commence SSH port forwarding.
+                        print("Du måste logga in på servern.")
+                        if not sshusername:
+                            sshusername = input("SSH användarnamn:")
 
-                    host = "localhost"
+                        thread.start_new_thread(sshwrapper.portforward_to_localhost,
+                                (host, sshusername, port, threadfinishedmutex))
+
                     sshconnecting = True
+                    host = "localhost"
+
 
                 elif re.match(".*could not connect to server: Connection refused.*",
                         repr(e)) and sshconnecting:
