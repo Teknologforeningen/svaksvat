@@ -171,7 +171,8 @@ memberUid: %s
         return last + 1
 
     def checkldapuser(member):
-        self.ldapsearch(
+        #self.ldapsearch(
+        ...
 
     def delldapuser(member):
         # Delete LDAP user account

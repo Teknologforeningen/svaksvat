@@ -74,6 +74,8 @@ class PasswordSafe:
         self.configfile = configfile
         self.configparser = configparser.ConfigParser()
         self.configparser.read(configfile)
+
+        self.inputfunc = input
         self.askcredentialsfunc = self.askcredentialsCLI
         if not sys.stdin.isatty() or enablegui:
             self.askcredentialsfunc = self.askcredentialsQt
@@ -93,9 +95,20 @@ class PasswordSafe:
     def get_config_value(self, section, parameter):
         value = self.configparser.get(section, parameter)
         if not value:
-            value = input("Input " + section + " " + parameter)
+            value = self.inputfunc("Input " + section + " " + parameter)
 
         return value
+
+    def inputfuncGUI(self, context=""):
+        app = None
+        if not QtGui.QApplication.topLevelWidgets(): # If no QApplication
+            app = QtGui.QApplication()
+
+        result = QtGui.QInputDialog.getText(None, "", context)
+        if app:
+
+        return result
+
 
     def askcredentials(self, authfunction, section, usernameparameter):
         if not self.configparser.has_section(section):
@@ -200,7 +213,7 @@ class PasswordSafe:
                     except: # Port not open. Commence SSH port forwarding.
                         print("Du måste logga in på servern.")
                         if not sshusername:
-                            sshusername = input("SSH användarnamn:")
+                            sshusername = self.inputfunc("SSH användarnamn:")
 
                         thread.start_new_thread(sshwrapper.portforward_to_localhost,
                                 (host, sshusername, port, threadfinishedmutex))
@@ -255,6 +268,8 @@ def main():
     return 1
 
 if __name__ == '__main__':
+    #print( QtGui.QInputDialog.getText(None, "",""))
+
     app = QtGui.QApplication(sys.argv)
     pd = PasswordDialog("Hello")
     app.exec_()
