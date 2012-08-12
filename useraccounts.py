@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """LDAP utilities integrated with the member register."""
 
 # imports

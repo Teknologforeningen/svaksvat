@@ -245,7 +245,7 @@ Användarnamn: %s
                 "\n".join(["\n\nGrupper:"] + currentgroups))
 
 def main():
-    ps = passwordsafe.PasswordSafe(enablegui=True)
+    ps = passwordsafe.PasswordSafe()
     SessionMaker = ps.connect_with_config("mimer")
     app = QApplication(sys.argv)
     sr = SimpleRegister(SessionMaker)
