@@ -145,8 +145,8 @@ class MemberEdit(QWidget):
 
         self.member.dead_fld = self.ui.dead_fld.isChecked()
 
-        self.member.subscribedtomodulen_fld = \
-                self.ui.subscribedToModulen_fld_checkbox.isChecked()
+        self.member.subscribedtomodulen_fld = int(
+                self.ui.subscribedToModulen_fld_checkbox.isChecked())
 
         contactinfo = self.member.contactinfo
         self.updateTextFieldToDB("streetAddress_fld", row=contactinfo)
