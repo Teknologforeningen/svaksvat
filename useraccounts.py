@@ -85,8 +85,9 @@ class LDAPAccountManager:
         self.dry_run = dry_run
 
         self.ps = passwordsafe.PasswordSafe()
-        self.ps.askcredentials(self.check_ldap_login, "ldap",
-                "servicelogin")
+        self.ldaphost = self.ps.get_config_value("ldap", "host")
+        auth, self.servicelogin, self.servicepassword = self.ps.askcredentials(
+                self.check_ldap_login, "ldap", "servicelogin")
 
 
     def ldapsearch(self, ldaphost, username, password, query):
@@ -101,10 +102,9 @@ class LDAPAccountManager:
 
         Done by searching for ServiceUser, if userPassword is shown the
         credentials have privileges."""
-        ldaphost = self.ps.get_config_value("ldap", "host")
         try:
-            output = self.ldapsearch(ldaphost, username, password, "cn=ServiceUser")
-        except:
+            output = self.ldapsearch(self.ldaphost, username, password, "cn=ServiceUser")
+        except CalledProcessError:
             return False
         return "\nuserPassword:: " in output
 
@@ -153,15 +153,14 @@ memberUid: %s
 
         return userldif, usergroupldif
 
-    def get_next_uidnumber():
+    def get_next_uidnumber(self):
         """Returns the next free uidnumber greater than 1000"""
-        uidquery = shlex.split("""ldapsearch -h ldap-master.teknologforeningen.fi \
-                -b dc=fi -D cn=*serviceuser*,dc=teknologforeningen,dc=fi -w\
-                *servicepassword* uidNumber""")
-        output = check_output(uidquery, universal_newlines=True)
+
+        output = self.ldapsearch(self.ldaphost, self.servicelogin,
+                    self.servicepassword, "uidNumber")
         uidnumbers = [int(line.split(": ")[1]) for line in output.split("\n") if
                 "uidNumber: " in line]
-        uidnumbers.sort()
+        return uidnumbers.sort()
 
         # Find first free uid over 1000.
         last = 1000
@@ -171,9 +170,11 @@ memberUid: %s
             last = uid
         return last + 1
 
-    def checkldapuser(member):
-        #self.ldapsearch(
-        ...
+    def checkldapuser(self, member):
+        output = self.ldapsearch(self.ldaphost, self.servicelogin,
+                    self.servicepassword, "uid=" + member.username_fld)
+
+        return "\n# numEntries: 1" in output
 
     def delldapuser(member):
         # Delete LDAP user account
@@ -225,15 +226,17 @@ memberUid: """ + member.username_fld
 
 
 def main():
-    lm = LDAPAccountManager()
-    return 0
-
     member = Member()
     member.username_fld = "test123"
     member.preferredName_fld = "John"
     member.surName_fld = "Döe"
     member.contactinfo = ContactInformation()
     member.contactinfo.email_fld = "john.doe@test.net"
+    lm = LDAPAccountManager()
+    print(lm.checkldapuser(member))
+    print(lm.get_next_uidnumber())
+
+    return 0
     passwd= "hunter2"
     if addldappuser(member):
         delldapuser(member)
