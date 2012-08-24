@@ -137,7 +137,7 @@ class PasswordSafe:
 
         except Exception as e:
                 print(e)
-                return None
+                return None, None, None
 
         if passwordchanged:
             self.store_credentials(self.configfile, section, usernameparameter,
