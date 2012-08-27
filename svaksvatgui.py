@@ -54,6 +54,7 @@ class MemberEdit(QWidget):
         self.session = self.parent.SessionMaker()
         self.member = self.session.query(Member).filter_by(objectId =
                 member.objectId).one()
+        self.session.bind.dispose() # Don't need the session for a time.
 
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
@@ -143,7 +144,7 @@ class MemberEdit(QWidget):
         self.member.birthDate_fld = datetime.datetime(date.year(), date.month(),
                 date.day())
 
-        self.member.dead_fld = self.ui.dead_fld.isChecked()
+        self.member.dead_fld = int(self.ui.dead_fld.isChecked())
 
         self.member.subscribedtomodulen_fld = int(
                 self.ui.subscribedToModulen_fld_checkbox.isChecked())
@@ -157,6 +158,7 @@ class MemberEdit(QWidget):
         self.updateTextFieldToDB("email_fld", row=contactinfo)
 
         self.session.commit()
+        self.session.close()
         self.close()
 
     def reject(self):
