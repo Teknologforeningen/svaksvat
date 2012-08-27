@@ -194,7 +194,7 @@ memberUid: %s
         if self.dry_run:
             delusercmd.append("-n")
 
-        print(check_output(delusercmd))
+        check_output(delusercmd)
 
         # Delete user from Members group
         deluserfromgroupldif = """
@@ -255,18 +255,11 @@ def main():
     member.contactinfo.email_fld = "john.doe@test.net"
     lm = LDAPAccountManager()
     output = lm.ldapsearch("uid=test123")
-    print(output)
-    print(lm.get_next_uidnumber())
     passwd= "hunter2"
-    lm.addldapuser(member, passwd)
-    print(lm.checkldapuser(member))
-    #lm.delldapuser(member)
+    #if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
+    lm.delldapuser(member)
     print(lm.checkldapuser(member))
     return 0
-    return 1
-
-    return 0
-    return 1
 
 if __name__ == '__main__':
     status = main()
