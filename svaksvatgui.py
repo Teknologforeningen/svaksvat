@@ -19,7 +19,7 @@ import passwordsafe
 
 class UsernameValidator(QValidator):
     def __init__(self, session, parent=None):
-        super(UsernameValidator, self).__init__()
+        super().__init__()
         self.parent = parent
         self.session = session
 
