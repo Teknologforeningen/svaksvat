@@ -3,9 +3,12 @@ import sys
 import os
 import subprocess
 import datetime
+import logging
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+
+from sqlalchemy.orm import scoped_session
 
 from backend import connect
 from backend.orm import Member, get_field_max_length
@@ -40,7 +43,7 @@ class UsernameValidator(QValidator):
             return (QValidator.Acceptable, stripped, pos)
 
 class MemberEdit(QWidget):
-    def __init__(self, parent=None, member=None):
+    def __init__(self, session=None, member=None):
         super(MemberEdit, self).__init__()
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
@@ -50,15 +53,13 @@ class MemberEdit(QWidget):
                 self.createAccount
                 )
 
-        self.parent = parent
-        self.session = self.parent.SessionMaker()
+        self.session = session
         self.member = self.session.query(Member).filter_by(objectId =
                 member.objectId).one()
-        self.session.bind.dispose() # Don't need the session for a time.
 
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
-        self.usernamevalidator = UsernameValidator(self.parent.SessionMaker(),
+        self.usernamevalidator = UsernameValidator(self.session,
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
 
@@ -158,7 +159,6 @@ class MemberEdit(QWidget):
         self.updateTextFieldToDB("email_fld", row=contactinfo)
 
         self.session.commit()
-        self.session.close()
         self.close()
 
     def reject(self):
@@ -168,8 +168,8 @@ class MemberEdit(QWidget):
 class SimpleRegister(QWidget):
     def __init__(self, SessionMaker):
         super(SimpleRegister, self).__init__()
-        self.SessionMaker = SessionMaker
-        self.dbsession = SessionMaker()
+
+        self.session = SessionMaker # Assuming scoped_session
 
         self.initUI()
 
@@ -185,8 +185,9 @@ class SimpleRegister(QWidget):
         self.searchfield.returnPressed.connect(self.memberlistwidget.setFocus)
 
         # Populate list.
-        self.memberlist = self.dbsession.query(Member).order_by(
+        self.memberlist = self.session.query(Member).order_by(
                 Member.surName_fld).all()
+
         self.searchlist()
         vbox.addWidget(self.searchfield)
         vbox.addWidget(self.memberlistwidget)
@@ -196,7 +197,7 @@ class SimpleRegister(QWidget):
 
     def editMember(self, membername):
         member = self.filteredmemberlist[self.memberlistwidget.currentRow()]
-        self.membereditwidget = MemberEdit(self, member)
+        self.membereditwidget = MemberEdit(self.session, member)
         self.membereditwidget.show()
 
     def searchlist(self, pattern = ''):
@@ -209,7 +210,7 @@ class SimpleRegister(QWidget):
     def showMemberInfo(self, membername):
         member = self.filteredmemberlist[self.memberlistwidget.currentRow()]
         memberID = member.objectId
-        contactinfo = self.dbsession.query(Member).filter_by(
+        contactinfo = self.session.query(Member).filter_by(
                 objectId = memberID).one().contactinfo
         memberinfo = (
         """
@@ -247,8 +248,10 @@ Användarnamn: %s
                 "\n".join(["\n\nGrupper:"] + currentgroups))
 
 def main():
+    logging.basicConfig()
+    logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = ps.connect_with_config("mimer")
+    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
     app = QApplication(sys.argv)
     sr = SimpleRegister(SessionMaker)
     sr.show()
