@@ -3,7 +3,6 @@ import sys
 import os
 import subprocess
 import datetime
-import logging
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -12,6 +11,7 @@ from sqlalchemy.orm import scoped_session
 
 from backend import connect
 from backend.orm import Member, get_field_max_length
+from backend.listmodels import ListModelCommon
 
 from memberedit import Ui_Dialog
 
@@ -107,13 +107,13 @@ class MemberEdit(QWidget):
         groups = ["%s %d" % (groupmembership.group.name_fld,
             groupmembership.startTime_fld.year) for groupmembership in
                 self.member.groupmemberships]
-        self.ui.groupList.addItems(groups)
+        self.ui.groupView.setModel(ListModelCommon(self))
 
         # Posts
         posts = ["%s %d" % (postmembership.post.name_fld,
                 postmembership.startTime_fld.year)
                 for postmembership in self.member.postmemberships]
-        self.ui.postList.addItems(posts)
+        self.ui.postView.setModel(ListModelCommon(self))
 
     def createAccount(self):
         if not self.member.username_fld:
@@ -248,10 +248,8 @@ Användarnamn: %s
                 "\n".join(["\n\nGrupper:"] + currentgroups))
 
 def main():
-    logging.basicConfig()
-    logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
+    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
     app = QApplication(sys.argv)
     sr = SimpleRegister(SessionMaker)
     sr.show()
