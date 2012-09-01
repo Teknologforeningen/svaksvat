@@ -1,9 +1,12 @@
+import datetime
+
 from PyQt4.QtCore import *
 
-class ListModelCommon(QAbstractListModel):
-    def __init__(self, session, parent=None):
+class MembershipListModel(QAbstractListModel):
+    def __init__(self, session, member, parent=None):
         super().__init__(parent)
-        self.data = [1, 2]
+        self.member = session.merge(member) # Get local object for this Model
+        self.data = self.member.groupmemberships
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.data)
@@ -15,7 +18,19 @@ class ListModelCommon(QAbstractListModel):
         row = index.row()
 
         if role == Qt.DisplayRole:
-            return str(self.data[row])
+            membership = self.data[row]
+            duration = self.membershipDuration(membership)
+            return "%s %s" % (membership.group.name_fld,
+            duration)
 
         return None
+
+    def membershipDuration(self, membership):
+        """Returns the "beginning - end" in years of a membership"""
+        startyear = membership.startTime_fld.year,
+        endyear = membership.endTime_fld.year
+        if startyear == endyear:
+            return startyear
+        return "%d - %d" % (startyear, endyear)
+
 
