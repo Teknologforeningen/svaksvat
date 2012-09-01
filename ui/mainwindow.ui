@@ -23,7 +23,7 @@
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="sKLabel">
+         <widget class="QLabel" name="searchlabelLabel">
           <property name="text">
            <string>Sök</string>
           </property>
@@ -67,15 +67,16 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuNy">
+   <widget class="QMenu" name="menuNew">
     <property name="title">
      <string>Ny</string>
     </property>
-    <addaction name="actionAnv_ndare"/>
-    <addaction name="actionGrupp"/>
-    <addaction name="actionPost"/>
+    <addaction name="actionNewMember"/>
+    <addaction name="actionNewGroup"/>
+    <addaction name="actionNewPost"/>
+    <addaction name="actionNewDepartment"/>
    </widget>
-   <widget class="QMenu" name="menuEditera">
+   <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Editera</string>
     </property>
@@ -83,29 +84,29 @@
     <addaction name="actionPoster"/>
     <addaction name="actionAvdelningar"/>
    </widget>
-   <widget class="QMenu" name="menuFil">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>Fil</string>
     </property>
-    <addaction name="actionG_r_s_kerhetskopia"/>
-    <addaction name="actionAsdf"/>
+    <addaction name="actionMakeBackup"/>
+    <addaction name="actionRestoreFromBackup"/>
    </widget>
-   <addaction name="menuFil"/>
-   <addaction name="menuNy"/>
-   <addaction name="menuEditera"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuNew"/>
+   <addaction name="menuEdit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionAnv_ndare">
+  <action name="actionNewMember">
    <property name="text">
     <string>Medlem</string>
    </property>
   </action>
-  <action name="actionGrupp">
+  <action name="actionNewGroup">
    <property name="text">
     <string>Grupp</string>
    </property>
   </action>
-  <action name="actionPost">
+  <action name="actionNewPost">
    <property name="text">
     <string>Post</string>
    </property>
@@ -125,12 +126,12 @@
     <string>Poster</string>
    </property>
   </action>
-  <action name="actionG_r_s_kerhetskopia">
+  <action name="actionMakeBackup">
    <property name="text">
     <string>Gör säkerhetskopia</string>
    </property>
   </action>
-  <action name="actionAsdf">
+  <action name="actionRestoreFromBackup">
    <property name="text">
     <string>Återställ databas</string>
    </property>
@@ -138,6 +139,11 @@
   <action name="actionAvdelningar">
    <property name="text">
     <string>Avdelningar</string>
+   </property>
+  </action>
+  <action name="actionNewDepartment">
+   <property name="text">
+    <string>Avdelning</string>
    </property>
   </action>
  </widget>
