@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newmembership.ui'
 #
-# Created: Sat Sep  1 12:12:21 2012
+# Created: Sat Sep  1 16:08:43 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!

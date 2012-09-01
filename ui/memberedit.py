@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Sat Sep  1 12:11:59 2012
+# Created: Sat Sep  1 16:08:47 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -155,13 +155,13 @@ class Ui_MemberEdit(object):
         self.verticalLayout_2.addWidget(self.label)
         self.horizontalLayout_7 = QtGui.QHBoxLayout()
         self.horizontalLayout_7.setObjectName(_fromUtf8("horizontalLayout_7"))
-        self.groupList = QtGui.QListWidget(MemberEdit)
-        self.groupList.setObjectName(_fromUtf8("groupList"))
-        self.horizontalLayout_7.addWidget(self.groupList)
+        self.groupView = QtGui.QListView(MemberEdit)
+        self.groupView.setObjectName(_fromUtf8("groupView"))
+        self.horizontalLayout_7.addWidget(self.groupView)
         self.pushButton_4 = QtGui.QPushButton(MemberEdit)
         self.pushButton_4.setText(_fromUtf8(""))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("res/list_remove.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("../res/list_remove.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.pushButton_4.setIcon(icon)
         self.pushButton_4.setObjectName(_fromUtf8("pushButton_4"))
         self.horizontalLayout_7.addWidget(self.pushButton_4)
@@ -182,9 +182,9 @@ class Ui_MemberEdit(object):
         self.verticalLayout_2.addWidget(self.label_2)
         self.horizontalLayout_8 = QtGui.QHBoxLayout()
         self.horizontalLayout_8.setObjectName(_fromUtf8("horizontalLayout_8"))
-        self.postList = QtGui.QListWidget(MemberEdit)
-        self.postList.setObjectName(_fromUtf8("postList"))
-        self.horizontalLayout_8.addWidget(self.postList)
+        self.postView = QtGui.QListView(MemberEdit)
+        self.postView.setObjectName(_fromUtf8("postView"))
+        self.horizontalLayout_8.addWidget(self.postView)
         self.pushButton_2 = QtGui.QPushButton(MemberEdit)
         self.pushButton_2.setText(_fromUtf8(""))
         self.pushButton_2.setIcon(icon)
