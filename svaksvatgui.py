@@ -44,7 +44,8 @@ class UsernameValidator(QValidator):
             return (QValidator.Acceptable, stripped, pos)
 
 class MemberEdit(QWidget):
-    def __init__(self, session=None, member=None):
+    def __init__(self, session=None, member=None, parent=None):
+        self.parent = parent
         super().__init__()
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
@@ -159,6 +160,7 @@ class MemberEdit(QWidget):
         self.updateTextFieldToDB("phone_fld", row=contactinfo)
         self.updateTextFieldToDB("email_fld", row=contactinfo)
 
+        self.parent.showMemberInfo(self.member)
         self.session.commit()
         self.close()
 
@@ -192,7 +194,7 @@ class SimpleRegister(QMainWindow):
 
     def editMember(self, membername):
         member = self.filteredmemberlist[self.ui.memberlistwidget.currentRow()]
-        self.membereditwidget = MemberEdit(self.session, member)
+        self.membereditwidget = MemberEdit(self.session, member, self)
         self.membereditwidget.show()
 
     def searchlist(self, pattern = ''):
