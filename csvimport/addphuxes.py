@@ -79,9 +79,6 @@ def main():
         if genderstr:
             new_member.gender_fld = int(genderstr)
 
-
-
-
     print("Dirty: ", session.dirty)
     print("New: ", session.new)
     session.commit()

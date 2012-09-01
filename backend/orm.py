@@ -270,7 +270,9 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     presence = relationship("Presence", backref='member')
 
     editable_text_fields = ['givenNames_fld', 'preferredName_fld',
-            'surName_fld', 'maidenName_fld']
+            'surName_fld', 'maidenName_fld', 'nickName_fld', 'studentId_fld',
+            'occupation_fld', 'title_fld', 'nationality_fld']
+
     publicfields = ['nickName_fld', 'occupation_fld',
             'nationality_fld']
 

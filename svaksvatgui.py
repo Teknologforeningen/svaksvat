@@ -26,6 +26,17 @@ def init_gender_combobox(combobox, member=None):
     if member and member.gender_fld:
         combobox.setCurrentIndex(member.gender_fld)
 
+def fill_qlineedit_from_db(container, fieldname, table):
+    """Fill QLineEdit with corresponding value from database and set the
+    maximum length. Skip if fieldname not present in container or table"""
+    try:
+        getattr(container, fieldname).setText(getattr(table, fieldname))
+        getattr(container, fieldname).setMaxLength(get_field_max_length(table,
+            fieldname))
+    except AttributeError:
+        print(fieldname)
+        return
+
 class UsernameValidator(QValidator):
     def __init__(self, session, parent=None):
         super().__init__()
@@ -102,23 +113,10 @@ class MemberEdit(QWidget):
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
 
-    def fillLineEditFromDB(self, fieldname, row=None):
-        """Fill LineEdit with corresponding value from database and set the
-        maximum length."""
-        if row is None:
-            row = self.member
-        getattr(self.ui, fieldname).setText(getattr(row, fieldname))
-        getattr(self.ui, fieldname).setMaxLength(get_field_max_length(row,
-            fieldname))
 
     def fillFields(self):
-        self.fillLineEditFromDB("username_fld")
-        self.fillLineEditFromDB("givenNames_fld")
-        self.fillLineEditFromDB("surName_fld")
-        self.fillLineEditFromDB("preferredName_fld")
-        self.fillLineEditFromDB("maidenName_fld")
-        self.fillLineEditFromDB("studentId_fld")
-        self.fillLineEditFromDB("nationality_fld")
+        for field in Member.editable_text_fields:
+            fill_qlineedit_from_db(self.ui, field, self.member)
 
         self.ui.notes_fld.setPlainText(self.member.notes_fld)
 
@@ -132,12 +130,9 @@ class MemberEdit(QWidget):
 
         # Contact information
         contactinfo = self.member.contactinfo
-        self.fillLineEditFromDB("streetAddress_fld", row=contactinfo)
-        self.fillLineEditFromDB("postalCode_fld", row=contactinfo)
-        self.fillLineEditFromDB("city_fld", row=contactinfo)
-        self.fillLineEditFromDB("country_fld", row=contactinfo)
-        self.fillLineEditFromDB("phone_fld", row=contactinfo)
-        self.fillLineEditFromDB("email_fld", row=contactinfo)
+
+        for field in contactinfo.publicfields:
+            fill_qlineedit_from_db(self.ui, field, self.member.contactinfo)
 
         # Groups
         groups = ["%s %d" % (groupmembership.group.name_fld,

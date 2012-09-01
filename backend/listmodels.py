@@ -26,7 +26,6 @@ class MembershipListModel(QAbstractListModel):
         return None
 
     def membershipDuration(self, membership):
-        """Returns the "beginning - end" in years of a membership"""
         startyear = membership.startTime_fld.year
         endyear = membership.endTime_fld.year
         if startyear == endyear:
