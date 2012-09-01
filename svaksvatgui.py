@@ -37,6 +37,15 @@ def fill_qlineedit_from_db(container, fieldname, table):
         print(fieldname)
         return
 
+def update_qtextfield_to_db(container, fieldname, table):
+    "Write the value of the textfield to database."
+    try:
+        setattr(table, fieldname, str(getattr(container, fieldname).text()))
+    except AttributeError:
+        print(fieldname)
+        return
+
+
 class UsernameValidator(QValidator):
     def __init__(self, session, parent=None):
         super().__init__()
@@ -73,6 +82,13 @@ class NewMemberDialog(QWidget):
         self.usernamevalidator = UsernameValidator(self.session, self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
         init_gender_combobox(self.ui.gender_fld)
+
+        # Set correct lengths for QTextEdits
+        for field in Member.editable_text_fields:
+            fill_qlineedit_from_db(self.ui, field, self.member)
+        for field in self.member.editable_text_fields:
+            fill_qlineedit_from_db(self.ui, field, self.member.contactinfo)
+
 
     def accept(self):
         member = None
@@ -132,7 +148,7 @@ class MemberEdit(QWidget):
         contactinfo = self.member.contactinfo
 
         for field in contactinfo.publicfields:
-            fill_qlineedit_from_db(self.ui, field, self.member.contactinfo)
+            fill_qlineedit_from_db(self.ui, field, contactinfo)
 
         # Groups
         groups = ["%s %d" % (groupmembership.group.name_fld,
@@ -152,23 +168,13 @@ class MemberEdit(QWidget):
             print("No username field")
             return
 
-    def updateTextFieldToDB(self, fieldname, row=None):
-        "Write the value of the textfield to database."
-        if row is None:
-            row = self.member
-
-        setattr(row, fieldname, str(getattr(self.ui, fieldname).text()))
-
-
     def accept(self):
-        if self.ui.username_fld.hasAcceptableInput():
-            self.updateTextFieldToDB("username_fld")
-        self.updateTextFieldToDB("givenNames_fld")
-        self.updateTextFieldToDB("surName_fld")
-        self.updateTextFieldToDB("preferredName_fld")
-        self.updateTextFieldToDB("maidenName_fld")
-        self.updateTextFieldToDB("studentId_fld")
-        self.updateTextFieldToDB("nationality_fld")
+        for field in Member.editable_text_fields:
+            if (field == "username_fld" and not
+                    self.ui.username_fld.hasAcceptableInput()):
+                continue
+
+            update_qtextfield_to_db(self.ui, field, self.member)
 
         self.member.notes_fld = str(self.ui.notes_fld.toPlainText()[:255])
 
@@ -183,12 +189,9 @@ class MemberEdit(QWidget):
                 self.ui.subscribedToModulen_fld_checkbox.isChecked())
 
         contactinfo = self.member.contactinfo
-        self.updateTextFieldToDB("streetAddress_fld", row=contactinfo)
-        self.updateTextFieldToDB("postalCode_fld", row=contactinfo)
-        self.updateTextFieldToDB("city_fld", row=contactinfo)
-        self.updateTextFieldToDB("country_fld", row=contactinfo)
-        self.updateTextFieldToDB("phone_fld", row=contactinfo)
-        self.updateTextFieldToDB("email_fld", row=contactinfo)
+
+        for field in contactinfo.publicfields:
+            update_qtextfield_to_db(self.ui, field, contactinfo)
 
         self.parent.showMemberInfo(self.member)
         self.session.commit()
