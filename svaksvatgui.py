@@ -11,7 +11,7 @@ from sqlalchemy.orm import scoped_session
 
 from backend import connect
 from backend.orm import Member, get_field_max_length
-from backend.listmodels import ListModelCommon
+from backend.listmodels import MembershipListModel
 
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
@@ -109,13 +109,14 @@ class MemberEdit(QDialog):
         groups = ["%s %d" % (groupmembership.group.name_fld,
             groupmembership.startTime_fld.year) for groupmembership in
                 self.member.groupmemberships]
-        self.ui.groupView.setModel(ListModelCommon(self))
+        self.ui.groupView.setModel(MembershipListModel(self.session,
+            self.member, self))
 
         # Posts
         posts = ["%s %d" % (postmembership.post.name_fld,
                 postmembership.startTime_fld.year)
                 for postmembership in self.member.postmemberships]
-        self.ui.postView.setModel(ListModelCommon(self))
+        #self.ui.postView.setModel(ListModelCommon(self.session, self))
 
     def createAccount(self):
         if not self.member.username_fld:
