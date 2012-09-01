@@ -307,7 +307,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -356,7 +356,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -430,8 +430,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>580</y>
+     <x>266</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -446,8 +446,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>580</y>
+     <x>334</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

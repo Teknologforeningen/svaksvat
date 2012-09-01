@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newmember.ui'
 #
-# Created: Sat Sep  1 12:12:10 2012
+# Created: Sat Sep  1 13:16:02 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_NewMember(object):
     def setupUi(self, NewMember):
         NewMember.setObjectName(_fromUtf8("NewMember"))
-        NewMember.resize(370, 330)
+        NewMember.resize(370, 324)
         self.verticalLayout_2 = QtGui.QVBoxLayout(NewMember)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.verticalLayout = QtGui.QVBoxLayout()
@@ -70,10 +70,16 @@ class Ui_NewMember(object):
         self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.preferredName_fld)
         self.gRTillPhuxLabel = QtGui.QLabel(NewMember)
         self.gRTillPhuxLabel.setObjectName(_fromUtf8("gRTillPhuxLabel"))
-        self.formLayout.setWidget(7, QtGui.QFormLayout.LabelRole, self.gRTillPhuxLabel)
+        self.formLayout.setWidget(8, QtGui.QFormLayout.LabelRole, self.gRTillPhuxLabel)
         self.makePhux_CheckBox = QtGui.QCheckBox(NewMember)
         self.makePhux_CheckBox.setObjectName(_fromUtf8("makePhux_CheckBox"))
-        self.formLayout.setWidget(7, QtGui.QFormLayout.FieldRole, self.makePhux_CheckBox)
+        self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.makePhux_CheckBox)
+        self.anvNdarnamnLabel = QtGui.QLabel(NewMember)
+        self.anvNdarnamnLabel.setObjectName(_fromUtf8("anvNdarnamnLabel"))
+        self.formLayout.setWidget(7, QtGui.QFormLayout.LabelRole, self.anvNdarnamnLabel)
+        self.username_fld = QtGui.QLineEdit(NewMember)
+        self.username_fld.setObjectName(_fromUtf8("username_fld"))
+        self.formLayout.setWidget(7, QtGui.QFormLayout.FieldRole, self.username_fld)
         self.verticalLayout.addLayout(self.formLayout)
         self.buttonBox = QtGui.QDialogButtonBox(NewMember)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -97,4 +103,5 @@ class Ui_NewMember(object):
         self.avdelningLabel.setText(QtGui.QApplication.translate("NewMember", "Avdelning", None, QtGui.QApplication.UnicodeUTF8))
         self.tilltalsnamnLabel.setText(QtGui.QApplication.translate("NewMember", "Tilltalsnamn", None, QtGui.QApplication.UnicodeUTF8))
         self.gRTillPhuxLabel.setText(QtGui.QApplication.translate("NewMember", "Gör till Phux", None, QtGui.QApplication.UnicodeUTF8))
+        self.anvNdarnamnLabel.setText(QtGui.QApplication.translate("NewMember", "Användarnamn", None, QtGui.QApplication.UnicodeUTF8))
 

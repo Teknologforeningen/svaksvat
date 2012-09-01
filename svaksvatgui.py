@@ -12,11 +12,19 @@ from sqlalchemy.orm import scoped_session
 from backend import connect
 from backend.orm import Member, get_field_max_length
 from backend.listmodels import MembershipListModel
-
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
+from ui.newmember import Ui_NewMember
 
 import passwordsafe
+
+def init_gender_combobox(combobox, member=None):
+    combobox.addItem("Okänd")
+    combobox.addItem("Man")
+    combobox.addItem("Kvinna")
+
+    if member and member.gender_fld:
+        combobox.setCurrentIndex(member.gender_fld)
 
 class UsernameValidator(QValidator):
     def __init__(self, session, parent=None):
@@ -43,10 +51,39 @@ class UsernameValidator(QValidator):
                 background-color: rgb(255, 255, 255); }")
             return (QValidator.Acceptable, stripped, pos)
 
-class MemberEdit(QDialog):
-    def __init__(self, session=None, member=None, parent=None):
+class NewMemberDialog(QWidget):
+    def __init__(self, session, parent=None):
         self.parent = parent
-        super().__init__(parent=parent)
+        super().__init__()
+        self.ui = Ui_NewMember()
+        self.ui.setupUi(self)
+        self.session = session
+        self.setWindowTitle("Ny medlem")
+        self.usernamevalidator = UsernameValidator(self.session, self)
+        self.ui.username_fld.setValidator(self.usernamevalidator)
+        init_gender_combobox(self.ui.gender_fld)
+
+    def accept(self):
+        member = None
+        if self.ui.makePhux_CheckBox.isChecked():
+            member = create_phux(self.session)
+
+        else:
+            member = create_member(self.session)
+
+        member.surName_fld = self.ui.surName_fld.text()
+        self.session.commit()
+        self.parent.showMemberInfo(self.member)
+        self.close()
+
+    def reject(self):
+        self.close()
+
+
+class MemberEdit(QWidget):
+    def __init__(self, session, member, parent=None):
+        self.parent = parent
+        super().__init__()
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
         self.ui.createLDAPAccount.connect(
@@ -90,11 +127,8 @@ class MemberEdit(QDialog):
             self.ui.birthDate_fld.setDateTime(self.member.birthDate_fld)
         self.ui.subscribedToModulen_fld_checkbox.setChecked(
                 bool(self.member.subscribedtomodulen_fld))
-        self.ui.gender_fld.addItem("Okänd")
-        self.ui.gender_fld.addItem("Man")
-        self.ui.gender_fld.addItem("Kvinna")
-        if self.member.gender_fld:
-            self.ui.gender_fld.setCurrentIndex(self.member.gender_fld)
+
+        init_gender_combobox(self.ui.gender_fld, self.member)
 
         # Contact information
         contactinfo = self.member.contactinfo

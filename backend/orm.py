@@ -269,6 +269,8 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     postmemberships = relationship("PostMembership", backref='member')
     presence = relationship("Presence", backref='member')
 
+    editable_text_fields = ['givenNames_fld', 'preferredName_fld',
+            'surName_fld', 'maidenName_fld', '
     publicfields = ['nickName_fld', 'occupation_fld',
             'nationality_fld']
 
