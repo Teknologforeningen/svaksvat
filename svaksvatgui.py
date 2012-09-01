@@ -43,10 +43,10 @@ class UsernameValidator(QValidator):
                 background-color: rgb(255, 255, 255); }")
             return (QValidator.Acceptable, stripped, pos)
 
-class MemberEdit(QWidget):
+class MemberEdit(QDialog):
     def __init__(self, session=None, member=None, parent=None):
         self.parent = parent
-        super().__init__()
+        super().__init__(parent=parent)
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
         self.ui.createLDAPAccount.connect(
@@ -168,9 +168,9 @@ class MemberEdit(QWidget):
         self.close()
 
 
-class SimpleRegister(QMainWindow):
+class SvakSvat(QMainWindow):
     def __init__(self, SessionMaker):
-        super(SimpleRegister, self).__init__()
+        super().__init__()
         self.session = SessionMaker # Assuming scoped_session
 
         self.initUI()
@@ -180,10 +180,12 @@ class SimpleRegister(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        # Connect signals to slots.
         self.ui.searchfield.textChanged.connect(self.searchlist)
         self.ui.memberlistwidget.itemClicked.connect(self.showMemberInfo)
         self.ui.memberlistwidget.itemActivated.connect(self.editMember)
         self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
+        self.ui.actionNewMember.triggered.connect(self.ui.searchfield.setFocus)
 
         # Populate list.
         self.memberlist = self.session.query(Member).order_by(
@@ -249,7 +251,7 @@ def main():
     ps = passwordsafe.PasswordSafe()
     SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
     app = QApplication(sys.argv)
-    sr = SimpleRegister(SessionMaker)
+    sr = SvakSvat(SessionMaker)
     sr.show()
     return app.exec_()
 

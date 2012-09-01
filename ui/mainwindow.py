@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Sep  1 12:53:51 2012
+# Created: Sat Sep  1 13:07:55 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,8 +66,6 @@ class Ui_MainWindow(object):
         self.actionNewGroup.setObjectName(_fromUtf8("actionNewGroup"))
         self.actionNewPost = QtGui.QAction(MainWindow)
         self.actionNewPost.setObjectName(_fromUtf8("actionNewPost"))
-        self.actionAnv_ndare_2 = QtGui.QAction(MainWindow)
-        self.actionAnv_ndare_2.setObjectName(_fromUtf8("actionAnv_ndare_2"))
         self.actionGrupper = QtGui.QAction(MainWindow)
         self.actionGrupper.setObjectName(_fromUtf8("actionGrupper"))
         self.actionPoster = QtGui.QAction(MainWindow)
@@ -92,6 +90,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuNew.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.searchlabelLabel.setBuddy(self.searchfield)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -104,13 +103,15 @@ class Ui_MainWindow(object):
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Editera", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "Fil", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewMember.setText(QtGui.QApplication.translate("MainWindow", "Medlem", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionNewMember.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewGroup.setText(QtGui.QApplication.translate("MainWindow", "Grupp", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewPost.setText(QtGui.QApplication.translate("MainWindow", "Post", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionAnv_ndare_2.setText(QtGui.QApplication.translate("MainWindow", "Användare", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGrupper.setText(QtGui.QApplication.translate("MainWindow", "Grupper", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPoster.setText(QtGui.QApplication.translate("MainWindow", "Poster", None, QtGui.QApplication.UnicodeUTF8))
         self.actionMakeBackup.setText(QtGui.QApplication.translate("MainWindow", "Gör säkerhetskopia", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionMakeBackup.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRestoreFromBackup.setText(QtGui.QApplication.translate("MainWindow", "Återställ databas", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRestoreFromBackup.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+L", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAvdelningar.setText(QtGui.QApplication.translate("MainWindow", "Avdelningar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewDepartment.setText(QtGui.QApplication.translate("MainWindow", "Avdelning", None, QtGui.QApplication.UnicodeUTF8))
 

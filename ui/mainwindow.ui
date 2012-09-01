@@ -27,6 +27,9 @@
           <property name="text">
            <string>Sök</string>
           </property>
+          <property name="buddy">
+           <cstring>searchfield</cstring>
+          </property>
          </widget>
         </item>
         <item row="0" column="1">
@@ -100,6 +103,9 @@
    <property name="text">
     <string>Medlem</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actionNewGroup">
    <property name="text">
@@ -109,11 +115,6 @@
   <action name="actionNewPost">
    <property name="text">
     <string>Post</string>
-   </property>
-  </action>
-  <action name="actionAnv_ndare_2">
-   <property name="text">
-    <string>Användare</string>
    </property>
   </action>
   <action name="actionGrupper">
@@ -130,10 +131,16 @@
    <property name="text">
     <string>Gör säkerhetskopia</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actionRestoreFromBackup">
    <property name="text">
     <string>Återställ databas</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="actionAvdelningar">
