@@ -13,7 +13,8 @@ from sqlalchemy.orm import scoped_session
 from backend import connect
 from backend.orm import Member, get_field_max_length
 
-from memberedit import Ui_Dialog
+from ui.mainwindow import Ui_MainWindow
+from ui.memberedit import Ui_MemberEdit
 
 import passwordsafe
 
@@ -44,8 +45,8 @@ class UsernameValidator(QValidator):
 
 class MemberEdit(QWidget):
     def __init__(self, session=None, member=None):
-        super(MemberEdit, self).__init__()
-        self.ui = Ui_Dialog()
+        super().__init__()
+        self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
         self.ui.createLDAPAccount.connect(
                 self.ui.createLDAPAccount,
@@ -165,56 +166,49 @@ class MemberEdit(QWidget):
         self.close()
 
 
-class SimpleRegister(QWidget):
+class SimpleRegister(QMainWindow):
     def __init__(self, SessionMaker):
         super(SimpleRegister, self).__init__()
-
         self.session = SessionMaker # Assuming scoped_session
 
         self.initUI()
 
     def initUI(self):
         vbox = QVBoxLayout()
-        self.searchfield = QLineEdit(self)
-        self.searchfield.textChanged.connect(self.searchlist)
-        self.memberlistwidget = QListWidget(self)
-        self.memberinfo = QTextEdit(self)
-        self.memberinfo.setReadOnly(True)
-        self.memberlistwidget.itemClicked.connect(self.showMemberInfo)
-        self.memberlistwidget.itemActivated.connect(self.editMember)
-        self.searchfield.returnPressed.connect(self.memberlistwidget.setFocus)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.ui.searchfield.textChanged.connect(self.searchlist)
+        self.ui.memberlistwidget.itemClicked.connect(self.showMemberInfo)
+        self.ui.memberlistwidget.itemActivated.connect(self.editMember)
+        self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
 
         # Populate list.
         self.memberlist = self.session.query(Member).order_by(
                 Member.surName_fld).all()
 
         self.searchlist()
-        vbox.addWidget(self.searchfield)
-        vbox.addWidget(self.memberlistwidget)
-        vbox.addWidget(self.memberinfo)
-        self.setLayout(vbox)
-        self.setWindowTitle('SimpleRegister')
+        self.setWindowTitle('SvakSvat')
 
     def editMember(self, membername):
-        member = self.filteredmemberlist[self.memberlistwidget.currentRow()]
+        member = self.filteredmemberlist[self.ui.memberlistwidget.currentRow()]
         self.membereditwidget = MemberEdit(self.session, member)
         self.membereditwidget.show()
 
     def searchlist(self, pattern = ''):
         self.filteredmemberlist = [member for member in self.memberlist
                 if member.getWholeName().upper().find(pattern.upper()) != -1]
-        self.memberlistwidget.clear()
+        self.ui.memberlistwidget.clear()
         for member in self.filteredmemberlist:
-            self.memberlistwidget.addItem(member.getWholeName())
+            self.ui.memberlistwidget.addItem(member.getWholeName())
 
     def showMemberInfo(self, membername):
-        member = self.filteredmemberlist[self.memberlistwidget.currentRow()]
+        member = self.filteredmemberlist[self.ui.memberlistwidget.currentRow()]
         memberID = member.objectId
         contactinfo = self.session.query(Member).filter_by(
                 objectId = memberID).one().contactinfo
         memberinfo = (
-        """
-Namn: %s %s
+        """Namn: %s %s
 Address: %s %s %s %s
 Telefon: %s
 Mobiltelefon: %s
@@ -236,7 +230,7 @@ Användarnamn: %s
         )
 
         membershipinfo = self.getMembershipInfo(member)
-        self.memberinfo.setText(memberinfo + membershipinfo)
+        self.ui.memberinfo.setText(memberinfo + membershipinfo)
 
     def getMembershipInfo(self, member):
         currentposts = [postmembership.post.name_fld for postmembership in

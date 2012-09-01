@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>337</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QFormLayout" name="formLayout">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="sKLabel">
+          <property name="text">
+           <string>Sök</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="searchfield"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QListWidget" name="memberlistwidget"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Info</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="memberinfo">
+        <property name="undoRedoEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>337</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuNy">
+    <property name="title">
+     <string>Ny</string>
+    </property>
+    <addaction name="actionAnv_ndare"/>
+    <addaction name="actionGrupp"/>
+    <addaction name="actionPost"/>
+   </widget>
+   <widget class="QMenu" name="menuEditera">
+    <property name="title">
+     <string>Editera</string>
+    </property>
+    <addaction name="actionGrupper"/>
+    <addaction name="actionPoster"/>
+    <addaction name="actionAvdelningar"/>
+   </widget>
+   <widget class="QMenu" name="menuFil">
+    <property name="title">
+     <string>Fil</string>
+    </property>
+    <addaction name="actionG_r_s_kerhetskopia"/>
+    <addaction name="actionAsdf"/>
+   </widget>
+   <addaction name="menuFil"/>
+   <addaction name="menuNy"/>
+   <addaction name="menuEditera"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAnv_ndare">
+   <property name="text">
+    <string>Medlem</string>
+   </property>
+  </action>
+  <action name="actionGrupp">
+   <property name="text">
+    <string>Grupp</string>
+   </property>
+  </action>
+  <action name="actionPost">
+   <property name="text">
+    <string>Post</string>
+   </property>
+  </action>
+  <action name="actionAnv_ndare_2">
+   <property name="text">
+    <string>Användare</string>
+   </property>
+  </action>
+  <action name="actionGrupper">
+   <property name="text">
+    <string>Grupper</string>
+   </property>
+  </action>
+  <action name="actionPoster">
+   <property name="text">
+    <string>Poster</string>
+   </property>
+  </action>
+  <action name="actionG_r_s_kerhetskopia">
+   <property name="text">
+    <string>Gör säkerhetskopia</string>
+   </property>
+  </action>
+  <action name="actionAsdf">
+   <property name="text">
+    <string>Återställ databas</string>
+   </property>
+  </action>
+  <action name="actionAvdelningar">
+   <property name="text">
+    <string>Avdelningar</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
