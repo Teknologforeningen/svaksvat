@@ -158,6 +158,11 @@
     <string>Ta bort medlem</string>
    </property>
   </action>
+  <action name="actionEditMember">
+   <property name="text">
+    <string>Editera Medlem</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Sep  2 14:07:16 2012
+# Created: Sun Sep  2 16:08:09 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -80,6 +80,8 @@ class Ui_MainWindow(object):
         self.actionNewDepartment.setObjectName(_fromUtf8("actionNewDepartment"))
         self.actionRemoveMember = QtGui.QAction(MainWindow)
         self.actionRemoveMember.setObjectName(_fromUtf8("actionRemoveMember"))
+        self.actionEditMember = QtGui.QAction(MainWindow)
+        self.actionEditMember.setObjectName(_fromUtf8("actionEditMember"))
         self.menuNew.addAction(self.actionNewMember)
         self.menuNew.addAction(self.actionNewGroup)
         self.menuNew.addAction(self.actionNewPost)
@@ -117,4 +119,5 @@ class Ui_MainWindow(object):
         self.actionAvdelningar.setText(QtGui.QApplication.translate("MainWindow", "Avdelningar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNewDepartment.setText(QtGui.QApplication.translate("MainWindow", "Avdelning", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRemoveMember.setText(QtGui.QApplication.translate("MainWindow", "Ta bort medlem", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionEditMember.setText(QtGui.QApplication.translate("MainWindow", "Editera Medlem", None, QtGui.QApplication.UnicodeUTF8))
 

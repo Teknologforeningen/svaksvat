@@ -12,7 +12,7 @@ from sqlalchemy.orm import scoped_session
 from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
         create_member, create_phux)
-from backend.listmodels import MembershipListModel
+from backend.listmodels import MembershipListModel, MembershipDelegate
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
@@ -147,6 +147,7 @@ class MemberEdit(QWidget):
         self.ui.username_fld.setValidator(self.usernamevalidator)
 
 
+
     def fillFields(self):
         for field in Member.editable_text_fields:
             fill_qlineedit_from_db(self.ui, field, self.member)
@@ -167,12 +168,16 @@ class MemberEdit(QWidget):
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
 
+        mshipdelegate = MembershipDelegate()
+
         # Groups
         groups = ["%s %d" % (groupmembership.group.name_fld,
             groupmembership.startTime_fld.year) for groupmembership in
                 self.member.groupmemberships]
         self.ui.groupView.setModel(MembershipListModel(self.session,
             self.member, self))
+
+        self.ui.groupView.setItemDelegate(mshipdelegate)
 
         # Posts
         posts = ["%s %d" % (postmembership.post.name_fld,
@@ -242,7 +247,9 @@ class SvakSvat(QMainWindow):
         self.ui.actionNewMember.triggered.connect(lambda:
                 NewMemberDialog(self.session, self))
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
+        self.ui.actionEditMember.triggered.connect(self.editMember)
 
+        self.ui.memberlistwidget.addAction(self.ui.actionEditMember)
         self.ui.memberlistwidget.addAction(self.ui.actionRemoveMember)
         self.ui.memberlistwidget.setContextMenuPolicy(Qt.ActionsContextMenu)
 
@@ -273,7 +280,7 @@ class SvakSvat(QMainWindow):
         member = self.filteredmemberlist[self.ui.memberlistwidget.currentRow()]
         return member
 
-    def editMember(self, membername):
+    def editMember(self):
         member = self.currentMember()
         self.membereditwidget = MemberEdit(self.session, member, self)
         self.membereditwidget.show()
