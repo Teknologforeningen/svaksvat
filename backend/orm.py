@@ -219,7 +219,8 @@ class Group(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
     description_fld = Column(String)
     abbreviation_fld = Column(String)
 
-    memberships = relationship("GroupMembership", backref='group')
+    memberships = relationship("GroupMembership", backref='group',
+            cascade="all, delete, delete-orphan")
 
 
 class GroupType(get_declarative_base(), MemberRegistryCommon,
@@ -262,12 +263,18 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     username_fld = Column(String(150))
     lastsync_fld = Column(DateTime, default=datetime.min)
 
-    contactinfo = relationship("ContactInformation", uselist=False, backref='member')
-    department = relationship("DepartmentMembership", backref='member')
-    groupmemberships = relationship("GroupMembership", backref='member')
-    memberships = relationship("Membership", backref='member')
-    postmemberships = relationship("PostMembership", backref='member')
-    presence = relationship("Presence", backref='member')
+    contactinfo = relationship("ContactInformation", uselist=False,
+            backref='member', cascade="all, delete, delete-orphan")
+    department = relationship("DepartmentMembership", backref='member',
+            cascade="all, delete, delete-orphan")
+    groupmemberships = relationship("GroupMembership", backref='member',
+            cascade="all, delete, delete-orphan")
+    memberships = relationship("Membership", backref='member',
+            cascade="all, delete, delete-orphan")
+    postmemberships = relationship("PostMembership", backref='member',
+            cascade="all, delete, delete-orphan")
+    presence = relationship("Presence", backref='member',
+            cascade="all, delete, delete-orphan")
 
     editable_text_fields = ['givenNames_fld', 'preferredName_fld',
             'surName_fld', 'maidenName_fld', 'nickName_fld', 'studentId_fld',
@@ -345,8 +352,10 @@ class Post(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
     description_fld = Column(String)
     abbreviation_fld = Column(String)
 
-    memberships = relationship("PostMembership", backref='post')
-    groupmembership = relationship("GroupMembership", backref='post')
+    memberships = relationship("PostMembership", backref='post',
+            cascade="all, delete, delete-orphan")
+    groupmembership = relationship("GroupMembership", backref='post',
+            cascade="all, delete, delete-orphan")
 
 
 class PostType(get_declarative_base(), MemberRegistryCommon, MembershipCommon):

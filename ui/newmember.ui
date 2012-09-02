@@ -161,6 +161,21 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>surName_fld</tabstop>
+  <tabstop>givenNames_fld</tabstop>
+  <tabstop>preferredName_fld</tabstop>
+  <tabstop>gender_fld</tabstop>
+  <tabstop>streetAddress_fld</tabstop>
+  <tabstop>postalCode_fld</tabstop>
+  <tabstop>city_fld</tabstop>
+  <tabstop>phone_fld</tabstop>
+  <tabstop>email_fld</tabstop>
+  <tabstop>department_comboBox</tabstop>
+  <tabstop>username_fld</tabstop>
+  <tabstop>makePhux_CheckBox</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

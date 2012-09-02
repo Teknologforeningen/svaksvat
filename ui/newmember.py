@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newmember.ui'
 #
-# Created: Sat Sep  1 16:08:38 2012
+# Created: Sat Sep  1 18:50:46 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -110,6 +110,18 @@ class Ui_NewMember(object):
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), NewMember.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), NewMember.reject)
         QtCore.QMetaObject.connectSlotsByName(NewMember)
+        NewMember.setTabOrder(self.surName_fld, self.givenNames_fld)
+        NewMember.setTabOrder(self.givenNames_fld, self.preferredName_fld)
+        NewMember.setTabOrder(self.preferredName_fld, self.gender_fld)
+        NewMember.setTabOrder(self.gender_fld, self.streetAddress_fld)
+        NewMember.setTabOrder(self.streetAddress_fld, self.postalCode_fld)
+        NewMember.setTabOrder(self.postalCode_fld, self.city_fld)
+        NewMember.setTabOrder(self.city_fld, self.phone_fld)
+        NewMember.setTabOrder(self.phone_fld, self.email_fld)
+        NewMember.setTabOrder(self.email_fld, self.department_comboBox)
+        NewMember.setTabOrder(self.department_comboBox, self.username_fld)
+        NewMember.setTabOrder(self.username_fld, self.makePhux_CheckBox)
+        NewMember.setTabOrder(self.makePhux_CheckBox, self.buttonBox)
 
     def retranslateUi(self, NewMember):
         NewMember.setWindowTitle(QtGui.QApplication.translate("NewMember", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
