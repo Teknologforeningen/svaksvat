@@ -202,8 +202,9 @@ class MemberEdit(QWidget):
 
         self.member.gender_fld = self.ui.gender_fld.currentIndex()
         date = self.ui.birthDate_fld.dateTime().date()
-        self.member.birthDate_fld = datetime.datetime(date.year(), date.month(),
-                date.day())
+
+        self.member.birthDate_fld = self.ui.birthDate_fld.dateTime(
+                ).toPyDateTime()
 
         self.member.dead_fld = int(self.ui.dead_fld.isChecked())
 
