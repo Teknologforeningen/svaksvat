@@ -153,6 +153,16 @@
     <string>Avdelning</string>
    </property>
   </action>
+  <action name="actionRemoveMember">
+   <property name="text">
+    <string>Ta bort medlem</string>
+   </property>
+  </action>
+  <action name="actionEditMember">
+   <property name="text">
+    <string>Editera Medlem</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

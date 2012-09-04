@@ -298,7 +298,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
-          <widget class="QListWidget" name="groupList"/>
+          <widget class="QListView" name="groupView"/>
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_4">
@@ -307,7 +307,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -347,7 +347,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_8">
          <item>
-          <widget class="QListWidget" name="postList"/>
+          <widget class="QListView" name="postView"/>
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_2">
@@ -356,7 +356,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -430,8 +430,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>580</y>
+     <x>266</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -446,8 +446,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>580</y>
+     <x>334</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
