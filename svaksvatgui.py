@@ -12,7 +12,8 @@ from sqlalchemy.orm import scoped_session
 from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
         create_member, create_phux)
-from backend.listmodels import MembershipListModel, MembershipDelegate
+from backend.listmodels import (GroupListModel, PostListModel,
+        MembershipDelegate)
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
@@ -174,16 +175,17 @@ class MemberEdit(QWidget):
         groups = ["%s %d" % (groupmembership.group.name_fld,
             groupmembership.startTime_fld.year) for groupmembership in
                 self.member.groupmemberships]
-        self.ui.groupView.setModel(MembershipListModel(self.session,
-            self.member, self))
-
+        self.ui.groupView.setModel(GroupListModel(self.session, self.member,
+            self))
         self.ui.groupView.setItemDelegate(mshipdelegate)
 
         # Posts
         posts = ["%s %d" % (postmembership.post.name_fld,
                 postmembership.startTime_fld.year)
                 for postmembership in self.member.postmemberships]
-        #self.ui.postView.setModel(ListModelCommon(self.session, self))
+        self.ui.postView.setModel(PostListModel(self.session, self.member,
+            self))
+        self.ui.postView.setItemDelegate(mshipdelegate)
 
     def createAccount(self):
         if not self.member.username_fld:

@@ -6,11 +6,14 @@ from PyQt4.QtGui import *
 from ui.membershipedit import Ui_MembershipEdit
 
 class MembershipListModel(QAbstractListModel):
-    def __init__(self, session, member, parent=None):
+    def __init__(self, session, member, parent=None,
+        membershiptype="group"):
         super().__init__(parent)
         self.session = session
         self.member = session.merge(member) # Get local object for this Model
-        self._data = self.member.groupmemberships
+
+        self.membershiptype = membershiptype
+        self._data = getattr(self.member, self.membershiptype + "memberships")
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._data)
@@ -22,9 +25,10 @@ class MembershipListModel(QAbstractListModel):
         row = index.row()
 
         membership = self._data[row]
+        membershiptarget = getattr(membership, self.membershiptype)
         duration = self.membershipDuration(membership)
         if role == Qt.DisplayRole:
-            return "%s %s" % (membership.group.name_fld,
+            return "%s %s" % (membershiptarget.name_fld,
                     duration)
 
         elif role == Qt.EditRole:
@@ -55,6 +59,15 @@ class MembershipListModel(QAbstractListModel):
         startmonth = membership.startTime_fld.month
         endmonth = membership.endTime_fld.month
         return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
+
+class GroupListModel(MembershipListModel):
+    def __init__(self, session, member, parent=None):
+        super().__init__(session, member, parent, "group")
+
+class PostListModel(MembershipListModel):
+    def __init__(self, session, member, parent=None):
+        super().__init__(session, member, parent, "post")
+
 
 class MembershipDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
