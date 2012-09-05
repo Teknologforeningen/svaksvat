@@ -5,14 +5,20 @@ from PyQt4.QtGui import *
 
 from ui.membershipedit import Ui_MembershipEdit
 
+from . import orm
+
 class MembershipListModel(QAbstractListModel):
     def __init__(self, session, member, parent=None,
         membershiptype="group"):
         super().__init__(parent)
         self.session = session
         self.member = session.merge(member) # Get local object for this Model
-
         self.membershiptype = membershiptype
+        self.internalDataRefresh()
+
+
+    def internalDataRefresh(self):
+        self.session.refresh(self.member)
         self._data = getattr(self.member, self.membershiptype + "memberships")
 
     def rowCount(self, parent=QModelIndex()):
@@ -46,10 +52,28 @@ class MembershipListModel(QAbstractListModel):
 
         return False
 
-
     def flags(self, index):
         flag = super().flags(index)
         return flag|Qt.ItemIsEditable
+
+    def removeRows(self, row, count, parent=QModelIndex()):
+        self.beginRemoveRows(parent, row, row+count)
+        if row + count > self.rowCount():
+            self.endRemoveRows()
+            return False
+
+        memberships_to_delete = [
+                membership for membership in self._data[row:row + count]]
+
+        for membership in memberships_to_delete:
+            self.session.delete(membership)
+
+        self.endRemoveRows()
+        return True
+
+    def endRemoveRows(self):
+        self.session.commit()
+        self.internalDataRefresh()
 
     def membershipDuration(self, membership):
         startyear = membership.startTime_fld.year
@@ -59,6 +83,19 @@ class MembershipListModel(QAbstractListModel):
         startmonth = membership.startTime_fld.month
         endmonth = membership.endTime_fld.month
         return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
+
+    def configureAddMembershipQComboBox(self, combobox):
+        # Membershiptype begins with upper-case character
+        membershiptypetablename = self.membershiptype.title()
+        membershiptargetclass = getattr(orm, membershiptypetablename)
+        membershiptargets = self.session.query(membershiptargetclass).order_by(
+                membershiptargetclass.name_fld).all()
+        membershiptargetnames = [target.name_fld for target in
+                membershiptargets]
+
+        completer = QCompleter(membershiptargetnames)
+        combobox.setCompleter(completer)
+        combobox.addItems(membershiptargetnames)
 
 class GroupListModel(MembershipListModel):
     def __init__(self, session, member, parent=None):

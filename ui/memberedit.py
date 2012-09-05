@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Sat Sep  1 16:08:47 2012
+# Created: Wed Sep  5 15:50:43 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -158,13 +158,13 @@ class Ui_MemberEdit(object):
         self.groupView = QtGui.QListView(MemberEdit)
         self.groupView.setObjectName(_fromUtf8("groupView"))
         self.horizontalLayout_7.addWidget(self.groupView)
-        self.pushButton_4 = QtGui.QPushButton(MemberEdit)
-        self.pushButton_4.setText(_fromUtf8(""))
+        self.removeGroupButton = QtGui.QPushButton(MemberEdit)
+        self.removeGroupButton.setText(_fromUtf8(""))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8("../res/list_remove.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.pushButton_4.setIcon(icon)
-        self.pushButton_4.setObjectName(_fromUtf8("pushButton_4"))
-        self.horizontalLayout_7.addWidget(self.pushButton_4)
+        self.removeGroupButton.setIcon(icon)
+        self.removeGroupButton.setObjectName(_fromUtf8("removeGroupButton"))
+        self.horizontalLayout_7.addWidget(self.removeGroupButton)
         self.verticalLayout_2.addLayout(self.horizontalLayout_7)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
@@ -185,11 +185,11 @@ class Ui_MemberEdit(object):
         self.postView = QtGui.QListView(MemberEdit)
         self.postView.setObjectName(_fromUtf8("postView"))
         self.horizontalLayout_8.addWidget(self.postView)
-        self.pushButton_2 = QtGui.QPushButton(MemberEdit)
-        self.pushButton_2.setText(_fromUtf8(""))
-        self.pushButton_2.setIcon(icon)
-        self.pushButton_2.setObjectName(_fromUtf8("pushButton_2"))
-        self.horizontalLayout_8.addWidget(self.pushButton_2)
+        self.removePostButton = QtGui.QPushButton(MemberEdit)
+        self.removePostButton.setText(_fromUtf8(""))
+        self.removePostButton.setIcon(icon)
+        self.removePostButton.setObjectName(_fromUtf8("removePostButton"))
+        self.horizontalLayout_8.addWidget(self.removePostButton)
         self.verticalLayout_2.addLayout(self.horizontalLayout_8)
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))

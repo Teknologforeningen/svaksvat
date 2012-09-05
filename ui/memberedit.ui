@@ -301,7 +301,7 @@
           <widget class="QListView" name="groupView"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="removeGroupButton">
            <property name="text">
             <string/>
            </property>
@@ -350,7 +350,7 @@
           <widget class="QListView" name="postView"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="removePostButton">
            <property name="text">
             <string/>
            </property>

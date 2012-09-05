@@ -172,20 +172,25 @@ class MemberEdit(QWidget):
         mshipdelegate = MembershipDelegate()
 
         # Groups
-        groups = ["%s %d" % (groupmembership.group.name_fld,
-            groupmembership.startTime_fld.year) for groupmembership in
-                self.member.groupmemberships]
-        self.ui.groupView.setModel(GroupListModel(self.session, self.member,
-            self))
+        grouplistmodel = GroupListModel(self.session, self.member, self)
+        self.ui.groupView.setModel(grouplistmodel)
         self.ui.groupView.setItemDelegate(mshipdelegate)
+        self.ui.removeGroupButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.groupView))
+        grouplistmodel.configureAddMembershipQComboBox(self.ui.group_comboBox)
 
         # Posts
-        posts = ["%s %d" % (postmembership.post.name_fld,
-                postmembership.startTime_fld.year)
-                for postmembership in self.member.postmemberships]
-        self.ui.postView.setModel(PostListModel(self.session, self.member,
-            self))
+        postlistmodel = PostListModel(self.session, self.member, self)
+        self.ui.postView.setModel(postlistmodel)
+        self.ui.removePostButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.postView))
         self.ui.postView.setItemDelegate(mshipdelegate)
+        postlistmodel.configureAddMembershipQComboBox(self.ui.post_comboBox)
+
+    def removeSelectedMembership(self, listview):
+        selections = listview.selectedIndexes()
+        for index in selections:
+            listview.model().removeRow(index.row())
 
     def createAccount(self):
         if not self.member.username_fld:
