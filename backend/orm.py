@@ -47,6 +47,23 @@ def create_member(session):
     session.add_all([new_member, new_contactinfo])
     return new_member
 
+def create_membership(session, membershiptargetname, name_fld):
+    globaldict = globals()
+    membershiptargetclass = globaldict[membershiptargetname]
+
+    membershipclass = globaldict[membershiptargetname + "Membership"]
+
+    membershiptarget = session.query(membershiptargetclass).filter_by(name_fld = name_fld).one()
+
+    new_membership = create_row(membershipclass, session)
+
+    setattr(new_membership, membershiptargetname.lower(), membershiptarget)
+
+    session.add(new_membership)
+
+    return new_membership
+
+
 def create_phux(session):
     new_phux = create_member(session)
     new_phuxmembership = create_row(Membership, session)
@@ -144,6 +161,10 @@ class MembershipCommon(object):
                 (self.startTime_fld == None or self.startTime_fld < now)
                 )
 
+    def setMandateToThisYear(self):
+        thisyear = date.today().year
+        self.startTime_fld = datetime.datetime(thisyear, 1, 1)
+        self.endTime_fld = datetime.datetime(thisyear, 12, 31)
 
 class ContactInformation(get_declarative_base(), MemberRegistryCommon):
     """Member Contact Information"""
