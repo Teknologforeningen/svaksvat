@@ -9,13 +9,14 @@ from . import orm
 
 class MembershipListModel(QAbstractListModel):
     def __init__(self, session, member, parent=None,
-        membershiptype="group"):
+        membershiptype="group", add_membership_combobox=None):
         super().__init__(parent)
         self.session = session
         self.member = session.merge(member) # Get local object for this Model
         self.membershiptype = membershiptype
         self.internalDataRefresh()
-
+        self.combobox = add_membership_combobox
+        self.configureAddMembershipQComboBox(self.combobox)
 
     def internalDataRefresh(self):
         self.session.refresh(self.member)
@@ -57,7 +58,7 @@ class MembershipListModel(QAbstractListModel):
         return flag|Qt.ItemIsEditable
 
     def removeRows(self, row, count, parent=QModelIndex()):
-        self.beginRemoveRows(parent, row, row+count)
+        self.beginRemoveRows(parent, row, row+count-1)
         if row + count > self.rowCount():
             self.endRemoveRows()
             return False
@@ -71,18 +72,44 @@ class MembershipListModel(QAbstractListModel):
         self.endRemoveRows()
         return True
 
+    def insertRows(self, row, count, parent=QModelIndex()):
+        self.beginInsertRows(parent, row, row+count-1)
+
+        membershipname = self.combobox.currentText()
+
+        for i in range(count):
+            membership = orm.create_membership(self.session,
+                    self.membershiptype.title(), membershipname)
+
+            membership.member = self.member
+            membership.setMandateToThisYear()
+
+        self.endInsertRows()
+
+        return True
+
     def endRemoveRows(self):
         self.session.commit()
         self.internalDataRefresh()
+        super().endRemoveRows()
+
+    def endInsertRows(self):
+        self.session.commit()
+        self.internalDataRefresh()
+        super().endInsertRows()
 
     def membershipDuration(self, membership):
-        startyear = membership.startTime_fld.year
-        endyear = membership.endTime_fld.year
-        if startyear == endyear:
-            return startyear
-        startmonth = membership.startTime_fld.month
-        endmonth = membership.endTime_fld.month
-        return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
+        try:
+            startyear = membership.startTime_fld.year
+            endyear = membership.endTime_fld.year
+            if startyear == endyear:
+                return startyear
+            startmonth = membership.startTime_fld.month
+            endmonth = membership.endTime_fld.month
+            return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
+
+        except AttributeError: # startTime_fld or endTime_fld is NULL
+            return "???"
 
     def configureAddMembershipQComboBox(self, combobox):
         # Membershiptype begins with upper-case character
@@ -96,14 +123,19 @@ class MembershipListModel(QAbstractListModel):
         completer = QCompleter(membershiptargetnames)
         combobox.setCompleter(completer)
         combobox.addItems(membershiptargetnames)
+        combobox.lineEdit().returnPressed.connect(lambda: self.insertRow(self.rowCount()))
 
 class GroupListModel(MembershipListModel):
-    def __init__(self, session, member, parent=None):
-        super().__init__(session, member, parent, "group")
+    def __init__(self, session, member, parent,
+            add_membership_combobox=None):
+        super().__init__(session, member, parent, "group",
+                add_membership_combobox)
 
 class PostListModel(MembershipListModel):
-    def __init__(self, session, member, parent=None):
-        super().__init__(session, member, parent, "post")
+    def __init__(self, session, member, parent,
+            add_membership_combobox):
+        super().__init__(session, member, parent, "post",
+                add_membership_combobox)
 
 
 class MembershipDelegate(QStyledItemDelegate):

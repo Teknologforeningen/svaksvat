@@ -163,8 +163,8 @@ class MembershipCommon(object):
 
     def setMandateToThisYear(self):
         thisyear = date.today().year
-        self.startTime_fld = datetime.datetime(thisyear, 1, 1)
-        self.endTime_fld = datetime.datetime(thisyear, 12, 31)
+        self.startTime_fld = datetime(thisyear, 1, 1)
+        self.endTime_fld = datetime(thisyear, 12, 31)
 
 class ContactInformation(get_declarative_base(), MemberRegistryCommon):
     """Member Contact Information"""

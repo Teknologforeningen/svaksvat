@@ -172,20 +172,24 @@ class MemberEdit(QWidget):
         mshipdelegate = MembershipDelegate()
 
         # Groups
-        grouplistmodel = GroupListModel(self.session, self.member, self)
+        grouplistmodel = GroupListModel(self.session, self.member, self,
+                self.ui.group_comboBox)
         self.ui.groupView.setModel(grouplistmodel)
         self.ui.groupView.setItemDelegate(mshipdelegate)
         self.ui.removeGroupButton.clicked.connect(lambda:
                 self.removeSelectedMembership(self.ui.groupView))
-        grouplistmodel.configureAddMembershipQComboBox(self.ui.group_comboBox)
+        grouplistmodel.rowsInserted.connect(lambda index, row:
+                    self.ui.groupView.edit(grouplistmodel.index(row)))
 
         # Posts
-        postlistmodel = PostListModel(self.session, self.member, self)
+        postlistmodel = PostListModel(self.session, self.member, self,
+                self.ui.post_comboBox)
         self.ui.postView.setModel(postlistmodel)
         self.ui.removePostButton.clicked.connect(lambda:
                 self.removeSelectedMembership(self.ui.postView))
         self.ui.postView.setItemDelegate(mshipdelegate)
-        postlistmodel.configureAddMembershipQComboBox(self.ui.post_comboBox)
+        postlistmodel.rowsInserted.connect(lambda index, row:
+                self.ui.postView.edit(postlistmodel.index(row)))
 
     def removeSelectedMembership(self, listview):
         selections = listview.selectedIndexes()
