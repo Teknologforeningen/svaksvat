@@ -306,8 +306,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
+            <iconset resource="../svaksvat.qrc">
+             <normaloff>:/images/res/list_remove.png</normaloff>:/images/res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -355,8 +355,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
+            <iconset resource="../svaksvat.qrc">
+             <normaloff>:/images/res/list_remove.png</normaloff>:/images/res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -421,7 +421,9 @@
   <tabstop>phone_fld</tabstop>
   <tabstop>email_fld</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../svaksvat.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

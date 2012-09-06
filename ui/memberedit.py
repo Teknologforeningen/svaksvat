@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Wed Sep  5 15:50:43 2012
+# Created: Thu Sep  6 17:47:56 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -161,7 +161,7 @@ class Ui_MemberEdit(object):
         self.removeGroupButton = QtGui.QPushButton(MemberEdit)
         self.removeGroupButton.setText(_fromUtf8(""))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("../res/list_remove.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/images/res/list_remove.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.removeGroupButton.setIcon(icon)
         self.removeGroupButton.setObjectName(_fromUtf8("removeGroupButton"))
         self.horizontalLayout_7.addWidget(self.removeGroupButton)
@@ -280,3 +280,4 @@ class Ui_MemberEdit(object):
         self.label_2.setText(QtGui.QApplication.translate("MemberEdit", "Poster:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till post:", None, QtGui.QApplication.UnicodeUTF8))
 
+import svaksvat_rc
