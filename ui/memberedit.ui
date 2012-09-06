@@ -301,13 +301,13 @@
           <widget class="QListView" name="groupView"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="removeGroupButton">
            <property name="text">
             <string/>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
+            <iconset resource="../svaksvat.qrc">
+             <normaloff>:/images/res/list_remove.png</normaloff>:/images/res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -350,13 +350,13 @@
           <widget class="QListView" name="postView"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="removePostButton">
            <property name="text">
             <string/>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
+            <iconset resource="../svaksvat.qrc">
+             <normaloff>:/images/res/list_remove.png</normaloff>:/images/res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -421,7 +421,9 @@
   <tabstop>phone_fld</tabstop>
   <tabstop>email_fld</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../svaksvat.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

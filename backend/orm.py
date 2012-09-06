@@ -10,11 +10,10 @@ from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-
+import sqlalchemy
 
 # constants
 Base = declarative_base()
-
 
 # exception classes
 class TooLongValueException(Exception):
@@ -46,6 +45,34 @@ def create_member(session):
     new_member.primaryContactId_fld = new_contactinfo.objectId
     session.add_all([new_member, new_contactinfo])
     return new_member
+
+def create_membership(session, membershiptargetname, name_fld,
+        create_nonexistent_target=False):
+    globaldict = globals()
+    membershiptargetclass = globaldict[membershiptargetname]
+
+    membershipclass = globaldict[membershiptargetname + "Membership"]
+
+    membershiptarget = None
+    try:
+        membershiptarget = session.query(
+                membershiptargetclass).filter_by(name_fld = name_fld).one()
+
+    except sqlalchemy.orm.exc.NoResultFound:
+        if create_nonexistent_target:
+            membershiptarget = create_row(membershiptargetclass, session)
+            membershiptarget.name_fld = name_fld
+        else:
+            return None
+
+    new_membership = create_row(membershipclass, session)
+
+    setattr(new_membership, membershiptargetname.lower(), membershiptarget)
+
+    session.add(new_membership)
+
+    return new_membership
+
 
 def create_phux(session):
     new_phux = create_member(session)
@@ -144,6 +171,10 @@ class MembershipCommon(object):
                 (self.startTime_fld == None or self.startTime_fld < now)
                 )
 
+    def setMandateToThisYear(self):
+        thisyear = date.today().year
+        self.startTime_fld = datetime(thisyear, 1, 1)
+        self.endTime_fld = datetime(thisyear, 12, 31)
 
 class ContactInformation(get_declarative_base(), MemberRegistryCommon):
     """Member Contact Information"""

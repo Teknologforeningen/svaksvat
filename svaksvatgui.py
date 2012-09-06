@@ -12,7 +12,8 @@ from sqlalchemy.orm import scoped_session
 from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
         create_member, create_phux)
-from backend.listmodels import MembershipListModel, MembershipDelegate
+from backend.listmodels import (GroupListModel, PostListModel,
+        MembershipDelegate)
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
@@ -171,19 +172,29 @@ class MemberEdit(QWidget):
         mshipdelegate = MembershipDelegate()
 
         # Groups
-        groups = ["%s %d" % (groupmembership.group.name_fld,
-            groupmembership.startTime_fld.year) for groupmembership in
-                self.member.groupmemberships]
-        self.ui.groupView.setModel(MembershipListModel(self.session,
-            self.member, self))
-
+        grouplistmodel = GroupListModel(self.session, self.member, self,
+                self.ui.group_comboBox)
+        self.ui.groupView.setModel(grouplistmodel)
         self.ui.groupView.setItemDelegate(mshipdelegate)
+        self.ui.removeGroupButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.groupView))
+        grouplistmodel.rowsInserted.connect(lambda index, row:
+                    self.ui.groupView.edit(grouplistmodel.index(row)))
 
         # Posts
-        posts = ["%s %d" % (postmembership.post.name_fld,
-                postmembership.startTime_fld.year)
-                for postmembership in self.member.postmemberships]
-        #self.ui.postView.setModel(ListModelCommon(self.session, self))
+        postlistmodel = PostListModel(self.session, self.member, self,
+                self.ui.post_comboBox)
+        self.ui.postView.setModel(postlistmodel)
+        self.ui.removePostButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.postView))
+        self.ui.postView.setItemDelegate(mshipdelegate)
+        postlistmodel.rowsInserted.connect(lambda index, row:
+                self.ui.postView.edit(postlistmodel.index(row)))
+
+    def removeSelectedMembership(self, listview):
+        selections = listview.selectedIndexes()
+        for index in selections:
+            listview.model().removeRow(index.row())
 
     def createAccount(self):
         if not self.member.username_fld:

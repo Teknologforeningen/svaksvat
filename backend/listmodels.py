@@ -5,12 +5,23 @@ from PyQt4.QtGui import *
 
 from ui.membershipedit import Ui_MembershipEdit
 
+from . import orm
+
 class MembershipListModel(QAbstractListModel):
-    def __init__(self, session, member, parent=None):
+    def __init__(self, session, member, parent=None,
+        membershiptype="group", add_membership_combobox=None):
         super().__init__(parent)
         self.session = session
         self.member = session.merge(member) # Get local object for this Model
-        self._data = self.member.groupmemberships
+        self.membershiptype = membershiptype
+        self.internalDataRefresh()
+        self.combobox = add_membership_combobox
+        self.configureAddMembershipQComboBox(self.combobox)
+        self.parent = parent
+
+    def internalDataRefresh(self):
+        self.session.refresh(self.member)
+        self._data = getattr(self.member, self.membershiptype + "memberships")
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._data)
@@ -22,11 +33,10 @@ class MembershipListModel(QAbstractListModel):
         row = index.row()
 
         membership = self._data[row]
+        membershiptarget = getattr(membership, self.membershiptype)
         duration = self.membershipDuration(membership)
         if role == Qt.DisplayRole:
-            membership = self.data[row]
-            duration = self.membershipDuration(membership)
-            return "%s %s" % (membership.group.name_fld,
+            return "%s %s" % (membershiptarget.name_fld,
                     duration)
 
         elif role == Qt.EditRole:
@@ -34,14 +44,118 @@ class MembershipListModel(QAbstractListModel):
 
         return None
 
+    def setData(self, index, value, role=Qt.EditRole):
+        if role == Qt.EditRole:
+            membership = self.data(index, role)
+            membership.startTime_fld = value[0]
+            membership.endTime_fld = value[1]
+            self.session.commit()
+            return True
+
+        return False
+
+    def flags(self, index):
+        flag = super().flags(index)
+        return flag|Qt.ItemIsEditable
+
+    def removeRows(self, row, count, parent=QModelIndex()):
+        self.beginRemoveRows(parent, row, row+count-1)
+        if row + count > self.rowCount():
+            self.endRemoveRows()
+            return False
+
+        memberships_to_delete = [
+                membership for membership in self._data[row:row + count]]
+
+        for membership in memberships_to_delete:
+            self.session.delete(membership)
+
+        self.endRemoveRows()
+        return True
+
+    def insertRows(self, row, count, parent=QModelIndex()):
+        self.beginInsertRows(parent, row, row+count-1)
+
+        membershipname = self.combobox.currentText()
+        membershiptypename = self.membershiptype.title()
+
+        for i in range(count):
+            membership = orm.create_membership(self.session,
+                    membershiptypename, membershipname)
+
+            if not membership:
+                questiontext = "%s finns inte. Skall den skapas?" % (membershipname)
+
+                if QMessageBox.question(self.parent, membershipname +
+                        " hittades inte!", questiontext, "Nej", "Ja",
+                        escapeButtonNumber=0):
+                    membership = orm.create_membership(self.session,
+                            membershiptypename, membershipname,
+                            create_nonexistent_target=True)
+                    self.combobox.addItem(membershipname)
+
+                else:
+                    self.session.rollback()
+                    return False
+
+
+
+            membership.member = self.member
+            membership.setMandateToThisYear()
+
+        self.endInsertRows()
+
+        return True
+
+    def endRemoveRows(self):
+        self.session.commit()
+        self.internalDataRefresh()
+        super().endRemoveRows()
+
+    def endInsertRows(self):
+        self.session.commit()
+        self.internalDataRefresh()
+        super().endInsertRows()
+
     def membershipDuration(self, membership):
-        startyear = membership.startTime_fld.year
-        endyear = membership.endTime_fld.year
-        if startyear == endyear:
-            return startyear
-        startmonth = membership.startTime_fld.month
-        endmonth = membership.endTime_fld.month
-        return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
+        try:
+            startyear = membership.startTime_fld.year
+            endyear = membership.endTime_fld.year
+            if startyear == endyear:
+                return startyear
+            startmonth = membership.startTime_fld.month
+            endmonth = membership.endTime_fld.month
+            return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
+
+        except AttributeError: # startTime_fld or endTime_fld is NULL
+            return "???"
+
+    def configureAddMembershipQComboBox(self, combobox):
+        # Membershiptype begins with upper-case character
+        membershiptypetablename = self.membershiptype.title()
+        membershiptargetclass = getattr(orm, membershiptypetablename)
+        membershiptargets = self.session.query(membershiptargetclass).order_by(
+                membershiptargetclass.name_fld).all()
+        membershiptargetnames = [target.name_fld for target in
+                membershiptargets]
+
+        completer = QCompleter(membershiptargetnames)
+        combobox.setCompleter(completer)
+        combobox.addItems(membershiptargetnames)
+        combobox.lineEdit().returnPressed.connect(lambda: self.insertRow(self.rowCount()))
+
+class GroupListModel(MembershipListModel):
+    def __init__(self, session, member, parent,
+            add_membership_combobox=None):
+        super().__init__(session, member, parent, "group",
+                add_membership_combobox)
+
+class PostListModel(MembershipListModel):
+    def __init__(self, session, member, parent,
+            add_membership_combobox):
+        super().__init__(session, member, parent, "post",
+                add_membership_combobox)
+
 
 class MembershipDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
