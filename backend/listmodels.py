@@ -17,6 +17,7 @@ class MembershipListModel(QAbstractListModel):
         self.internalDataRefresh()
         self.combobox = add_membership_combobox
         self.configureAddMembershipQComboBox(self.combobox)
+        self.parent = parent
 
     def internalDataRefresh(self):
         self.session.refresh(self.member)
@@ -76,10 +77,28 @@ class MembershipListModel(QAbstractListModel):
         self.beginInsertRows(parent, row, row+count-1)
 
         membershipname = self.combobox.currentText()
+        membershiptypename = self.membershiptype.title()
 
         for i in range(count):
             membership = orm.create_membership(self.session,
-                    self.membershiptype.title(), membershipname)
+                    membershiptypename, membershipname)
+
+            if not membership:
+                questiontext = "%s finns inte. Skall den skapas?" % (membershipname)
+
+                if QMessageBox.question(self.parent, membershipname +
+                        " hittades inte!", questiontext, "Nej", "Ja",
+                        escapeButtonNumber=0):
+                    membership = orm.create_membership(self.session,
+                            membershiptypename, membershipname,
+                            create_nonexistent_target=True)
+                    self.combobox.addItem(membershipname)
+
+                else:
+                    self.session.rollback()
+                    return False
+
+
 
             membership.member = self.member
             membership.setMandateToThisYear()

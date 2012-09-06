@@ -10,11 +10,10 @@ from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-
+import sqlalchemy
 
 # constants
 Base = declarative_base()
-
 
 # exception classes
 class TooLongValueException(Exception):
@@ -47,13 +46,24 @@ def create_member(session):
     session.add_all([new_member, new_contactinfo])
     return new_member
 
-def create_membership(session, membershiptargetname, name_fld):
+def create_membership(session, membershiptargetname, name_fld,
+        create_nonexistent_target=False):
     globaldict = globals()
     membershiptargetclass = globaldict[membershiptargetname]
 
     membershipclass = globaldict[membershiptargetname + "Membership"]
 
-    membershiptarget = session.query(membershiptargetclass).filter_by(name_fld = name_fld).one()
+    membershiptarget = None
+    try:
+        membershiptarget = session.query(
+                membershiptargetclass).filter_by(name_fld = name_fld).one()
+
+    except sqlalchemy.orm.exc.NoResultFound:
+        if create_nonexistent_target:
+            membershiptarget = create_row(membershiptargetclass, session)
+            membershiptarget.name_fld = name_fld
+        else:
+            return None
 
     new_membership = create_row(membershipclass, session)
 
