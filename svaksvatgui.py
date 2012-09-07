@@ -108,7 +108,7 @@ class NewMemberDialog(QDialog):
 
             update_qtextfield_to_db(self.ui, field, member)
 
-        self.member.gender_fld = self.ui.gender_fld.currentIndex()
+        member.gender_fld = self.ui.gender_fld.currentIndex()
 
         contactinfo = member.contactinfo
         for field in contactinfo.publicfields:
