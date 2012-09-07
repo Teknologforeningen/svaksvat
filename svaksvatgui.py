@@ -71,10 +71,10 @@ class UsernameValidator(QValidator):
                 background-color: rgb(255, 255, 255); }")
             return (QValidator.Acceptable, stripped, pos)
 
-class NewMemberDialog(QWidget):
+class NewMemberDialog(QDialog):
     def __init__(self, session, parent=None):
         self.parent = parent
-        super().__init__()
+        super().__init__(parent=self.parent)
         self.ui = Ui_NewMember()
         self.ui.setupUi(self)
         self.session = session
@@ -91,9 +91,6 @@ class NewMemberDialog(QWidget):
         contactinfo = ContactInformation()
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
-
-        self.show()
-
 
     def accept(self):
         member = None
@@ -119,35 +116,30 @@ class NewMemberDialog(QWidget):
 
         self.session.commit()
         self.parent.populateMemberList(choosemember=member)
-        self.close()
+        self.parent.setStatusMessage("Medlem %s skapad!" %
+                member.getWholeName())
+        super().accept()
 
     def reject(self):
-        self.close()
+        super().reject()
 
 
-class MemberEdit(QWidget):
+class MemberEdit(QDialog):
     def __init__(self, session, member, parent=None):
         self.parent = parent
-        super().__init__()
+        super().__init__(parent=self.parent)
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
-        self.ui.createLDAPAccount.connect(
-                self.ui.createLDAPAccount,
-                SIGNAL("clicked()"),
-                self.createAccount
-                )
-
         self.session = session
         self.member = self.session.query(Member).filter_by(objectId =
                 member.objectId).one()
 
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
+
         self.usernamevalidator = UsernameValidator(self.session,
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
-
-
 
     def fillFields(self):
         for field in Member.editable_text_fields:
@@ -229,12 +221,10 @@ class MemberEdit(QWidget):
 
         self.session.commit()
         self.parent.populateMemberList(choosemember=self.member)
-        self.parent.setStatusMessage("Medlem %s skapad!" %
-                self.member.getWholeName())
-        self.close()
+        super().accept()
 
     def reject(self):
-        self.close()
+        super().reject()
 
 
 class SvakSvat(QMainWindow):
@@ -256,8 +246,7 @@ class SvakSvat(QMainWindow):
                 self.showMemberInfo())
         self.ui.memberlistwidget.itemActivated.connect(self.editMember)
         self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
-        self.ui.actionNewMember.triggered.connect(lambda:
-                NewMemberDialog(self.session, self))
+        self.ui.actionNewMember.triggered.connect(self.createMember)
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
         self.ui.actionEditMember.triggered.connect(self.editMember)
 
@@ -269,6 +258,9 @@ class SvakSvat(QMainWindow):
 
         self.setWindowTitle('SvakSvat')
 
+    def createMember(self):
+        newmemberdialog = NewMemberDialog(self.session, self)
+        newmemberdialog.exec()
 
     def removeMember(self):
         member = self.currentMember()
