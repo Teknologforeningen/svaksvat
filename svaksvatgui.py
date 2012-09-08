@@ -99,8 +99,8 @@ class UsernameValidator(QValidator):
         self.session = session
 
     def fixup(self, input):
-        """Strip whitespace and special characters."""
-        return ''.join(c for c in input if c.isalnum())
+        """Strip whitespace + special characters and make lower case"""
+        return ''.join(c.lower() for c in input if c.isalnum())
 
     def validate(self, input, pos):
         """Checks for username uniqueness."""
