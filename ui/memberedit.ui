@@ -144,19 +144,6 @@
          <item row="8" column="1">
           <widget class="QComboBox" name="gender_fld"/>
          </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="username_fldLabel">
-           <property name="text">
-            <string>Användarnamn</string>
-           </property>
-           <property name="buddy">
-            <cstring>username_fld</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QLineEdit" name="username_fld"/>
-         </item>
          <item row="10" column="0">
           <widget class="QLabel" name="subscribedToModulen_fld">
            <property name="text">
@@ -170,7 +157,27 @@
          <item row="10" column="1">
           <widget class="QCheckBox" name="subscribedToModulen_fld_checkbox"/>
          </item>
+         <item row="11" column="1">
+          <widget class="QLineEdit" name="username_fld"/>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="username_fldLabel">
+           <property name="text">
+            <string>Användarnamn</string>
+           </property>
+           <property name="buddy">
+            <cstring>username_fld</cstring>
+           </property>
+          </widget>
+         </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="accountsButton">
+         <property name="text">
+          <string>Användarkonton</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="notes_fldLabel">
@@ -184,13 +191,6 @@
        </item>
        <item>
         <widget class="QPlainTextEdit" name="notes_fld"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="createLDAPAccount">
-         <property name="text">
-          <string>Skapa användarkonto</string>
-         </property>
-        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="makeOrdinaryMember">
@@ -409,17 +409,24 @@
   <tabstop>birthDate_fld</tabstop>
   <tabstop>nationality_fld</tabstop>
   <tabstop>gender_fld</tabstop>
-  <tabstop>username_fld</tabstop>
   <tabstop>subscribedToModulen_fld_checkbox</tabstop>
+  <tabstop>username_fld</tabstop>
+  <tabstop>accountsButton</tabstop>
   <tabstop>notes_fld</tabstop>
-  <tabstop>createLDAPAccount</tabstop>
   <tabstop>makeOrdinaryMember</tabstop>
+  <tabstop>buttonBox</tabstop>
   <tabstop>streetAddress_fld</tabstop>
   <tabstop>postalCode_fld</tabstop>
   <tabstop>city_fld</tabstop>
   <tabstop>country_fld</tabstop>
   <tabstop>phone_fld</tabstop>
   <tabstop>email_fld</tabstop>
+  <tabstop>groupView</tabstop>
+  <tabstop>removeGroupButton</tabstop>
+  <tabstop>group_comboBox</tabstop>
+  <tabstop>postView</tabstop>
+  <tabstop>removePostButton</tabstop>
+  <tabstop>post_comboBox</tabstop>
  </tabstops>
  <resources>
   <include location="../svaksvat.qrc"/>

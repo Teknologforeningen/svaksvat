@@ -13,7 +13,9 @@ from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
         create_member, create_phux)
 from backend.listmodels import (GroupListModel, PostListModel,
-        MembershipDelegate)
+        MembershipDelegate, configure_membership_qcombobox,
+        assign_membership_to_member)
+
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
@@ -92,6 +94,9 @@ class NewMemberDialog(QDialog):
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
 
+        configure_membership_qcombobox(self.ui.department_comboBox, "Department",
+                self.session)
+
     def accept(self):
         member = None
         if self.ui.makePhux_CheckBox.isChecked():
@@ -99,7 +104,6 @@ class NewMemberDialog(QDialog):
 
         else:
             member = create_member(self.session)
-
 
         for field in Member.editable_text_fields:
             if (field == "username_fld" and not
@@ -113,6 +117,11 @@ class NewMemberDialog(QDialog):
         contactinfo = member.contactinfo
         for field in contactinfo.publicfields:
             update_qtextfield_to_db(self.ui, field, contactinfo)
+
+        if not assign_membership_to_member(self.session, "Department",
+                self.ui.department_comboBox.currentText(), member, parent=self,
+                combobox=self.ui.department_comboBox, indefinite_time=True):
+            return # Don't yet commit if Department not chosen.
 
         self.session.commit()
         self.parent.populateMemberList(choosemember=member)

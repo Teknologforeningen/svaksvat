@@ -38,6 +38,7 @@ def create_row(table_orm, session):
 
     return row
 
+
 def create_member(session):
     new_member = create_row(Member, session)
     new_contactinfo = create_row(ContactInformation, session)
@@ -46,12 +47,19 @@ def create_member(session):
     session.add_all([new_member, new_contactinfo])
     return new_member
 
+
 def create_membership(session, membershiptargetname, name_fld,
         create_nonexistent_target=False):
+
+    mshiptargetname = membershiptargetname
+    membershipclassname = membershiptargetname + "Membership"
+    if membershiptargetname == "Membership": # Member membership. Ie. Phux
+        membershiptargetname = membershiptargetname + "Type"
+        membershipclassname = "Membership"
+
     globaldict = globals()
     membershiptargetclass = globaldict[membershiptargetname]
-
-    membershipclass = globaldict[membershiptargetname + "Membership"]
+    membershipclass = globaldict[membershipclassname]
 
     membershiptarget = None
     try:
@@ -67,7 +75,7 @@ def create_membership(session, membershiptargetname, name_fld,
 
     new_membership = create_row(membershipclass, session)
 
-    setattr(new_membership, membershiptargetname.lower(), membershiptarget)
+    setattr(new_membership, mshiptargetname.lower(), membershiptarget)
 
     session.add(new_membership)
 
@@ -76,15 +84,14 @@ def create_membership(session, membershiptargetname, name_fld,
 
 def create_phux(session):
     new_phux = create_member(session)
-    new_phuxmembership = create_row(Membership, session)
+    new_phuxmembership = create_membership(session, "Membership", "Phux")
     new_phuxmembership.member = new_phux
-    new_phuxmembership.type = get_phux_membershiptype(session)
 
     today = datetime.today()
     year = today.year
-    new_phuxmembership.startTime_fld = today()
+    new_phuxmembership.startTime_fld = today
     # Phuxes die before labour day.
-    if new_phuxmembership.startTime_fld > date(today.year, 4, 30):
+    if new_phuxmembership.startTime_fld.date() > date(today.year, 4, 30):
         year += 1
 
     new_phuxmembership.endTime_fld = datetime(year, 4, 30)
@@ -340,7 +347,6 @@ class Member(get_declarative_base(), MemberRegistryCommon):
         """
         return (self.surName_fld or '') + " " + (self.preferredName_fld or
                 self.givenNames_fld or '')
-
 
 
 class Membership(get_declarative_base(),
