@@ -122,6 +122,11 @@ class UsernameValidator(QValidator):
 class NewMemberDialog(QWidget):
     """A dialog to create a new member to the registry."""
     def __init__(self, session, parent=None):
+        """Create the dialog and initialize the fields.
+
+        session -- Sqlalchemy session.
+        parent -- Parent for the QDialog.
+        """
         self.parent = parent
         super().__init__()
         self.ui = Ui_NewMember()
@@ -147,6 +152,7 @@ class NewMemberDialog(QWidget):
         self.show()
 
     def accept(self):
+        """Commit the new member to the database."""
         member = None
         if self.ui.makePhux_CheckBox.isChecked():
             member = create_phux(self.session)
@@ -174,11 +180,20 @@ class NewMemberDialog(QWidget):
         self.close()
 
     def reject(self):
+        """Close the dialog without saving any changes."""
         self.close()
 
 
 class MemberEdit(QWidget):
+    """Dialog to edit almost every aspect of a member."""
     def __init__(self, session, member, parent=None):
+        """Create the dialog and fill in the values from a member.
+
+        session -- Sqlalchemy session.
+        member -- backend.orm.Member to be edited.
+        parent -- Parent for the QDialog
+
+        """
         self.parent = parent
         super().__init__()
         self.ui = Ui_MemberEdit()
@@ -200,11 +215,11 @@ class MemberEdit(QWidget):
         self.ui.username_fld.setValidator(self.usernamevalidator)
 
     def fillFields(self):
+        """Fill every widget with the corresponding values of a Member."""
         for field in Member.editable_text_fields:
             fill_qlineedit_from_db(self.ui, field, self.member)
 
         self.ui.notes_fld.setPlainText(self.member.notes_fld)
-
         self.ui.dead_fld.setChecked(bool(self.member.dead_fld))
         if self.member.birthDate_fld:
             self.ui.birthDate_fld.setDateTime(self.member.birthDate_fld)
@@ -215,7 +230,6 @@ class MemberEdit(QWidget):
 
         # Contact information
         contactinfo = self.member.contactinfo
-
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
 
@@ -242,6 +256,7 @@ class MemberEdit(QWidget):
                 self.ui.postView.edit(postlistmodel.index(row)))
 
     def removeSelectedMembership(self, listview):
+        """Remove selected items from a QListView."""
         selections = listview.selectedIndexes()
         for index in selections:
             listview.model().removeRow(index.row())
@@ -252,6 +267,12 @@ class MemberEdit(QWidget):
             return
 
     def accept(self):
+        """Commit Member.*_fld and contactinfo.*_fld changes to database.
+
+        Most notably all the QListView changes are already committed.
+
+        """
+
         for field in Member.editable_text_fields:
             if (field == "username_fld" and not
                     self.ui.username_fld.hasAcceptableInput()):
@@ -284,19 +305,28 @@ class MemberEdit(QWidget):
         self.close()
 
     def reject(self):
+        """Close the dialog without saving the fields to the database."""
+        #TODO: Also rollback the MembershipListView changes.
+        self.session.rollback()
         self.close()
 
 
 class SvakSvat(QMainWindow):
-    def __init__(self, SessionMaker):
+    """Member Registry Application."""
+    def __init__(self, session):
+        """Create the window.
+
+        session -- Sqlalchemy scoped_session.
+
+        """
         super().__init__()
-        self.session = SessionMaker  # Assuming scoped_session
+        self.session = session  # Assuming scoped_session
 
         self.initUI()
         self.setStatusMessage("Redo!", 3000)
 
     def initUI(self):
-        vbox = QVBoxLayout()
+        """Create the window and connect the Qt signals to slots"""
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -321,6 +351,7 @@ class SvakSvat(QMainWindow):
         self.setWindowTitle('SvakSvat')
 
     def removeMember(self):
+        """Remove selected member."""
         member = self.currentMember()
         wholename = member.getWholeName()
         self.session.delete(member)
@@ -329,6 +360,7 @@ class SvakSvat(QMainWindow):
         self.setStatusMessage("Användare %s borttagen!" % wholename)
 
     def populateMemberList(self, choosemember=None):
+        """Fill the memberlist from the database."""
         self.memberlist = self.session.query(Member).order_by(
                 Member.surName_fld).all()
         self.ui.searchfield.clear()
@@ -338,15 +370,22 @@ class SvakSvat(QMainWindow):
             self.ui.memberlistwidget.setCurrentRow(memberindex)
 
     def currentMember(self):
+        """Returns the currently selected member."""
         member = self.filteredmemberlist[self.ui.memberlistwidget.currentRow()]
         return member
 
     def editMember(self):
+        """Edit the currently selected member."""
         member = self.currentMember()
         self.membereditwidget = MemberEdit(self.session, member, self)
         self.membereditwidget.show()
 
     def searchlist(self, pattern=''):
+        """Perform a filter operation on the memberlist.
+
+        pattern -- The string to match.
+
+        """
         self.filteredmemberlist = [member for member in self.memberlist
                 if member.getWholeName().upper().find(pattern.upper()) != -1]
         self.ui.memberlistwidget.clear()
@@ -354,6 +393,10 @@ class SvakSvat(QMainWindow):
             self.ui.memberlistwidget.addItem(member.getWholeName())
 
     def showMemberInfo(self, member=None):
+        """Show the member's info in the panel below.
+
+        member -- backend.orm.Member to show.
+        """
         if not member:
             member = self.currentMember()
         contactinfo = member.contactinfo
@@ -380,6 +423,11 @@ Användarnamn: %s
         self.ui.memberinfo.setText(memberinfo + membershipinfo)
 
     def getMembershipInfo(self, member):
+        """Get the current membershipinfo for a member.
+
+        member -- backend.orm.Member
+
+        Used in showMemberInfo"""
         currentposts = [postmembership.post.name_fld for postmembership in
                 member.postmemberships if postmembership.isCurrent()]
         currentgroups = [groupmembership.group.name_fld for groupmembership in
@@ -389,6 +437,12 @@ Användarnamn: %s
                 "\n".join(["\n\nGrupper:"] + currentgroups))
 
     def setStatusMessage(self, message, milliseconds=3000):
+        """Sets a status message in the MainWindow.
+
+        message -- The status message to set.
+        milliseconds -- The lifetime of the message.
+
+        """
         self.ui.statusbar.showMessage(message, milliseconds)
 
 
