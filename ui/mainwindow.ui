@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>337</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QFormLayout" name="formLayout">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="searchlabelLabel">
+          <property name="text">
+           <string>Sök</string>
+          </property>
+          <property name="buddy">
+           <cstring>searchfield</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="searchfield"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QListWidget" name="memberlistwidget"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Info</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="memberinfo">
+        <property name="undoRedoEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>337</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuNew">
+    <property name="title">
+     <string>Ny</string>
+    </property>
+    <addaction name="actionNewMember"/>
+    <addaction name="actionNewGroup"/>
+    <addaction name="actionNewPost"/>
+    <addaction name="actionNewDepartment"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Editera</string>
+    </property>
+    <addaction name="actionGrupper"/>
+    <addaction name="actionPoster"/>
+    <addaction name="actionAvdelningar"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Fil</string>
+    </property>
+    <addaction name="actionMakeBackup"/>
+    <addaction name="actionRestoreFromBackup"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuNew"/>
+   <addaction name="menuEdit"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNewMember">
+   <property name="text">
+    <string>Medlem</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionNewGroup">
+   <property name="text">
+    <string>Grupp</string>
+   </property>
+  </action>
+  <action name="actionNewPost">
+   <property name="text">
+    <string>Post</string>
+   </property>
+  </action>
+  <action name="actionGrupper">
+   <property name="text">
+    <string>Grupper</string>
+   </property>
+  </action>
+  <action name="actionPoster">
+   <property name="text">
+    <string>Poster</string>
+   </property>
+  </action>
+  <action name="actionMakeBackup">
+   <property name="text">
+    <string>Gör säkerhetskopia</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionRestoreFromBackup">
+   <property name="text">
+    <string>Återställ databas</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionAvdelningar">
+   <property name="text">
+    <string>Avdelningar</string>
+   </property>
+  </action>
+  <action name="actionNewDepartment">
+   <property name="text">
+    <string>Avdelning</string>
+   </property>
+  </action>
+  <action name="actionRemoveMember">
+   <property name="text">
+    <string>Ta bort medlem</string>
+   </property>
+  </action>
+  <action name="actionEditMember">
+   <property name="text">
+    <string>Editera Medlem</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

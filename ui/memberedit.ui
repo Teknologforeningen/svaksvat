@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>MemberEdit</class>
+ <widget class="QDialog" name="MemberEdit">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>630</width>
-    <height>590</height>
+    <width>644</width>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -301,13 +301,13 @@
           <widget class="QListView" name="groupView"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="removeGroupButton">
            <property name="text">
             <string/>
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -321,12 +321,12 @@
             <string>Lägg till grupp:</string>
            </property>
            <property name="buddy">
-            <cstring>comboBox</cstring>
+            <cstring>group_comboBox</cstring>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="group_comboBox">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -350,13 +350,13 @@
           <widget class="QListView" name="postView"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="removePostButton">
            <property name="text">
             <string/>
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>res/list_remove.png</normaloff>res/list_remove.png</iconset>
+             <normaloff>../res/list_remove.png</normaloff>../res/list_remove.png</iconset>
            </property>
           </widget>
          </item>
@@ -370,12 +370,12 @@
             <string>Lägg till post:</string>
            </property>
            <property name="buddy">
-            <cstring>comboBox_2</cstring>
+            <cstring>post_comboBox</cstring>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_2">
+          <widget class="QComboBox" name="post_comboBox">
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -400,7 +400,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>buttonBox</tabstop>
   <tabstop>givenNames_fld</tabstop>
   <tabstop>surName_fld</tabstop>
   <tabstop>maidenName_fld</tabstop>
@@ -427,12 +426,12 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>MemberEdit</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>580</y>
+     <x>266</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -443,12 +442,12 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>MemberEdit</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>580</y>
+     <x>334</x>
+     <y>576</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

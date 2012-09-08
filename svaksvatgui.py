@@ -10,16 +10,45 @@ from PyQt4.QtGui import *
 from sqlalchemy.orm import scoped_session
 
 from backend import connect
-from backend.orm import Member, get_field_max_length
-from backend.listmodels import MembershipListModel
-
-from memberedit import Ui_Dialog
+from backend.orm import (Member, ContactInformation, get_field_max_length,
+        create_member, create_phux)
+from backend.listmodels import (GroupListModel, PostListModel,
+        MembershipDelegate)
+from ui.mainwindow import Ui_MainWindow
+from ui.memberedit import Ui_MemberEdit
+from ui.newmember import Ui_NewMember
 
 import passwordsafe
 
+def init_gender_combobox(combobox, member=None):
+    combobox.addItem("Okänd")
+    combobox.addItem("Man")
+    combobox.addItem("Kvinna")
+
+    if member and member.gender_fld:
+        combobox.setCurrentIndex(member.gender_fld)
+
+def fill_qlineedit_from_db(container, fieldname, table):
+    """Fill QLineEdit with corresponding value from database and set the
+    maximum length. Skip if fieldname not present in container or table"""
+    try:
+        getattr(container, fieldname).setText(getattr(table, fieldname))
+        getattr(container, fieldname).setMaxLength(get_field_max_length(table,
+            fieldname))
+    except AttributeError:
+        return
+
+def update_qtextfield_to_db(container, fieldname, table):
+    "Write the value of the textfield to database."
+    try:
+        setattr(table, fieldname, str(getattr(container, fieldname).text()))
+    except AttributeError:
+        return
+
+
 class UsernameValidator(QValidator):
     def __init__(self, session, parent=None):
-        super(UsernameValidator, self).__init__()
+        super().__init__()
         self.parent = parent
         self.session = session
 
@@ -42,10 +71,65 @@ class UsernameValidator(QValidator):
                 background-color: rgb(255, 255, 255); }")
             return (QValidator.Acceptable, stripped, pos)
 
+class NewMemberDialog(QWidget):
+    def __init__(self, session, parent=None):
+        self.parent = parent
+        super().__init__()
+        self.ui = Ui_NewMember()
+        self.ui.setupUi(self)
+        self.session = session
+        self.setWindowTitle("Ny medlem")
+        self.usernamevalidator = UsernameValidator(self.session, self)
+        self.member = Member() # Needed in UsernameValidator
+        self.ui.username_fld.setValidator(self.usernamevalidator)
+        init_gender_combobox(self.ui.gender_fld)
+
+        # Set correct lengths for QTextEdits
+        for field in self.member.editable_text_fields:
+            fill_qlineedit_from_db(self.ui, field, self.member)
+
+        contactinfo = ContactInformation()
+        for field in contactinfo.publicfields:
+            fill_qlineedit_from_db(self.ui, field, contactinfo)
+
+        self.show()
+
+
+    def accept(self):
+        member = None
+        if self.ui.makePhux_CheckBox.isChecked():
+            member = create_phux(self.session)
+
+        else:
+            member = create_member(self.session)
+
+
+        for field in Member.editable_text_fields:
+            if (field == "username_fld" and not
+                    self.ui.username_fld.hasAcceptableInput()):
+                continue
+
+            update_qtextfield_to_db(self.ui, field, member)
+
+        self.member.gender_fld = self.ui.gender_fld.currentIndex()
+
+        contactinfo = member.contactinfo
+        for field in contactinfo.publicfields:
+            update_qtextfield_to_db(self.ui, field, contactinfo)
+
+        self.session.commit()
+        self.parent.populateMemberList(choosemember=member)
+        self.close()
+
+    def reject(self):
+        self.close()
+
+
 class MemberEdit(QWidget):
-    def __init__(self, session=None, member=None):
-        super(MemberEdit, self).__init__()
-        self.ui = Ui_Dialog()
+    def __init__(self, session, member, parent=None):
+        self.parent = parent
+        super().__init__()
+        self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
         self.ui.createLDAPAccount.connect(
                 self.ui.createLDAPAccount,
@@ -63,23 +147,11 @@ class MemberEdit(QWidget):
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
 
-    def fillLineEditFromDB(self, fieldname, row=None):
-        """Fill LineEdit with corresponding value from database and set the
-        maximum length."""
-        if row is None:
-            row = self.member
-        getattr(self.ui, fieldname).setText(getattr(row, fieldname))
-        getattr(self.ui, fieldname).setMaxLength(get_field_max_length(row,
-            fieldname))
+
 
     def fillFields(self):
-        self.fillLineEditFromDB("username_fld")
-        self.fillLineEditFromDB("givenNames_fld")
-        self.fillLineEditFromDB("surName_fld")
-        self.fillLineEditFromDB("preferredName_fld")
-        self.fillLineEditFromDB("maidenName_fld")
-        self.fillLineEditFromDB("studentId_fld")
-        self.fillLineEditFromDB("nationality_fld")
+        for field in Member.editable_text_fields:
+            fill_qlineedit_from_db(self.ui, field, self.member)
 
         self.ui.notes_fld.setPlainText(self.member.notes_fld)
 
@@ -88,63 +160,62 @@ class MemberEdit(QWidget):
             self.ui.birthDate_fld.setDateTime(self.member.birthDate_fld)
         self.ui.subscribedToModulen_fld_checkbox.setChecked(
                 bool(self.member.subscribedtomodulen_fld))
-        self.ui.gender_fld.addItem("Okänd")
-        self.ui.gender_fld.addItem("Man")
-        self.ui.gender_fld.addItem("Kvinna")
-        if self.member.gender_fld:
-            self.ui.gender_fld.setCurrentIndex(self.member.gender_fld)
+
+        init_gender_combobox(self.ui.gender_fld, self.member)
 
         # Contact information
         contactinfo = self.member.contactinfo
-        self.fillLineEditFromDB("streetAddress_fld", row=contactinfo)
-        self.fillLineEditFromDB("postalCode_fld", row=contactinfo)
-        self.fillLineEditFromDB("city_fld", row=contactinfo)
-        self.fillLineEditFromDB("country_fld", row=contactinfo)
-        self.fillLineEditFromDB("phone_fld", row=contactinfo)
-        self.fillLineEditFromDB("email_fld", row=contactinfo)
+
+        for field in contactinfo.publicfields:
+            fill_qlineedit_from_db(self.ui, field, contactinfo)
+
+        mshipdelegate = MembershipDelegate()
 
         # Groups
-        groups = ["%s %d" % (groupmembership.group.name_fld,
-            groupmembership.startTime_fld.year) for groupmembership in
-                self.member.groupmemberships]
-        self.ui.groupView.setModel(MembershipListModel(self.session,
-            self.member, self))
+        grouplistmodel = GroupListModel(self.session, self.member, self,
+                self.ui.group_comboBox)
+        self.ui.groupView.setModel(grouplistmodel)
+        self.ui.groupView.setItemDelegate(mshipdelegate)
+        self.ui.removeGroupButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.groupView))
+        grouplistmodel.rowsInserted.connect(lambda index, row:
+                    self.ui.groupView.edit(grouplistmodel.index(row)))
 
         # Posts
-        posts = ["%s %d" % (postmembership.post.name_fld,
-                postmembership.startTime_fld.year)
-                for postmembership in self.member.postmemberships]
-        #self.ui.postView.setModel(ListModelCommon(self.session, self))
+        postlistmodel = PostListModel(self.session, self.member, self,
+                self.ui.post_comboBox)
+        self.ui.postView.setModel(postlistmodel)
+        self.ui.removePostButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.postView))
+        self.ui.postView.setItemDelegate(mshipdelegate)
+        postlistmodel.rowsInserted.connect(lambda index, row:
+                self.ui.postView.edit(postlistmodel.index(row)))
+
+    def removeSelectedMembership(self, listview):
+        selections = listview.selectedIndexes()
+        for index in selections:
+            listview.model().removeRow(index.row())
 
     def createAccount(self):
         if not self.member.username_fld:
             print("No username field")
             return
 
-    def updateTextFieldToDB(self, fieldname, row=None):
-        "Write the value of the textfield to database."
-        if row is None:
-            row = self.member
-
-        setattr(row, fieldname, str(getattr(self.ui, fieldname).text()))
-
-
     def accept(self):
-        if self.ui.username_fld.hasAcceptableInput():
-            self.updateTextFieldToDB("username_fld")
-        self.updateTextFieldToDB("givenNames_fld")
-        self.updateTextFieldToDB("surName_fld")
-        self.updateTextFieldToDB("preferredName_fld")
-        self.updateTextFieldToDB("maidenName_fld")
-        self.updateTextFieldToDB("studentId_fld")
-        self.updateTextFieldToDB("nationality_fld")
+        for field in Member.editable_text_fields:
+            if (field == "username_fld" and not
+                    self.ui.username_fld.hasAcceptableInput()):
+                continue
+
+            update_qtextfield_to_db(self.ui, field, self.member)
 
         self.member.notes_fld = str(self.ui.notes_fld.toPlainText()[:255])
 
         self.member.gender_fld = self.ui.gender_fld.currentIndex()
         date = self.ui.birthDate_fld.dateTime().date()
-        self.member.birthDate_fld = datetime.datetime(date.year(), date.month(),
-                date.day())
+
+        self.member.birthDate_fld = self.ui.birthDate_fld.dateTime(
+                ).toPyDateTime()
 
         self.member.dead_fld = int(self.ui.dead_fld.isChecked())
 
@@ -152,70 +223,92 @@ class MemberEdit(QWidget):
                 self.ui.subscribedToModulen_fld_checkbox.isChecked())
 
         contactinfo = self.member.contactinfo
-        self.updateTextFieldToDB("streetAddress_fld", row=contactinfo)
-        self.updateTextFieldToDB("postalCode_fld", row=contactinfo)
-        self.updateTextFieldToDB("city_fld", row=contactinfo)
-        self.updateTextFieldToDB("country_fld", row=contactinfo)
-        self.updateTextFieldToDB("phone_fld", row=contactinfo)
-        self.updateTextFieldToDB("email_fld", row=contactinfo)
+
+        for field in contactinfo.publicfields:
+            update_qtextfield_to_db(self.ui, field, contactinfo)
 
         self.session.commit()
+        self.parent.populateMemberList(choosemember=self.member)
+        self.parent.setStatusMessage("Medlem %s skapad!" %
+                self.member.getWholeName())
         self.close()
 
     def reject(self):
         self.close()
 
 
-class SimpleRegister(QWidget):
+class SvakSvat(QMainWindow):
     def __init__(self, SessionMaker):
-        super(SimpleRegister, self).__init__()
-
+        super().__init__()
         self.session = SessionMaker # Assuming scoped_session
 
         self.initUI()
+        self.setStatusMessage("Redo!", 3000)
 
     def initUI(self):
         vbox = QVBoxLayout()
-        self.searchfield = QLineEdit(self)
-        self.searchfield.textChanged.connect(self.searchlist)
-        self.memberlistwidget = QListWidget(self)
-        self.memberinfo = QTextEdit(self)
-        self.memberinfo.setReadOnly(True)
-        self.memberlistwidget.itemClicked.connect(self.showMemberInfo)
-        self.memberlistwidget.itemActivated.connect(self.editMember)
-        self.searchfield.returnPressed.connect(self.memberlistwidget.setFocus)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
 
-        # Populate list.
+        # Connect signals to slots.
+        self.ui.searchfield.textChanged.connect(self.searchlist)
+        self.ui.memberlistwidget.currentRowChanged.connect(lambda:
+                self.showMemberInfo())
+        self.ui.memberlistwidget.itemActivated.connect(self.editMember)
+        self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
+        self.ui.actionNewMember.triggered.connect(lambda:
+                NewMemberDialog(self.session, self))
+        self.ui.actionRemoveMember.triggered.connect(self.removeMember)
+        self.ui.actionEditMember.triggered.connect(self.editMember)
+
+        self.ui.memberlistwidget.addAction(self.ui.actionEditMember)
+        self.ui.memberlistwidget.addAction(self.ui.actionRemoveMember)
+        self.ui.memberlistwidget.setContextMenuPolicy(Qt.ActionsContextMenu)
+
+        self.populateMemberList()
+
+        self.setWindowTitle('SvakSvat')
+
+
+    def removeMember(self):
+        member = self.currentMember()
+        wholename = member.getWholeName()
+        self.session.delete(member)
+        self.session.commit()
+        self.populateMemberList()
+        self.setStatusMessage("Användare %s borttagen!" % wholename)
+
+
+    def populateMemberList(self, choosemember=None):
         self.memberlist = self.session.query(Member).order_by(
                 Member.surName_fld).all()
-
+        self.ui.searchfield.clear()
         self.searchlist()
-        vbox.addWidget(self.searchfield)
-        vbox.addWidget(self.memberlistwidget)
-        vbox.addWidget(self.memberinfo)
-        self.setLayout(vbox)
-        self.setWindowTitle('SimpleRegister')
+        if choosemember:
+            memberindex = self.memberlist.index(choosemember)
+            self.ui.memberlistwidget.setCurrentRow(memberindex)
 
-    def editMember(self, membername):
-        member = self.filteredmemberlist[self.memberlistwidget.currentRow()]
-        self.membereditwidget = MemberEdit(self.session, member)
+    def currentMember(self):
+        member = self.filteredmemberlist[self.ui.memberlistwidget.currentRow()]
+        return member
+
+    def editMember(self):
+        member = self.currentMember()
+        self.membereditwidget = MemberEdit(self.session, member, self)
         self.membereditwidget.show()
 
     def searchlist(self, pattern = ''):
         self.filteredmemberlist = [member for member in self.memberlist
                 if member.getWholeName().upper().find(pattern.upper()) != -1]
-        self.memberlistwidget.clear()
+        self.ui.memberlistwidget.clear()
         for member in self.filteredmemberlist:
-            self.memberlistwidget.addItem(member.getWholeName())
+            self.ui.memberlistwidget.addItem(member.getWholeName())
 
-    def showMemberInfo(self, membername):
-        member = self.filteredmemberlist[self.memberlistwidget.currentRow()]
-        memberID = member.objectId
-        contactinfo = self.session.query(Member).filter_by(
-                objectId = memberID).one().contactinfo
-        memberinfo = (
-        """
-Namn: %s %s
+    def showMemberInfo(self, member=None):
+        if not member:
+            member = self.currentMember()
+        contactinfo = member.contactinfo
+        memberinfo = ( """Namn: %s %s
 Address: %s %s %s %s
 Telefon: %s
 Mobiltelefon: %s
@@ -237,7 +330,7 @@ Användarnamn: %s
         )
 
         membershipinfo = self.getMembershipInfo(member)
-        self.memberinfo.setText(memberinfo + membershipinfo)
+        self.ui.memberinfo.setText(memberinfo + membershipinfo)
 
     def getMembershipInfo(self, member):
         currentposts = [postmembership.post.name_fld for postmembership in
@@ -248,11 +341,14 @@ Användarnamn: %s
         return ("\n".join(["\nPoster:"] + currentposts) +
                 "\n".join(["\n\nGrupper:"] + currentgroups))
 
+    def setStatusMessage(self, message, milliseconds=3000):
+        self.ui.statusbar.showMessage(message, milliseconds)
+
 def main():
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
+    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
     app = QApplication(sys.argv)
-    sr = SimpleRegister(SessionMaker)
+    sr = SvakSvat(SessionMaker)
     sr.show()
     return app.exec_()
 

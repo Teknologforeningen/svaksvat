@@ -256,8 +256,8 @@ def main():
     lm = LDAPAccountManager()
     output = lm.ldapsearch("uid=test123")
     passwd= "hunter2"
-    #if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
-    lm.delldapuser(member)
+    if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
+        lm.delldapuser(member)
     print(lm.checkldapuser(member))
     return 0
 

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NewMember</class>
+ <widget class="QDialog" name="NewMember">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>370</width>
+    <height>439</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="efternamnLabel">
+         <property name="text">
+          <string>Efternamn</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="surName_fld"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="allaFRnamnLabel">
+         <property name="text">
+          <string>Alla förnamn</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="givenNames_fld"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="tilltalsnamnLabel">
+         <property name="text">
+          <string>Tilltalsnamn</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="preferredName_fld"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="adressLabel">
+         <property name="text">
+          <string>Gatuadress</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="streetAddress_fld"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="telefonLabel">
+         <property name="text">
+          <string>Telefon</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLineEdit" name="phone_fld"/>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="emailLabel">
+         <property name="text">
+          <string>Email</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLineEdit" name="email_fld"/>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="avdelningLabel">
+         <property name="text">
+          <string>Avdelning</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QComboBox" name="department_comboBox">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="anvNdarnamnLabel">
+         <property name="text">
+          <string>Användarnamn</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QLineEdit" name="username_fld"/>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="gRTillPhuxLabel">
+         <property name="text">
+          <string>Gör till Phux</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QCheckBox" name="makePhux_CheckBox"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="kNLabel">
+         <property name="text">
+          <string>Kön</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="gender_fld"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="postnummerLabel">
+         <property name="text">
+          <string>Postnummer</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLineEdit" name="postalCode_fld"/>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="postanstaltLabel">
+         <property name="text">
+          <string>Postanstalt</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="city_fld"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>surName_fld</tabstop>
+  <tabstop>givenNames_fld</tabstop>
+  <tabstop>preferredName_fld</tabstop>
+  <tabstop>gender_fld</tabstop>
+  <tabstop>streetAddress_fld</tabstop>
+  <tabstop>postalCode_fld</tabstop>
+  <tabstop>city_fld</tabstop>
+  <tabstop>phone_fld</tabstop>
+  <tabstop>email_fld</tabstop>
+  <tabstop>department_comboBox</tabstop>
+  <tabstop>username_fld</tabstop>
+  <tabstop>makePhux_CheckBox</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>NewMember</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>313</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>NewMember</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>313</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

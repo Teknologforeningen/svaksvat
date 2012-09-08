@@ -4,7 +4,8 @@ databases.
 """
 
 # imports
-import datetime
+from datetime import (date, datetime, timedelta)
+
 from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
 from sqlalchemy.orm import relationship
@@ -46,18 +47,40 @@ def create_member(session):
     session.add_all([new_member, new_contactinfo])
     return new_member
 
+def create_membership(session, membershiptargetname, name_fld):
+    globaldict = globals()
+    membershiptargetclass = globaldict[membershiptargetname]
+
+    membershipclass = globaldict[membershiptargetname + "Membership"]
+
+    membershiptarget = session.query(membershiptargetclass).filter_by(name_fld = name_fld).one()
+
+    new_membership = create_row(membershipclass, session)
+
+    setattr(new_membership, membershiptargetname.lower(), membershiptarget)
+
+    session.add(new_membership)
+
+    return new_membership
+
+
 def create_phux(session):
     new_phux = create_member(session)
     new_phuxmembership = create_row(Membership, session)
     new_phuxmembership.member = new_phux
     new_phuxmembership.type = get_phux_membershiptype(session)
-    new_phuxmembership.startTime_fld = datetime.datetime.now()
-    new_phuxmembership.endTime_fld = datetime.datetime.now() \
-            + datetime.timedelta(days=350)
+
+    today = datetime.today()
+    year = today.year
+    new_phuxmembership.startTime_fld = today()
+    # Phuxes die before labour day.
+    if new_phuxmembership.startTime_fld > date(today.year, 4, 30):
+        year += 1
+
+    new_phuxmembership.endTime_fld = datetime(year, 4, 30)
+
     session.add(new_phuxmembership)
     return new_phux
-
-
 
 def get_declarative_base():
     """
@@ -116,9 +139,9 @@ def update_field(row, field, value, dry_run=False, verbose=False):
 # The member registry tables.
 class MemberRegistryCommon(object):
     """Common columns to all tables in the member registry."""
-    created_fld = Column(DateTime, default=datetime.datetime.now())
+    created_fld = Column(DateTime, default=datetime.now())
     createdBy_fld = Column(String(36))
-    modified_fld = Column(DateTime, onupdate=datetime.datetime.now())
+    modified_fld = Column(DateTime, onupdate=datetime.now())
     modifiedBy_fld = Column(String(36))
     notes_fld = Column(String(255))
     objectId = Column(String(36), primary_key=True)
@@ -132,12 +155,16 @@ class MembershipCommon(object):
     eventType_fld = Column(Integer)
 
     def isCurrent(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
         return ((self.endTime_fld == None or
                 self.endTime_fld > now) and
                 (self.startTime_fld == None or self.startTime_fld < now)
                 )
 
+    def setMandateToThisYear(self):
+        thisyear = date.today().year
+        self.startTime_fld = datetime(thisyear, 1, 1)
+        self.endTime_fld = datetime(thisyear, 12, 31)
 
 class ContactInformation(get_declarative_base(), MemberRegistryCommon):
     """Member Contact Information"""
@@ -213,7 +240,8 @@ class Group(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
     description_fld = Column(String)
     abbreviation_fld = Column(String)
 
-    memberships = relationship("GroupMembership", backref='group')
+    memberships = relationship("GroupMembership", backref='group',
+            cascade="all, delete, delete-orphan")
 
 
 class GroupType(get_declarative_base(), MemberRegistryCommon,
@@ -254,14 +282,24 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     dead_fld = Column(Integer)
     subscribedtomodulen_fld = Column(Integer, default=1)
     username_fld = Column(String(150))
-    lastsync_fld = Column(DateTime, default=datetime.datetime.min)
+    lastsync_fld = Column(DateTime, default=datetime.min)
 
-    contactinfo = relationship("ContactInformation", uselist=False, backref='member')
-    department = relationship("DepartmentMembership", backref='member')
-    groupmemberships = relationship("GroupMembership", backref='member')
-    memberships = relationship("Membership", backref='member')
-    postmemberships = relationship("PostMembership", backref='member')
-    presence = relationship("Presence", backref='member')
+    contactinfo = relationship("ContactInformation", uselist=False,
+            backref='member', cascade="all, delete, delete-orphan")
+    department = relationship("DepartmentMembership", backref='member',
+            cascade="all, delete, delete-orphan")
+    groupmemberships = relationship("GroupMembership", backref='member',
+            cascade="all, delete, delete-orphan")
+    memberships = relationship("Membership", backref='member',
+            cascade="all, delete, delete-orphan")
+    postmemberships = relationship("PostMembership", backref='member',
+            cascade="all, delete, delete-orphan")
+    presence = relationship("Presence", backref='member',
+            cascade="all, delete, delete-orphan")
+
+    editable_text_fields = ['givenNames_fld', 'preferredName_fld',
+            'surName_fld', 'maidenName_fld', 'nickName_fld', 'studentId_fld',
+            'occupation_fld', 'title_fld', 'nationality_fld', 'username_fld']
 
     publicfields = ['nickName_fld', 'occupation_fld',
             'nationality_fld']
@@ -335,8 +373,10 @@ class Post(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
     description_fld = Column(String)
     abbreviation_fld = Column(String)
 
-    memberships = relationship("PostMembership", backref='post')
-    groupmembership = relationship("GroupMembership", backref='post')
+    memberships = relationship("PostMembership", backref='post',
+            cascade="all, delete, delete-orphan")
+    groupmembership = relationship("GroupMembership", backref='post',
+            cascade="all, delete, delete-orphan")
 
 
 class PostType(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
@@ -387,7 +427,7 @@ class Jos_CBFields(get_declarative_base()):
 
     user_id = Column(Integer, ForeignKey("jos_users.id"),
             primary_key=True)
-    lastupdatedate = Column(DateTime, onupdate=datetime.datetime.now)
+    lastupdatedate = Column(DateTime, onupdate=datetime.now)
     cb_streetaddress = Column(String(255))
     cb_postalcode = Column(String(255))
     cb_city = Column(String(255))
