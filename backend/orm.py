@@ -303,8 +303,8 @@ class Member(get_declarative_base(), MemberRegistryCommon):
 
     contactinfo = relationship("ContactInformation", uselist=False,
             backref='member', cascade="all, delete, delete-orphan")
-    department = relationship("DepartmentMembership", backref='member',
-            cascade="all, delete, delete-orphan")
+    departmentmemberships = relationship("DepartmentMembership",
+            backref='member', cascade="all, delete, delete-orphan")
     groupmemberships = relationship("GroupMembership", backref='member',
             cascade="all, delete, delete-orphan")
     memberships = relationship("Membership", backref='member',

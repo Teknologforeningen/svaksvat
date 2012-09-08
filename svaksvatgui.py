@@ -13,7 +13,7 @@ from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
         create_member, create_phux)
 from backend.listmodels import (GroupListModel, PostListModel,
-        MembershipDelegate, configure_membership_qcombobox,
+        DepartmentListModel, MembershipDelegate, configure_membership_qcombobox,
         assign_membership_to_member)
 
 from ui.mainwindow import Ui_MainWindow
@@ -191,6 +191,16 @@ class MemberEdit(QDialog):
         self.ui.postView.setItemDelegate(mshipdelegate)
         postlistmodel.rowsInserted.connect(lambda index, row:
                 self.ui.postView.edit(postlistmodel.index(row)))
+
+        # Departments
+        departmentlistmodel = DepartmentListModel(self.session, self.member, self,
+                self.ui.department_comboBox)
+        self.ui.departmentView.setModel(departmentlistmodel)
+        self.ui.removeDepartmentButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.departmentView))
+        self.ui.departmentView.setItemDelegate(mshipdelegate)
+        departmentlistmodel.rowsInserted.connect(lambda index, row:
+                self.ui.departmentView.edit(departmentlistmodel.index(row)))
 
     def removeSelectedMembership(self, listview):
         selections = listview.selectedIndexes()

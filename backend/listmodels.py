@@ -162,11 +162,11 @@ class MembershipListModel(QAbstractListModel):
 
         startyear = membership.startTime_fld.year
         if not membership.endTime_fld:
-            return startyear + " -"
+            return str(startyear) + " - nuvarande"
 
         endyear = membership.endTime_fld.year
         if startyear == endyear:
-            return startyear
+            return str(startyear)
 
         startmonth = membership.startTime_fld.month
         endmonth = membership.endTime_fld.month
@@ -192,6 +192,11 @@ class PostListModel(MembershipListModel):
         super().__init__(session, member, parent, "post",
                 add_membership_combobox)
 
+class DepartmentListModel(MembershipListModel):
+    def __init__(self, session, member, parent,
+            add_membership_combobox):
+        super().__init__(session, member, parent, "department",
+                add_membership_combobox)
 
 class MembershipDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
