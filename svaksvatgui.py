@@ -85,8 +85,13 @@ class UsernameValidator(QValidator):
 
     """
     def __init__(self, session, parent):
-        """Construct the validator with given  session.
+        """Construct the validator with given session and parent.
 
+        session -- Sqlalchemy session.
+        parent -- Parent including "member" and ui.username_fld members.
+
+        The MemberEdit and NewMemberDialog classes are designed to be parent
+        parameters.
         """
 
         super().__init__()
@@ -94,10 +99,11 @@ class UsernameValidator(QValidator):
         self.session = session
 
     def fixup(self, input):
-        # Strip whitespace and special characters.
+        """Strip whitespace and special characters."""
         return ''.join(c for c in input if c.isalnum())
 
     def validate(self, input, pos):
+        """Checks for username uniqueness."""
         stripped = self.fixup(input)
         not_unique = self.session.query(Member).filter(Member.username_fld ==
                 stripped).filter(Member.objectId !=
@@ -114,6 +120,7 @@ class UsernameValidator(QValidator):
 
 
 class NewMemberDialog(QWidget):
+    """A dialog to create a new member to the registry."""
     def __init__(self, session, parent=None):
         self.parent = parent
         super().__init__()
@@ -134,6 +141,9 @@ class NewMemberDialog(QWidget):
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
 
+        if self.member.birthDate_fld:
+            self.ui.birthDate_fld.setDateTime(self.member.birthDate_fld)
+
         self.show()
 
     def accept(self):
@@ -152,6 +162,8 @@ class NewMemberDialog(QWidget):
             update_qtextfield_to_db(self.ui, field, member)
 
         self.member.gender_fld = self.ui.gender_fld.currentIndex()
+        self.member.birthDate_fld = self.ui.birthDate_fld.dateTime(
+                ).toPyDateTime()
 
         contactinfo = member.contactinfo
         for field in contactinfo.publicfields:
