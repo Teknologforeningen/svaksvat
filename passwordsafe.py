@@ -249,7 +249,7 @@ class PasswordSafe:
                         threadfinishedmutex.release()
 
                 else:
-                    print(e)
+                    raise(e)
 
 # internal functions & classes
 def testauth(username, password):
