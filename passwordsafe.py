@@ -31,12 +31,18 @@ class CredentialDialogReject(Exception):
 class CredentialDialog(QtGui.QDialog):
     """Asks for credentials."""
     def __init__(self, context="", askpassword=True):
+        """Creates a dialog that asks for username and optionally password."""
         super(CredentialDialog, self).__init__()
 
         self.askpassword = askpassword
         self.initUI(context)
 
     def initUI(self, context):
+        """Creates the UI widgets.
+
+        context -- String to set as windowtitle.
+
+        """
         self.formlayout = QtGui.QFormLayout(self)
 
         self.username_le = QtGui.QLineEdit(self)
@@ -68,6 +74,7 @@ class CredentialDialog(QtGui.QDialog):
         self.show()
 
     def getCredentials(self):
+        """Returns the asked credentials or raises CredentialDialogReject."""
         if self.result(): # Accepted?
             username = self.username_le.text()
             password = ""
@@ -79,6 +86,7 @@ class CredentialDialog(QtGui.QDialog):
         raise CredentialDialogReject()
 
 class PasswordSafe:
+    """Class that"""
     def __init__(self, configfile="svaksvat.cfg", enablegui=False):
         self.configfile = configfile
         self.configparser = configparser.ConfigParser()
@@ -86,7 +94,7 @@ class PasswordSafe:
 
         self.inputfunc = input
         self.askcredentialsfunc = self.askcredentialsCLI
-        if not sys.stdin.isatty() or enablegui:
+        if enablegui:# or not sys.stdin.isatty():
             self.askcredentialsfunc = self.askcredentialsQt
             self.inputfunc = self.inputfuncGUI
 
@@ -277,8 +285,8 @@ def testfunction():
     return True
 
 def main():
-    ps = PasswordSafe()
-    ps.connect_with_config("memberslocalhost")
+    #ps = PasswordSafe(enablegui=True)
+    #ps.connect_with_config("memberslocalhost")
 
     if testfunction():
         return 0
@@ -289,9 +297,9 @@ if __name__ == '__main__':
 
     app = QtGui.QApplication(sys.argv)
     #pd = CredentialDialog("Hello")
-    ps = PasswordSafe()
-    print(ps.inputfuncGUI("Hello"))
+    #ps = PasswordSafe(enablegui=True)
+    #print(ps.inputfuncGUI("Hello"))
     #print(pd.getCredentials())
-    #status = main()
-    #sys.exit(status)
+    status = main()
+    sys.exit(status)
 
