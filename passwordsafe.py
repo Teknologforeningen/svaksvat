@@ -29,7 +29,7 @@ class CredentialDialogReject(Exception):
 # classes
 
 class CredentialDialog(QtGui.QDialog):
-
+    """Asks for credentials."""
     def __init__(self, context="", askpassword=True):
         super(CredentialDialog, self).__init__()
 

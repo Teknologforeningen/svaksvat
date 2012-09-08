@@ -290,7 +290,7 @@ class Member(get_declarative_base(), MemberRegistryCommon):
             cascade="all, delete, delete-orphan")
     groupmemberships = relationship("GroupMembership", backref='member',
             cascade="all, delete, delete-orphan")
-    memberships = relationship("Membership", backref='member',
+    memberships = relationship("MembershipMembership", backref='member',
             cascade="all, delete, delete-orphan")
     postmemberships = relationship("PostMembership", backref='member',
             cascade="all, delete, delete-orphan")
@@ -352,7 +352,7 @@ class Membership(get_declarative_base(), MemberRegistryCommon,
     abbreviation_fld = Column(String)
     description_fld = Column(String)
 
-    membership = relationship("Membership", backref='type')
+    membership = relationship("MembershipMembership", backref='type')
 
 
 class PostMembership(get_declarative_base(), MemberRegistryCommon,
