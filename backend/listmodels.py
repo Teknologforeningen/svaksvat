@@ -65,15 +65,28 @@ def assign_membership_to_member(session, membershiptypename, membershipname,
 
 class MembershipListModel(QAbstractListModel):
     def __init__(self, session, member, parent=None,
-        membershiptype="group", add_membership_combobox=None):
+        membershiptype="group", add_membership_combobox=None,
+        add_for_indefinite_time=False):
         super().__init__(parent)
         self.session = session
         self.member = session.merge(member) # Get local object for this Model
         self.membershiptype = membershiptype
+        if membershiptype == "membership":
+            self.membershiptype = ""
+
+        self.membershiptargetname = self.membershiptype
+
+        if not self.membershiptype:
+            self.membershiptargetname = "type"
+
         self.internalDataRefresh()
         self.combobox = add_membership_combobox
-        self.configureAddMembershipQComboBox()
+
+        if self.combobox != None:
+            self.configureAddMembershipQComboBox()
+
         self.parent = parent
+        self.add_for_indefinite_time = add_for_indefinite_time
 
     def internalDataRefresh(self):
         self.session.refresh(self.member)
@@ -89,7 +102,8 @@ class MembershipListModel(QAbstractListModel):
         row = index.row()
 
         membership = self._data[row]
-        membershiptarget = getattr(membership, self.membershiptype)
+
+        membershiptarget = getattr(membership, self.membershiptargetname)
         duration = self.membershipDuration(membership)
         if role == Qt.DisplayRole:
             return "%s %s" % (membershiptarget.name_fld,
@@ -134,12 +148,15 @@ class MembershipListModel(QAbstractListModel):
 
         membershipname = self.combobox.currentText()
         membershiptypename = self.membershiptype.title()
+        if not membershiptypename:
+            membershiptypename = "Membership"
 
         for i in range(count):
 
             if not assign_membership_to_member(self.session, membershiptypename,
                     membershipname, self.member, parent=self.parent,
-                    combobox=self.combobox):
+                    combobox=self.combobox,
+                    indefinite_time=self.add_for_indefinite_time):
                 return False
 
         self.endInsertRows()
@@ -176,6 +193,9 @@ class MembershipListModel(QAbstractListModel):
     def configureAddMembershipQComboBox(self):
         # Membershiptype begins with upper-case character
         membershiptypetablename = self.membershiptype.title()
+        if not membershiptypetablename:
+            membershiptypetablename = "MembershipType"
+
         configure_membership_qcombobox(self.combobox, membershiptypetablename,
                 self.session)
         self.combobox.lineEdit().returnPressed.connect(lambda: self.insertRow(self.rowCount()))
@@ -196,7 +216,13 @@ class DepartmentListModel(MembershipListModel):
     def __init__(self, session, member, parent,
             add_membership_combobox):
         super().__init__(session, member, parent, "department",
-                add_membership_combobox)
+                add_membership_combobox, True)
+
+class MembershipListModel(MembershipListModel):
+    def __init__(self, session, member, parent,
+            add_membership_combobox):
+        super().__init__(session, member, parent, "membership",
+                add_membership_combobox, True)
 
 class MembershipDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
@@ -222,6 +248,7 @@ class MembershipDelegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         membership = index.data(Qt.EditRole)
+
         startdate = membership.startTime_fld.date()
         enddate = membership.endTime_fld.date()
 

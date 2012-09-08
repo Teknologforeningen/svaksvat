@@ -368,7 +368,7 @@ class MembershipType(get_declarative_base(), MemberRegistryCommon,
     abbreviation_fld = Column(String)
     description_fld = Column(String)
 
-    membership = relationship("Membership", backref='type')
+    memberships = relationship("Membership", backref='type')
 
 
 class PostMembership(get_declarative_base(), MemberRegistryCommon,

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Sat Sep  8 11:28:55 2012
+# Created: Sat Sep  8 12:18:21 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_MemberEdit(object):
     def setupUi(self, MemberEdit):
         MemberEdit.setObjectName(_fromUtf8("MemberEdit"))
-        MemberEdit.resize(848, 595)
+        MemberEdit.resize(850, 638)
         self.gridLayout = QtGui.QGridLayout(MemberEdit)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.horizontalLayout = QtGui.QHBoxLayout()
