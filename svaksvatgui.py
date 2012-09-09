@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""SvakSvat Member register GUI."""
 import sys
 import os
 import subprocess
@@ -13,14 +14,27 @@ from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
         create_member, create_phux)
 from backend.listmodels import (GroupListModel, PostListModel,
-        MembershipDelegate)
+        DepartmentListModel, MembershipListModel, MembershipDelegate,
+        configure_membership_qcombobox, assign_membership_to_member)
+
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
 
 import passwordsafe
 
+
 def init_gender_combobox(combobox, member=None):
+    """Initializes a QComboBox to gender_fld.
+
+    Inserts the possible gender names in the database and assigns the
+    combobox's current value to the given member's gender_fld value.
+
+    combobox -- The QComboBox to be initialized.
+    member -- A backend.orm.Member whose gender_fld gets assigned to the
+    combobox
+
+    """
     combobox.addItem("Okänd")
     combobox.addItem("Man")
     combobox.addItem("Kvinna")
@@ -28,18 +42,38 @@ def init_gender_combobox(combobox, member=None):
     if member and member.gender_fld:
         combobox.setCurrentIndex(member.gender_fld)
 
-def fill_qlineedit_from_db(container, fieldname, table):
-    """Fill QLineEdit with corresponding value from database and set the
-    maximum length. Skip if fieldname not present in container or table"""
+
+def fill_qlineedit_from_db(lineedit, fieldname, table):
+    """Initialize QLineEdit from a ORM-mapped table.
+
+    lineedit -- QLineEdit or similar. setText and setMaxLength methods used.
+    fieldname -- Table's column name. Ie. givenNames_fld.
+    table -- ORM-mapping for database table Ie. Member or ContactInformation.
+
+    Fills the container with corresponding value from the database table field
+    of string type and sets the maximum length. Skip if fieldname not present
+    in container or table.
+
+    Use update_qtextfield_to_db to bring the changes back to database.
+
+    """
     try:
-        getattr(container, fieldname).setText(getattr(table, fieldname))
-        getattr(container, fieldname).setMaxLength(get_field_max_length(table,
+        getattr(lineedit, fieldname).setText(getattr(table, fieldname))
+        getattr(lineedit, fieldname).setMaxLength(get_field_max_length(table,
             fieldname))
+
     except AttributeError:
         return
 
+
 def update_qtextfield_to_db(container, fieldname, table):
-    "Write the value of the textfield to database."
+    """Write the text from a container to database table.
+
+    container -- needs to have text()-method
+    fieldname -- Table's column name. Ie. givenNames_fld.
+    table -- ORM-mapping for database table Ie. Member or ContactInformation.
+
+    """
     try:
         setattr(table, fieldname, str(getattr(container, fieldname).text()))
     except AttributeError:
@@ -47,7 +81,16 @@ def update_qtextfield_to_db(container, fieldname, table):
 
 
 class UsernameValidator(QValidator):
-    def __init__(self, session, parent=None):
+    """Validates LDAP-usernames in QTextFields.
+
+    Makes sure that no other Member has the same username_fld in the database.
+
+    """
+    def __init__(self, session, parent):
+        """Construct the validator with given  session.
+
+        """
+
         super().__init__()
         self.parent = parent
         self.session = session
@@ -71,16 +114,16 @@ class UsernameValidator(QValidator):
                 background-color: rgb(255, 255, 255); }")
             return (QValidator.Acceptable, stripped, pos)
 
-class NewMemberDialog(QWidget):
+class NewMemberDialog(QDialog):
     def __init__(self, session, parent=None):
         self.parent = parent
-        super().__init__()
+        super().__init__(parent=self.parent)
         self.ui = Ui_NewMember()
         self.ui.setupUi(self)
         self.session = session
         self.setWindowTitle("Ny medlem")
         self.usernamevalidator = UsernameValidator(self.session, self)
-        self.member = Member() # Needed in UsernameValidator
+        self.member = Member()  # Needed in UsernameValidator
         self.ui.username_fld.setValidator(self.usernamevalidator)
         init_gender_combobox(self.ui.gender_fld)
 
@@ -92,8 +135,8 @@ class NewMemberDialog(QWidget):
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
 
-        self.show()
-
+        configure_membership_qcombobox(self.ui.department_comboBox, "Department",
+                self.session)
 
     def accept(self):
         member = None
@@ -103,7 +146,6 @@ class NewMemberDialog(QWidget):
         else:
             member = create_member(self.session)
 
-
         for field in Member.editable_text_fields:
             if (field == "username_fld" and not
                     self.ui.username_fld.hasAcceptableInput()):
@@ -111,43 +153,43 @@ class NewMemberDialog(QWidget):
 
             update_qtextfield_to_db(self.ui, field, member)
 
-        self.member.gender_fld = self.ui.gender_fld.currentIndex()
+        member.gender_fld = self.ui.gender_fld.currentIndex()
 
         contactinfo = member.contactinfo
         for field in contactinfo.publicfields:
             update_qtextfield_to_db(self.ui, field, contactinfo)
 
+        if not assign_membership_to_member(self.session, "Department",
+                self.ui.department_comboBox.currentText(), member, parent=self,
+                combobox=self.ui.department_comboBox, indefinite_time=True):
+            return # Don't yet commit if Department not chosen.
+
         self.session.commit()
         self.parent.populateMemberList(choosemember=member)
-        self.close()
+        self.parent.setStatusMessage("Medlem %s skapad!" %
+                member.getWholeName())
+        super().accept()
 
     def reject(self):
-        self.close()
+        super().reject()
 
 
-class MemberEdit(QWidget):
+class MemberEdit(QDialog):
     def __init__(self, session, member, parent=None):
         self.parent = parent
-        super().__init__()
+        super().__init__(parent=self.parent)
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
-        self.ui.createLDAPAccount.connect(
-                self.ui.createLDAPAccount,
-                SIGNAL("clicked()"),
-                self.createAccount
-                )
-
         self.session = session
-        self.member = self.session.query(Member).filter_by(objectId =
-                member.objectId).one()
+        self.member = self.session.query(Member).filter_by(
+                objectId=member.objectId).one()
 
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
+
         self.usernamevalidator = UsernameValidator(self.session,
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
-
-
 
     def fillFields(self):
         for field in Member.editable_text_fields:
@@ -191,6 +233,22 @@ class MemberEdit(QWidget):
         postlistmodel.rowsInserted.connect(lambda index, row:
                 self.ui.postView.edit(postlistmodel.index(row)))
 
+        # Departments
+        departmentlistmodel = DepartmentListModel(self.session, self.member, self,
+                self.ui.department_comboBox)
+        self.ui.departmentView.setModel(departmentlistmodel)
+        self.ui.removeDepartmentButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.departmentView))
+        self.ui.departmentView.setItemDelegate(mshipdelegate)
+
+        # Memberships
+        membershiplistmodel = MembershipListModel(self.session, self.member,
+                self, None)
+        self.ui.membershipView.setModel(membershiplistmodel)
+        self.ui.removeMembershipButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.membershipView))
+        self.ui.membershipView.setItemDelegate(mshipdelegate)
+
     def removeSelectedMembership(self, listview):
         selections = listview.selectedIndexes()
         for index in selections:
@@ -229,18 +287,16 @@ class MemberEdit(QWidget):
 
         self.session.commit()
         self.parent.populateMemberList(choosemember=self.member)
-        self.parent.setStatusMessage("Medlem %s skapad!" %
-                self.member.getWholeName())
-        self.close()
+        super().accept()
 
     def reject(self):
-        self.close()
+        super().reject()
 
 
 class SvakSvat(QMainWindow):
     def __init__(self, SessionMaker):
         super().__init__()
-        self.session = SessionMaker # Assuming scoped_session
+        self.session = SessionMaker  # Assuming scoped_session
 
         self.initUI()
         self.setStatusMessage("Redo!", 3000)
@@ -256,8 +312,7 @@ class SvakSvat(QMainWindow):
                 self.showMemberInfo())
         self.ui.memberlistwidget.itemActivated.connect(self.editMember)
         self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
-        self.ui.actionNewMember.triggered.connect(lambda:
-                NewMemberDialog(self.session, self))
+        self.ui.actionNewMember.triggered.connect(self.createMember)
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
         self.ui.actionEditMember.triggered.connect(self.editMember)
 
@@ -269,6 +324,9 @@ class SvakSvat(QMainWindow):
 
         self.setWindowTitle('SvakSvat')
 
+    def createMember(self):
+        newmemberdialog = NewMemberDialog(self.session, self)
+        newmemberdialog.exec()
 
     def removeMember(self):
         member = self.currentMember()
@@ -277,7 +335,6 @@ class SvakSvat(QMainWindow):
         self.session.commit()
         self.populateMemberList()
         self.setStatusMessage("Användare %s borttagen!" % wholename)
-
 
     def populateMemberList(self, choosemember=None):
         self.memberlist = self.session.query(Member).order_by(
@@ -297,7 +354,7 @@ class SvakSvat(QMainWindow):
         self.membereditwidget = MemberEdit(self.session, member, self)
         self.membereditwidget.show()
 
-    def searchlist(self, pattern = ''):
+    def searchlist(self, pattern=''):
         self.filteredmemberlist = [member for member in self.memberlist
                 if member.getWholeName().upper().find(pattern.upper()) != -1]
         self.ui.memberlistwidget.clear()
@@ -308,14 +365,13 @@ class SvakSvat(QMainWindow):
         if not member:
             member = self.currentMember()
         contactinfo = member.contactinfo
-        memberinfo = ( """Namn: %s %s
+        memberinfo = """Namn: %s %s
 Address: %s %s %s %s
 Telefon: %s
 Mobiltelefon: %s
 Email: %s
 Användarnamn: %s
-"""
-        %   (
+""" % (
             member.givenNames_fld,
             member.surName_fld,
             contactinfo.streetAddress_fld,
@@ -327,7 +383,6 @@ Användarnamn: %s
             contactinfo.email_fld,
             member.username_fld
             )
-        )
 
         membershipinfo = self.getMembershipInfo(member)
         self.ui.memberinfo.setText(memberinfo + membershipinfo)
@@ -343,6 +398,7 @@ Användarnamn: %s
 
     def setStatusMessage(self, message, milliseconds=3000):
         self.ui.statusbar.showMessage(message, milliseconds)
+
 
 def main():
     ps = passwordsafe.PasswordSafe()

@@ -1,3 +1,6 @@
+
+# imports
+import time
 import datetime
 
 from PyQt4.QtCore import *
@@ -7,17 +10,78 @@ from ui.membershipedit import Ui_MembershipEdit
 
 from . import orm
 
+# constants
+# exception classes
+# interface functions
+
+#TODO: Adding membership through combobox sometimes doesn't leave editor open.
+# especially if last group in the list has the same name.
+# Has something to do with MemberEdit being a QDialog. If it's QWidget the
+# problem disappears.
+def configure_membership_qcombobox(combobox, membershiptypetablename, session):
+    membershiptargetclass = getattr(orm, membershiptypetablename)
+    membershiptargets = session.query(membershiptargetclass).order_by(
+            membershiptargetclass.name_fld).all()
+    membershiptargetnames = [target.name_fld for target in
+            membershiptargets]
+
+    completer = QCompleter(membershiptargetnames)
+    combobox.setCompleter(completer)
+    combobox.addItems(membershiptargetnames)
+
+    return combobox
+
+def assign_membership_to_member(session, membershiptypename, membershipname,
+        member, parent=None, combobox=None, indefinite_time=False):
+    membership = orm.create_membership(session,
+            membershiptypename, membershipname)
+
+    if not membership:
+        questiontext = "%s finns inte. Skall den skapas?" % (membershipname)
+
+        if QMessageBox.question(parent, membershipname + " hittades inte!",
+                questiontext, "Nej", "Ja",
+                escapeButtonNumber=0):
+            membership = orm.create_membership(session,
+                    membershiptypename, membershipname,
+                    create_nonexistent_target=True)
+            if combobox:
+                combobox.addItem(membershipname)
+
+        else:
+            session.rollback()
+            return False
+
+    membership.member = member
+
+    membership.startTime_fld = datetime.datetime.now()
+    if not indefinite_time:
+        membership.setMandateToThisYear()
+
+    return True
+
+
+# classes
+
 class MembershipListModel(QAbstractListModel):
     def __init__(self, session, member, parent=None,
-        membershiptype="group", add_membership_combobox=None):
+        membershiptype="group", add_membership_combobox=None,
+        add_for_indefinite_time=False):
         super().__init__(parent)
         self.session = session
-        self.member = session.merge(member) # Get local object for this Model
+        self.member = self.session.merge(member) # Get local object for this Model
         self.membershiptype = membershiptype
+
+        self.membershiptargetname = self.membershiptype
+
         self.internalDataRefresh()
         self.combobox = add_membership_combobox
-        self.configureAddMembershipQComboBox(self.combobox)
+
+        if self.combobox != None:
+            self.configureAddMembershipQComboBox()
+
         self.parent = parent
+        self.add_for_indefinite_time = add_for_indefinite_time
 
     def internalDataRefresh(self):
         self.session.refresh(self.member)
@@ -33,7 +97,8 @@ class MembershipListModel(QAbstractListModel):
         row = index.row()
 
         membership = self._data[row]
-        membershiptarget = getattr(membership, self.membershiptype)
+
+        membershiptarget = getattr(membership, self.membershiptargetname)
         duration = self.membershipDuration(membership)
         if role == Qt.DisplayRole:
             return "%s %s" % (membershiptarget.name_fld,
@@ -80,28 +145,12 @@ class MembershipListModel(QAbstractListModel):
         membershiptypename = self.membershiptype.title()
 
         for i in range(count):
-            membership = orm.create_membership(self.session,
-                    membershiptypename, membershipname)
 
-            if not membership:
-                questiontext = "%s finns inte. Skall den skapas?" % (membershipname)
-
-                if QMessageBox.question(self.parent, membershipname +
-                        " hittades inte!", questiontext, "Nej", "Ja",
-                        escapeButtonNumber=0):
-                    membership = orm.create_membership(self.session,
-                            membershiptypename, membershipname,
-                            create_nonexistent_target=True)
-                    self.combobox.addItem(membershipname)
-
-                else:
-                    self.session.rollback()
-                    return False
-
-
-
-            membership.member = self.member
-            membership.setMandateToThisYear()
+            if not assign_membership_to_member(self.session, membershiptypename,
+                    membershipname, self.member, parent=self.parent,
+                    combobox=self.combobox,
+                    indefinite_time=self.add_for_indefinite_time):
+                return False
 
         self.endInsertRows()
 
@@ -118,31 +167,29 @@ class MembershipListModel(QAbstractListModel):
         super().endInsertRows()
 
     def membershipDuration(self, membership):
-        try:
-            startyear = membership.startTime_fld.year
-            endyear = membership.endTime_fld.year
-            if startyear == endyear:
-                return startyear
-            startmonth = membership.startTime_fld.month
-            endmonth = membership.endTime_fld.month
-            return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
-
-        except AttributeError: # startTime_fld or endTime_fld is NULL
+        if not membership.startTime_fld:
             return "???"
 
-    def configureAddMembershipQComboBox(self, combobox):
+        startyear = membership.startTime_fld.year
+        if not membership.endTime_fld:
+            return str(startyear) + " - nuvarande"
+
+        endyear = membership.endTime_fld.year
+        if startyear == endyear:
+            return str(startyear)
+
+        startmonth = membership.startTime_fld.month
+        endmonth = membership.endTime_fld.month
+        return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
+
+
+    def configureAddMembershipQComboBox(self):
         # Membershiptype begins with upper-case character
         membershiptypetablename = self.membershiptype.title()
-        membershiptargetclass = getattr(orm, membershiptypetablename)
-        membershiptargets = self.session.query(membershiptargetclass).order_by(
-                membershiptargetclass.name_fld).all()
-        membershiptargetnames = [target.name_fld for target in
-                membershiptargets]
 
-        completer = QCompleter(membershiptargetnames)
-        combobox.setCompleter(completer)
-        combobox.addItems(membershiptargetnames)
-        combobox.lineEdit().returnPressed.connect(lambda: self.insertRow(self.rowCount()))
+        configure_membership_qcombobox(self.combobox, membershiptypetablename,
+                self.session)
+        self.combobox.lineEdit().returnPressed.connect(lambda: self.insertRow(self.rowCount()))
 
 class GroupListModel(MembershipListModel):
     def __init__(self, session, member, parent,
@@ -156,6 +203,17 @@ class PostListModel(MembershipListModel):
         super().__init__(session, member, parent, "post",
                 add_membership_combobox)
 
+class DepartmentListModel(MembershipListModel):
+    def __init__(self, session, member, parent,
+            add_membership_combobox):
+        super().__init__(session, member, parent, "department",
+                add_membership_combobox, True)
+
+class MembershipListModel(MembershipListModel):
+    def __init__(self, session, member, parent,
+            add_membership_combobox):
+        super().__init__(session, member, parent, "membership",
+                add_membership_combobox, True)
 
 class MembershipDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
@@ -181,6 +239,7 @@ class MembershipDelegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         membership = index.data(Qt.EditRole)
+
         startdate = membership.startTime_fld.date()
         enddate = membership.endTime_fld.date()
 
@@ -244,3 +303,4 @@ class MembershipDelegate(QStyledItemDelegate):
             return False
         return super().eventFilter(editor, event)
 
+# internal functions & classes
