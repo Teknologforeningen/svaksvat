@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>240</width>
-    <height>302</height>
+    <width>244</width>
+    <height>330</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,6 +33,13 @@
          <widget class="QRadioButton" name="laborday_radioButton">
           <property name="text">
            <string>Vapp till vapp</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="onwards_radioButton">
+          <property name="text">
+           <string>Obestämd tid</string>
           </property>
          </widget>
         </item>
@@ -63,7 +70,7 @@
          <widget class="QDateEdit" name="startTime_fld"/>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="slutdatumLabel_2">
+         <widget class="QLabel" name="endTimeLabel">
           <property name="text">
            <string>Slutdatum</string>
           </property>
@@ -109,5 +116,102 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>wholeyear_radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>startYearWidget</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>264</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>laborday_radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>startYearWidget</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>264</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>laborday_radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>startAndEndTimeWidget</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>196</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>onwards_radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>endTime_fld</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>163</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wholeyear_radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>startAndEndTimeWidget</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>196</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>onwards_radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>endTimeLabel</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>53</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

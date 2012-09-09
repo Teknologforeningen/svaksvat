@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'membershipedit.ui'
 #
-# Created: Fri Sep  7 20:11:54 2012
-#      by: PyQt4 UI code generator 4.9.1
+# Created: Mon Sep 10 00:30:32 2012
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_MembershipEdit(object):
     def setupUi(self, MembershipEdit):
         MembershipEdit.setObjectName(_fromUtf8("MembershipEdit"))
-        MembershipEdit.resize(240, 302)
+        MembershipEdit.resize(244, 330)
         MembershipEdit.setWindowTitle(_fromUtf8(""))
         self.verticalLayout_3 = QtGui.QVBoxLayout(MembershipEdit)
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
@@ -33,6 +33,9 @@ class Ui_MembershipEdit(object):
         self.laborday_radioButton = QtGui.QRadioButton(self.mandate_GroupBox)
         self.laborday_radioButton.setObjectName(_fromUtf8("laborday_radioButton"))
         self.verticalLayout_2.addWidget(self.laborday_radioButton)
+        self.onwards_radioButton = QtGui.QRadioButton(self.mandate_GroupBox)
+        self.onwards_radioButton.setObjectName(_fromUtf8("onwards_radioButton"))
+        self.verticalLayout_2.addWidget(self.onwards_radioButton)
         self.otherMandate_radioButton = QtGui.QRadioButton(self.mandate_GroupBox)
         self.otherMandate_radioButton.setObjectName(_fromUtf8("otherMandate_radioButton"))
         self.verticalLayout_2.addWidget(self.otherMandate_radioButton)
@@ -49,9 +52,9 @@ class Ui_MembershipEdit(object):
         self.startTime_fld = QtGui.QDateEdit(self.startAndEndTimeWidget)
         self.startTime_fld.setObjectName(_fromUtf8("startTime_fld"))
         self.startEndLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.startTime_fld)
-        self.slutdatumLabel_2 = QtGui.QLabel(self.startAndEndTimeWidget)
-        self.slutdatumLabel_2.setObjectName(_fromUtf8("slutdatumLabel_2"))
-        self.startEndLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.slutdatumLabel_2)
+        self.endTimeLabel = QtGui.QLabel(self.startAndEndTimeWidget)
+        self.endTimeLabel.setObjectName(_fromUtf8("endTimeLabel"))
+        self.startEndLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.endTimeLabel)
         self.endTime_fld = QtGui.QDateEdit(self.startAndEndTimeWidget)
         self.endTime_fld.setObjectName(_fromUtf8("endTime_fld"))
         self.startEndLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.endTime_fld)
@@ -77,14 +80,21 @@ class Ui_MembershipEdit(object):
         self.verticalLayout_3.addLayout(self.verticalLayout)
 
         self.retranslateUi(MembershipEdit)
+        QtCore.QObject.connect(self.wholeyear_radioButton, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.startYearWidget.setVisible)
+        QtCore.QObject.connect(self.laborday_radioButton, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.startYearWidget.setVisible)
+        QtCore.QObject.connect(self.laborday_radioButton, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.startAndEndTimeWidget.setHidden)
+        QtCore.QObject.connect(self.onwards_radioButton, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.endTime_fld.setHidden)
+        QtCore.QObject.connect(self.wholeyear_radioButton, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.startAndEndTimeWidget.setHidden)
+        QtCore.QObject.connect(self.onwards_radioButton, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.endTimeLabel.setHidden)
         QtCore.QMetaObject.connectSlotsByName(MembershipEdit)
 
     def retranslateUi(self, MembershipEdit):
         self.mandate_GroupBox.setTitle(QtGui.QApplication.translate("MembershipEdit", "Mandattid", None, QtGui.QApplication.UnicodeUTF8))
         self.wholeyear_radioButton.setText(QtGui.QApplication.translate("MembershipEdit", "Hela året", None, QtGui.QApplication.UnicodeUTF8))
         self.laborday_radioButton.setText(QtGui.QApplication.translate("MembershipEdit", "Vapp till vapp", None, QtGui.QApplication.UnicodeUTF8))
+        self.onwards_radioButton.setText(QtGui.QApplication.translate("MembershipEdit", "Obestämd tid", None, QtGui.QApplication.UnicodeUTF8))
         self.otherMandate_radioButton.setText(QtGui.QApplication.translate("MembershipEdit", "Annan tid", None, QtGui.QApplication.UnicodeUTF8))
         self.startdatumLabel_2.setText(QtGui.QApplication.translate("MembershipEdit", "Startdatum", None, QtGui.QApplication.UnicodeUTF8))
-        self.slutdatumLabel_2.setText(QtGui.QApplication.translate("MembershipEdit", "Slutdatum", None, QtGui.QApplication.UnicodeUTF8))
+        self.endTimeLabel.setText(QtGui.QApplication.translate("MembershipEdit", "Slutdatum", None, QtGui.QApplication.UnicodeUTF8))
         self.frNRLabel.setText(QtGui.QApplication.translate("MembershipEdit", "Från år", None, QtGui.QApplication.UnicodeUTF8))
 

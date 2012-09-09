@@ -191,7 +191,7 @@ class NewMemberDialog(QDialog):
         super().reject()
 
 
-class MemberEdit(QWidget):
+class MemberEdit(QDialog):
     """Dialog to edit almost every aspect of a member."""
     def __init__(self, session, member, parent=None):
         """Create the dialog and fill in the values from a member.
