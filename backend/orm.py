@@ -349,7 +349,8 @@ class Member(get_declarative_base(), MemberRegistryCommon):
                 self.givenNames_fld or '')
 
 
-class Membership(get_declarative_base(),
+
+class MembershipMembership(get_declarative_base(),
         MemberRegistryCommon, MembershipCommon):
     __tablename__ = "MembershipTable"
     sequence_name = "membership"
@@ -359,7 +360,7 @@ class Membership(get_declarative_base(),
             ForeignKey("MembershipTypeTable.objectId"))
 
 
-class MembershipType(get_declarative_base(), MemberRegistryCommon,
+class Membership(get_declarative_base(), MemberRegistryCommon,
         MembershipCommon):
     __tablename__ = "MembershipTypeTable"
     sequence_name = "membershipType"

@@ -68,7 +68,6 @@ class MembershipListModel(QAbstractListModel):
         membershiptype="group", add_membership_combobox=None,
         add_for_indefinite_time=False):
         super().__init__(parent)
-        self.session = session
         self.member = session.merge(member) # Get local object for this Model
         self.membershiptype = membershiptype
         if membershiptype == "membership":

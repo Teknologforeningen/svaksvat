@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""SvakSvat Member register GUI."""
 import sys
 import os
 import subprocess
@@ -22,7 +23,18 @@ from ui.newmember import Ui_NewMember
 
 import passwordsafe
 
+
 def init_gender_combobox(combobox, member=None):
+    """Initializes a QComboBox to gender_fld.
+
+    Inserts the possible gender names in the database and assigns the
+    combobox's current value to the given member's gender_fld value.
+
+    combobox -- The QComboBox to be initialized.
+    member -- A backend.orm.Member whose gender_fld gets assigned to the
+    combobox
+
+    """
     combobox.addItem("Okänd")
     combobox.addItem("Man")
     combobox.addItem("Kvinna")
@@ -30,18 +42,38 @@ def init_gender_combobox(combobox, member=None):
     if member and member.gender_fld:
         combobox.setCurrentIndex(member.gender_fld)
 
-def fill_qlineedit_from_db(container, fieldname, table):
-    """Fill QLineEdit with corresponding value from database and set the
-    maximum length. Skip if fieldname not present in container or table"""
+
+def fill_qlineedit_from_db(lineedit, fieldname, table):
+    """Initialize QLineEdit from a ORM-mapped table.
+
+    lineedit -- QLineEdit or similar. setText and setMaxLength methods used.
+    fieldname -- Table's column name. Ie. givenNames_fld.
+    table -- ORM-mapping for database table Ie. Member or ContactInformation.
+
+    Fills the container with corresponding value from the database table field
+    of string type and sets the maximum length. Skip if fieldname not present
+    in container or table.
+
+    Use update_qtextfield_to_db to bring the changes back to database.
+
+    """
     try:
-        getattr(container, fieldname).setText(getattr(table, fieldname))
-        getattr(container, fieldname).setMaxLength(get_field_max_length(table,
+        getattr(lineedit, fieldname).setText(getattr(table, fieldname))
+        getattr(lineedit, fieldname).setMaxLength(get_field_max_length(table,
             fieldname))
+
     except AttributeError:
         return
 
+
 def update_qtextfield_to_db(container, fieldname, table):
-    "Write the value of the textfield to database."
+    """Write the text from a container to database table.
+
+    container -- needs to have text()-method
+    fieldname -- Table's column name. Ie. givenNames_fld.
+    table -- ORM-mapping for database table Ie. Member or ContactInformation.
+
+    """
     try:
         setattr(table, fieldname, str(getattr(container, fieldname).text()))
     except AttributeError:
@@ -49,7 +81,16 @@ def update_qtextfield_to_db(container, fieldname, table):
 
 
 class UsernameValidator(QValidator):
-    def __init__(self, session, parent=None):
+    """Validates LDAP-usernames in QTextFields.
+
+    Makes sure that no other Member has the same username_fld in the database.
+
+    """
+    def __init__(self, session, parent):
+        """Construct the validator with given  session.
+
+        """
+
         super().__init__()
         self.parent = parent
         self.session = session
@@ -82,7 +123,7 @@ class NewMemberDialog(QDialog):
         self.session = session
         self.setWindowTitle("Ny medlem")
         self.usernamevalidator = UsernameValidator(self.session, self)
-        self.member = Member() # Needed in UsernameValidator
+        self.member = Member()  # Needed in UsernameValidator
         self.ui.username_fld.setValidator(self.usernamevalidator)
         init_gender_combobox(self.ui.gender_fld)
 
@@ -140,8 +181,8 @@ class MemberEdit(QDialog):
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
         self.session = session
-        self.member = self.session.query(Member).filter_by(objectId =
-                member.objectId).one()
+        self.member = self.session.query(Member).filter_by(
+                objectId=member.objectId).one()
 
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
@@ -255,7 +296,7 @@ class MemberEdit(QDialog):
 class SvakSvat(QMainWindow):
     def __init__(self, SessionMaker):
         super().__init__()
-        self.session = SessionMaker # Assuming scoped_session
+        self.session = SessionMaker  # Assuming scoped_session
 
         self.initUI()
         self.setStatusMessage("Redo!", 3000)
@@ -270,8 +311,15 @@ class SvakSvat(QMainWindow):
         self.ui.memberlistwidget.currentRowChanged.connect(lambda:
                 self.showMemberInfo())
         self.ui.memberlistwidget.itemActivated.connect(self.editMember)
+<<<<<<< HEAD
         self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
         self.ui.actionNewMember.triggered.connect(self.createMember)
+=======
+        self.ui.searchfield.returnPressed.connect(
+                self.ui.memberlistwidget.setFocus)
+        self.ui.actionNewMember.triggered.connect(lambda:
+                NewMemberDialog(self.session, self))
+>>>>>>> cacb9f565b0733a25d551dbe79648853f4666872
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
         self.ui.actionEditMember.triggered.connect(self.editMember)
 
@@ -283,10 +331,13 @@ class SvakSvat(QMainWindow):
 
         self.setWindowTitle('SvakSvat')
 
+<<<<<<< HEAD
     def createMember(self):
         newmemberdialog = NewMemberDialog(self.session, self)
         newmemberdialog.exec()
 
+=======
+>>>>>>> cacb9f565b0733a25d551dbe79648853f4666872
     def removeMember(self):
         member = self.currentMember()
         wholename = member.getWholeName()
@@ -294,7 +345,6 @@ class SvakSvat(QMainWindow):
         self.session.commit()
         self.populateMemberList()
         self.setStatusMessage("Användare %s borttagen!" % wholename)
-
 
     def populateMemberList(self, choosemember=None):
         self.memberlist = self.session.query(Member).order_by(
@@ -314,7 +364,7 @@ class SvakSvat(QMainWindow):
         self.membereditwidget = MemberEdit(self.session, member, self)
         self.membereditwidget.show()
 
-    def searchlist(self, pattern = ''):
+    def searchlist(self, pattern=''):
         self.filteredmemberlist = [member for member in self.memberlist
                 if member.getWholeName().upper().find(pattern.upper()) != -1]
         self.ui.memberlistwidget.clear()
@@ -325,14 +375,13 @@ class SvakSvat(QMainWindow):
         if not member:
             member = self.currentMember()
         contactinfo = member.contactinfo
-        memberinfo = ( """Namn: %s %s
+        memberinfo = """Namn: %s %s
 Address: %s %s %s %s
 Telefon: %s
 Mobiltelefon: %s
 Email: %s
 Användarnamn: %s
-"""
-        %   (
+""" % (
             member.givenNames_fld,
             member.surName_fld,
             contactinfo.streetAddress_fld,
@@ -344,7 +393,6 @@ Användarnamn: %s
             contactinfo.email_fld,
             member.username_fld
             )
-        )
 
         membershipinfo = self.getMembershipInfo(member)
         self.ui.memberinfo.setText(memberinfo + membershipinfo)
@@ -360,6 +408,7 @@ Användarnamn: %s
 
     def setStatusMessage(self, message, milliseconds=3000):
         self.ui.statusbar.showMessage(message, milliseconds)
+
 
 def main():
     ps = passwordsafe.PasswordSafe()
