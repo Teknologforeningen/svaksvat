@@ -53,9 +53,6 @@ def create_membership(session, membershiptargetname, name_fld,
 
     mshiptargetname = membershiptargetname
     membershipclassname = membershiptargetname + "Membership"
-    if membershiptargetname == "Membership": # Member membership. Ie. Phux
-        membershiptargetname = membershiptargetname + "Type"
-        membershipclassname = "Membership"
 
     globaldict = globals()
     membershiptargetclass = globaldict[membershiptargetname]
@@ -307,8 +304,8 @@ class Member(get_declarative_base(), MemberRegistryCommon):
             backref='member', cascade="all, delete, delete-orphan")
     groupmemberships = relationship("GroupMembership", backref='member',
             cascade="all, delete, delete-orphan")
-    memberships = relationship("Membership", backref='member',
-            cascade="all, delete, delete-orphan")
+    membershipmemberships = relationship("MembershipMembership",
+            backref='member', cascade="all, delete, delete-orphan")
     postmemberships = relationship("PostMembership", backref='member',
             cascade="all, delete, delete-orphan")
     presence = relationship("Presence", backref='member',
@@ -369,7 +366,7 @@ class Membership(get_declarative_base(), MemberRegistryCommon,
     abbreviation_fld = Column(String)
     description_fld = Column(String)
 
-    memberships = relationship("Membership", backref='type')
+    memberships = relationship("MembershipMembership", backref='membership')
 
 
 class PostMembership(get_declarative_base(), MemberRegistryCommon,

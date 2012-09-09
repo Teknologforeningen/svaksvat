@@ -311,15 +311,8 @@ class SvakSvat(QMainWindow):
         self.ui.memberlistwidget.currentRowChanged.connect(lambda:
                 self.showMemberInfo())
         self.ui.memberlistwidget.itemActivated.connect(self.editMember)
-<<<<<<< HEAD
         self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
         self.ui.actionNewMember.triggered.connect(self.createMember)
-=======
-        self.ui.searchfield.returnPressed.connect(
-                self.ui.memberlistwidget.setFocus)
-        self.ui.actionNewMember.triggered.connect(lambda:
-                NewMemberDialog(self.session, self))
->>>>>>> cacb9f565b0733a25d551dbe79648853f4666872
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
         self.ui.actionEditMember.triggered.connect(self.editMember)
 
@@ -331,13 +324,10 @@ class SvakSvat(QMainWindow):
 
         self.setWindowTitle('SvakSvat')
 
-<<<<<<< HEAD
     def createMember(self):
         newmemberdialog = NewMemberDialog(self.session, self)
         newmemberdialog.exec()
 
-=======
->>>>>>> cacb9f565b0733a25d551dbe79648853f4666872
     def removeMember(self):
         member = self.currentMember()
         wholename = member.getWholeName()

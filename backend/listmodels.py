@@ -68,15 +68,11 @@ class MembershipListModel(QAbstractListModel):
         membershiptype="group", add_membership_combobox=None,
         add_for_indefinite_time=False):
         super().__init__(parent)
-        self.member = session.merge(member) # Get local object for this Model
+        self.session = session
+        self.member = self.session.merge(member) # Get local object for this Model
         self.membershiptype = membershiptype
-        if membershiptype == "membership":
-            self.membershiptype = ""
 
         self.membershiptargetname = self.membershiptype
-
-        if not self.membershiptype:
-            self.membershiptargetname = "type"
 
         self.internalDataRefresh()
         self.combobox = add_membership_combobox
@@ -147,8 +143,6 @@ class MembershipListModel(QAbstractListModel):
 
         membershipname = self.combobox.currentText()
         membershiptypename = self.membershiptype.title()
-        if not membershiptypename:
-            membershiptypename = "Membership"
 
         for i in range(count):
 
@@ -192,8 +186,6 @@ class MembershipListModel(QAbstractListModel):
     def configureAddMembershipQComboBox(self):
         # Membershiptype begins with upper-case character
         membershiptypetablename = self.membershiptype.title()
-        if not membershiptypetablename:
-            membershiptypetablename = "MembershipType"
 
         configure_membership_qcombobox(self.combobox, membershiptypetablename,
                 self.session)
