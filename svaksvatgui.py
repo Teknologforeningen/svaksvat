@@ -14,7 +14,9 @@ from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
         create_member, create_phux)
 from backend.listmodels import (GroupListModel, PostListModel,
-        MembershipDelegate)
+        DepartmentListModel, MembershipListModel, MembershipDelegate,
+        configure_membership_qcombobox, assign_membership_to_member)
+
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
@@ -118,9 +120,7 @@ class UsernameValidator(QValidator):
                 background-color: rgb(255, 255, 255); }")
             return (QValidator.Acceptable, stripped, pos)
 
-
-class NewMemberDialog(QWidget):
-    """A dialog to create a new member to the registry."""
+class NewMemberDialog(QDialog):
     def __init__(self, session, parent=None):
         """Create the dialog and initialize the fields.
 
@@ -128,7 +128,7 @@ class NewMemberDialog(QWidget):
         parent -- Parent for the QDialog.
         """
         self.parent = parent
-        super().__init__()
+        super().__init__(parent=self.parent)
         self.ui = Ui_NewMember()
         self.ui.setupUi(self)
         self.session = session
@@ -175,13 +175,20 @@ class NewMemberDialog(QWidget):
         for field in contactinfo.publicfields:
             update_qtextfield_to_db(self.ui, field, contactinfo)
 
+        if not assign_membership_to_member(self.session, "Department",
+                self.ui.department_comboBox.currentText(), member, parent=self,
+                combobox=self.ui.department_comboBox, indefinite_time=True):
+            return # Don't yet commit if Department not chosen.
+
         self.session.commit()
         self.parent.populateMemberList(choosemember=member)
-        self.close()
+        self.parent.setStatusMessage("Medlem %s skapad!" %
+                member.getWholeName())
+        super().accept()
 
     def reject(self):
         """Close the dialog without saving any changes."""
-        self.close()
+        super().reject()
 
 
 class MemberEdit(QWidget):
@@ -195,21 +202,16 @@ class MemberEdit(QWidget):
 
         """
         self.parent = parent
-        super().__init__()
+        super().__init__(parent=self.parent)
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
-        self.ui.createLDAPAccount.connect(
-                self.ui.createLDAPAccount,
-                SIGNAL("clicked()"),
-                self.createAccount
-                )
-
         self.session = session
         self.member = self.session.query(Member).filter_by(
                 objectId=member.objectId).one()
 
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
+
         self.usernamevalidator = UsernameValidator(self.session,
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
@@ -254,6 +256,22 @@ class MemberEdit(QWidget):
         self.ui.postView.setItemDelegate(mshipdelegate)
         postlistmodel.rowsInserted.connect(lambda index, row:
                 self.ui.postView.edit(postlistmodel.index(row)))
+
+        # Departments
+        departmentlistmodel = DepartmentListModel(self.session, self.member, self,
+                self.ui.department_comboBox)
+        self.ui.departmentView.setModel(departmentlistmodel)
+        self.ui.removeDepartmentButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.departmentView))
+        self.ui.departmentView.setItemDelegate(mshipdelegate)
+
+        # Memberships
+        membershiplistmodel = MembershipListModel(self.session, self.member,
+                self, None)
+        self.ui.membershipView.setModel(membershiplistmodel)
+        self.ui.removeMembershipButton.clicked.connect(lambda:
+                self.removeSelectedMembership(self.ui.membershipView))
+        self.ui.membershipView.setItemDelegate(mshipdelegate)
 
     def removeSelectedMembership(self, listview):
         """Remove selected items from a QListView."""
@@ -300,15 +318,13 @@ class MemberEdit(QWidget):
 
         self.session.commit()
         self.parent.populateMemberList(choosemember=self.member)
-        self.parent.setStatusMessage("Medlem %s skapad!" %
-                self.member.getWholeName())
-        self.close()
+        super().accept()
 
     def reject(self):
         """Close the dialog without saving the fields to the database."""
         #TODO: Also rollback the MembershipListView changes.
         self.session.rollback()
-        self.close()
+        super().reject()
 
 
 class SvakSvat(QMainWindow):
@@ -335,10 +351,8 @@ class SvakSvat(QMainWindow):
         self.ui.memberlistwidget.currentRowChanged.connect(lambda:
                 self.showMemberInfo())
         self.ui.memberlistwidget.itemActivated.connect(self.editMember)
-        self.ui.searchfield.returnPressed.connect(
-                self.ui.memberlistwidget.setFocus)
-        self.ui.actionNewMember.triggered.connect(lambda:
-                NewMemberDialog(self.session, self))
+        self.ui.searchfield.returnPressed.connect(self.ui.memberlistwidget.setFocus)
+        self.ui.actionNewMember.triggered.connect(self.createMember)
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
         self.ui.actionEditMember.triggered.connect(self.editMember)
 
@@ -349,6 +363,10 @@ class SvakSvat(QMainWindow):
         self.populateMemberList()
 
         self.setWindowTitle('SvakSvat')
+
+    def createMember(self):
+        newmemberdialog = NewMemberDialog(self.session, self)
+        newmemberdialog.exec()
 
     def removeMember(self):
         """Remove selected member."""

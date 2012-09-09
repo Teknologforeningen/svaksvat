@@ -166,7 +166,7 @@ memberUid: %s
         """Returns the next free uidnumber greater than 1000"""
 
         output = self.ldapsearch("uidNumber")
-        uidnumbers = [int(line.split(": ")[1]) for line in output.split("\n") if
+        uidnumbers = [int(line.split(": ")[1]) for line in output.splitlines() if
                 "uidNumber: " in line]
         uidnumbers.sort()
 
@@ -182,6 +182,14 @@ memberUid: %s
         output = self.ldapsearch("uid=" + member.username_fld)
 
         return "\n# numEntries: 1" in output
+
+    def getPosixGroups(self, member):
+        output = self.ldapsearch(
+                "(&(objectClass=posixGroup)(memberUid=%s))" %
+                member.username_fld)
+
+        groups = [line.split(": ")[1] for line in output.splitlines() if "cn: " in line]
+        return groups
 
     def delldapuser(self, member):
         # Delete LDAP user account
@@ -256,9 +264,10 @@ def main():
     lm = LDAPAccountManager()
     output = lm.ldapsearch("uid=test123")
     passwd= "hunter2"
-    if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
-        lm.delldapuser(member)
-    print(lm.checkldapuser(member))
+    print(lm.getPosixGroups(member))
+    #if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
+        #lm.delldapuser(member)
+    #print(lm.checkldapuser(member))
     return 0
 
 if __name__ == '__main__':

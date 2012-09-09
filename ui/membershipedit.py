@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'membershipedit.ui'
 #
-# Created: Tue Sep  4 18:38:54 2012
+# Created: Fri Sep  7 20:11:54 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_MembershipEdit(object):
     def setupUi(self, MembershipEdit):
         MembershipEdit.setObjectName(_fromUtf8("MembershipEdit"))
-        MembershipEdit.resize(224, 270)
+        MembershipEdit.resize(240, 302)
         MembershipEdit.setWindowTitle(_fromUtf8(""))
         self.verticalLayout_3 = QtGui.QVBoxLayout(MembershipEdit)
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
