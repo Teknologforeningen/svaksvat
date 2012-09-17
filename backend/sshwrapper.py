@@ -21,9 +21,8 @@ def which(program):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
     fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
+    if is_exe(program):
+        return program
     else:
         for path in os.environ["PATH"].split(os.pathsep):
             exe_file = os.path.join(path, program)
@@ -250,7 +249,11 @@ class SSHConnection(object):
         interpreter = str(interpreter)
         cmd = [which("ssh"), ]
         if os.name == 'nt':
-            cmd = [which("putty"), ]
+            puttypath = which("putty") or which("putty.exe")
+            print(puttypath)
+            if not puttypath:
+                raise SSHError()
+            cmd = [puttypath, ]
         if self.login:
             cmd += ['-l', self.login]
         if self.configfile:
@@ -265,6 +268,7 @@ class SSHConnection(object):
             cmd += ['-N', '-L', self.portforward_local]
         cmd.append(self.server)
         #cmd.append(interpreter)
+        print(cmd)
         return cmd
 
     def scp_command(self, files, target):
