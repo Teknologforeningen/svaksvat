@@ -466,10 +466,11 @@ Användarnamn: %s
 
 def main():
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
+    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
     app = QApplication(sys.argv)
     sr = SvakSvat(SessionMaker)
     sr.show()
+
     return app.exec_()
 
 if __name__ == '__main__':

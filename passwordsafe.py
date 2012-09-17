@@ -25,6 +25,10 @@ class CredentialDialogReject(Exception):
     def __str__(self):
         return "CredentialDialog rejected by user"
 
+class UnsuccesfulPortforward(Exception):
+    def __str__(self):
+        return "Portforwarding unsuccesful."
+
 # interface functions
 # classes
 
@@ -240,8 +244,10 @@ class PasswordSafe:
                         if not sshusername:
                             sshusername = self.inputfunc("SSH användarnamn:")
 
-                        thread.start_new_thread(sshwrapper.portforward_to_localhost,
-                                (host, sshusername, port, threadfinishedmutex))
+                        print(sshwrapper.portforward_to_localhost)
+                        thread.start_new_thread(lambda: sshwrapper.portforward_to_localhost(host,
+                            sshusername, port, threadfinishedmutex), ())
+                        time.sleep(2)
 
                     sshconnecting = True
                     host = "localhost"
@@ -251,10 +257,8 @@ class PasswordSafe:
                         repr(e)) and sshconnecting:
                     time.sleep(1)
                     if threadfinishedmutex.locked(): # SSH-thread exited
-                        host = self.configparser.get(configsection, "host")
-                        sshusername = None
-                        sshconnecting = False
                         threadfinishedmutex.release()
+                        raise UnsuccesfulPortforward()
 
                 else:
                     raise(e)
