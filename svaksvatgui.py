@@ -137,6 +137,8 @@ class NewMemberDialog(QDialog):
         self.member = Member()  # Needed in UsernameValidator
         self.ui.username_fld.setValidator(self.usernamevalidator)
         init_gender_combobox(self.ui.gender_fld)
+        configure_membership_qcombobox(self.ui.department_comboBox,
+                "Department", self.session)
 
         # Set correct lengths for QTextEdits
         for field in self.member.editable_text_fields:
@@ -318,13 +320,13 @@ class MemberEdit(QWidget):
 
         self.session.commit()
         self.parent.populateMemberList(choosemember=self.member)
-        super().accept()
+        self.close()
 
     def reject(self):
         """Close the dialog without saving the fields to the database."""
         #TODO: Also rollback the MembershipListView changes.
         self.session.rollback()
-        super().reject()
+        self.close()
 
 
 class SvakSvat(QMainWindow):
