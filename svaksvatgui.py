@@ -12,7 +12,7 @@ from sqlalchemy.orm import scoped_session
 
 from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
-        create_member, create_phux)
+        create_member, create_phux, backup_everything, restore_everything)
 from backend.listmodels import (GroupListModel, PostListModel,
         DepartmentListModel, MembershipListModel, MembershipDelegate,
         configure_membership_qcombobox, assign_membership_to_member)
@@ -357,6 +357,8 @@ class SvakSvat(QMainWindow):
         self.ui.actionNewMember.triggered.connect(self.createMember)
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
         self.ui.actionEditMember.triggered.connect(self.editMember)
+        self.ui.actionMakeBackup.triggered.connect(self.makeBackup)
+        self.ui.actionRestoreFromBackup.triggered.connect(self.restoreFromBackup)
 
         self.ui.memberlistwidget.addAction(self.ui.actionEditMember)
         self.ui.memberlistwidget.addAction(self.ui.actionRemoveMember)
@@ -365,6 +367,20 @@ class SvakSvat(QMainWindow):
         self.populateMemberList()
 
         self.setWindowTitle('SvakSvat')
+
+    def makeBackup(self):
+        filename = QFileDialog.getSaveFileName(self,
+                'Välj namn för säkerhetskopia', '.')
+        with open(filename, 'wb') as f:
+            f.write(backup_everything(self.session))
+
+    def restoreFromBackup(self):
+        filename = QFileDialog.getOpenFileName(self, 'Öppna säkerthetskopia', '.')
+        with open(filename, 'rb') as f:
+            data = f.read()
+            if restore_everything(self.session, data):
+                self.session.commit()
+                self.populateMemberList()
 
     def createMember(self):
         newmemberdialog = NewMemberDialog(self.session, self)

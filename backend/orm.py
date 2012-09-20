@@ -1,6 +1,6 @@
 """
 The ORM mappings for both Joomla's MySQL and the member registry's Postgres
-databases.
+databases and related functions.
 """
 
 # imports
@@ -10,6 +10,7 @@ from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.serializer import loads, dumps
 import sqlalchemy
 
 # constants
@@ -28,6 +29,31 @@ class TooLongValueException(Exception):
 
 
 # interface functions
+def backup_everything(session):
+    #tables = [table for table in get_declarative_base().metadata.tables.keys()
+            #if not table.startswith("jos")]
+    tables = [Member, ContactInformation, Department, DepartmentMembership,
+            DepartmentType, Group, GroupMembership, Post, PostMembership,
+            MembershipMembership, Membership, PostType, GroupType, Presence,
+            Sequence]
+
+    rows = []
+    for table in tables:
+        tablerows = session.query(table).all()
+        rows += tablerows
+
+    print(rows)
+    serialized_data = dumps(rows[0])
+    return serialized_data
+
+def restore_everything(session, serialized_data):
+    restore_objects = loads(serialized_data, get_declarative_base().metadata, session)
+    for obj in restore_objects:
+        session.merge(obj)
+
+    return True
+
+
 def create_row(table_orm, session):
     row = table_orm()
     sequence = session.query(Sequence).filter(Sequence.objectname ==
@@ -42,9 +68,10 @@ def create_row(table_orm, session):
 def create_member(session):
     new_member = create_row(Member, session)
     new_contactinfo = create_row(ContactInformation, session)
-    new_contactinfo.member = new_member
-    new_member.primaryContactId_fld = new_contactinfo.objectId
-    session.add_all([new_member, new_contactinfo])
+    new_member.contactinfo = new_contactinfo
+    new_member.contactinfos = [new_contactinfo]
+    session.add(new_member)
+    session.add(new_contactinfo)
     return new_member
 
 
@@ -292,14 +319,21 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     photo_fld = Column(Text)
     title_fld = Column(String(30))
     nationality_fld = Column(String(3))
-    primaryContactId_fld = Column(String(33))
+    primaryContactId_fld = Column(String(33),
+            ForeignKey('ContactInformationTable.objectId', use_alter=True,
+                name="fk_primary_contactinfo"))
     dead_fld = Column(Integer)
     subscribedtomodulen_fld = Column(Integer, default=1)
     username_fld = Column(String(150))
     lastsync_fld = Column(DateTime, default=datetime.min)
 
-    contactinfo = relationship("ContactInformation", uselist=False,
-            backref='member', cascade="all, delete, delete-orphan")
+    contactinfos = relationship(ContactInformation,
+            backref='member', cascade="all, delete, delete-orphan",
+            primaryjoin="Member.objectId==ContactInformation.member_fld")
+    contactinfo = relationship(ContactInformation,
+            primaryjoin=primaryContactId_fld==ContactInformation.objectId,
+            post_update=True)
+
     departmentmemberships = relationship("DepartmentMembership",
             backref='member', cascade="all, delete, delete-orphan")
     groupmemberships = relationship("GroupMembership", backref='member',
