@@ -5,12 +5,12 @@ databases and related functions.
 
 # imports
 from datetime import (date, datetime, timedelta)
+import pickle
 
 from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.serializer import loads, dumps
 import sqlalchemy
 
 # constants
@@ -27,28 +27,40 @@ class TooLongValueException(Exception):
         return ("The value %s for the field %s is over %d in length." %
                 (self.value, self.field, self.maxlength))
 
-
 # interface functions
 def backup_everything(session):
-    #tables = [table for table in get_declarative_base().metadata.tables.keys()
-            #if not table.startswith("jos")]
-    tables = [Member, ContactInformation, Department, DepartmentMembership,
-            DepartmentType, Group, GroupMembership, Post, PostMembership,
-            MembershipMembership, Membership, PostType, GroupType, Presence,
-            Sequence]
+    # Get all objects.
+    backupdict = {}
+    for table in [x.__table__ for x in MEMBERSDBTABLES]:
+        data = fetchall_from_table(table, session)
+        backupdict[table] = data
 
-    rows = []
-    for table in tables:
-        tablerows = session.query(table).all()
-        rows += tablerows
+    serialized_backupdict = None
+    pickle.dump(backupdict, serialized_backupdict)
+    return serialized_backupdict
 
-    print(rows)
-    serialized_data = dumps(rows[0])
-    return serialized_data
+def fetchall_from_table(table, session):
+    data = session.execute(table.__table__.select()).fetchall()
+    return data
 
 def restore_everything(session, serialized_data):
+    # Truncate tables
+    for table in [x.__table__ for x in MEMBERSDBTABLES]:
+        session.execute(table.delete())
+
+    # Add recovered objects
+    session.commit()
+    session.close()
     restore_objects = loads(serialized_data, get_declarative_base().metadata, session)
+    failured_objects = []
     for obj in restore_objects:
+        try:
+            session.merge(obj)
+
+        except sqlalchemy.exc.IntegrityError:
+            failured_objects.append(obj)
+
+    for obj in failured_objects:
         session.merge(obj)
 
     return True
@@ -512,6 +524,11 @@ class Jos_Fields(get_declarative_base()):
     __tablename__ = "jos_comprofiler_fields"
     fieldid = Column(Integer, primary_key=True)
     name = Column(String(50))
+
+MEMBERSDBTABLES = [DepartmentMembership, Department, DepartmentType,
+        GroupMembership, Group, GroupType, PostMembership, Post, PostType,
+        MembershipMembership, Membership, Presence, ContactInformation, Member,
+        Sequence]
 
 
 if __name__ == '__main__':

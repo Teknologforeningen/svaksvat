@@ -244,7 +244,6 @@ class PasswordSafe:
                         if not sshusername:
                             sshusername = self.inputfunc("SSH användarnamn:")
 
-                        print(sshwrapper.portforward_to_localhost)
                         thread.start_new_thread(lambda: sshwrapper.portforward_to_localhost(host,
                             sshusername, port, threadfinishedmutex), ())
                         time.sleep(2)

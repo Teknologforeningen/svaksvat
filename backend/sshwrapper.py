@@ -120,7 +120,6 @@ class SSHConnection(object):
         Hint: Try interpreter='/usr/bin/python'
         """
         ssh_command = self.ssh_command(interpreter, forward_ssh_agent)
-        print(' '.join(ssh_command))
         pipe = subprocess.Popen(ssh_command,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE, env=self.get_env())
@@ -250,7 +249,6 @@ class SSHConnection(object):
         cmd = [which("ssh"), ]
         if os.name == 'nt':
             puttypath = which("putty") or which("putty.exe")
-            print(puttypath)
             if not puttypath:
                 raise SSHError()
             cmd = [puttypath, ]
@@ -268,7 +266,6 @@ class SSHConnection(object):
             cmd += ['-N', '-L', self.portforward_local]
         cmd.append(self.server)
         #cmd.append(interpreter)
-        print(cmd)
         return cmd
 
     def scp_command(self, files, target):
@@ -354,5 +351,4 @@ def portforward_to_localhost(host, login, port, threadfinishedmutex=None):
 if __name__ == "__main__":
     import sys
     conn = portforward_to_localhost(sys.argv[1], sys.argv[2], 5432)
-    print(conn)
     sys.exit(0)

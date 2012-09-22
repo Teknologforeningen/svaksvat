@@ -484,7 +484,7 @@ Användarnamn: %s
 
 def main():
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
+    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
     app = QApplication(sys.argv)
     sr = SvakSvat(SessionMaker)
     sr.show()
