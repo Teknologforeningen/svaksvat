@@ -22,6 +22,7 @@ from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
 
 import passwordsafe
+import useraccounts
 
 
 def init_gender_combobox(combobox, member=None):
@@ -195,7 +196,7 @@ class NewMemberDialog(QDialog):
 
 class MemberEdit(QWidget):
     """Dialog to edit almost every aspect of a member."""
-    def __init__(self, session, member, parent=None):
+    def __init__(self, session, member, parent=None, ldapmanager=None):
         """Create the dialog and fill in the values from a member.
 
         session -- Sqlalchemy session.
@@ -211,12 +212,27 @@ class MemberEdit(QWidget):
         self.member = self.session.query(Member).filter_by(
                 objectId=member.objectId).one()
 
+        self.ldapmanager = ldapmanager
+
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
 
         self.usernamevalidator = UsernameValidator(self.session,
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
+
+
+    def refreshUserAccounts(self):
+        ldapuserexists = "Nej"
+        color = "red"
+        if self.ldapmanager.checkldapuser(self.member):
+            ldapuserexists = "Ja"
+            color = "green"
+
+        stylesheet = "QLabel {color:%s}" % color
+        self.ui.ldapAccountStatusLabel.setText(ldapuserexists)
+        self.ui.ldapAccountStatusLabel.setStyleSheet(stylesheet)
+
 
     def fillFields(self):
         """Fill every widget with the corresponding values of a Member."""
@@ -274,6 +290,13 @@ class MemberEdit(QWidget):
         self.ui.removeMembershipButton.clicked.connect(lambda:
                 self.removeSelectedMembership(self.ui.membershipView))
         self.ui.membershipView.setItemDelegate(mshipdelegate)
+
+        # Optional LDAP-integration.
+        self.ui.tabWidget.setTabEnabled(1, False)
+        if self.ldapmanager:
+            self.ui.tabWidget.setTabEnabled(1, True)
+            self.refreshUserAccounts()
+
 
     def removeSelectedMembership(self, listview):
         """Remove selected items from a QListView."""
@@ -341,6 +364,14 @@ class SvakSvat(QMainWindow):
         self.session = session  # Assuming scoped_session
 
         self.initUI()
+
+        try:
+            self.ldapmanager = useraccounts.LDAPAccountManager()
+        except Exception as e:
+            print(e)
+            print("Deaktiverar LDAP-integration.")
+            self.ldapmanager = None
+
         self.setStatusMessage("Redo!", 3000)
 
     def initUI(self):
@@ -413,7 +444,8 @@ class SvakSvat(QMainWindow):
     def editMember(self):
         """Edit the currently selected member."""
         member = self.currentMember()
-        self.membereditwidget = MemberEdit(self.session, member, self)
+        self.membereditwidget = MemberEdit(self.session, member, self,
+                self.ldapmanager)
         self.membereditwidget.show()
 
     def searchlist(self, pattern=''):

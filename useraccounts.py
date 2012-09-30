@@ -185,6 +185,9 @@ memberUid: %s
         return last + 1
 
     def checkldapuser(self, member):
+        if not member.username_fld:
+            return False
+
         output = self.ldapsearch("uid=" + member.username_fld)
 
         return "\n# numEntries: 1" in output

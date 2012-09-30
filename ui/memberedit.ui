@@ -277,7 +277,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -380,9 +380,6 @@
             </layout>
            </item>
           </layout>
-          <zorder>groupView</zorder>
-          <zorder>removeGroupButton</zorder>
-          <zorder></zorder>
           <zorder>label</zorder>
           <zorder></zorder>
           <zorder>label_2</zorder>
@@ -466,29 +463,18 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_7">
              <item>
-              <widget class="QPushButton" name="createUserAccountsButton">
+              <widget class="QPushButton" name="createUserAccountsOrChangePasswordButton">
                <property name="text">
-                <string>Skapa användarkonton</string>
+                <string>Skapa användarkonton/Byt lösenord</string>
                </property>
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_21">
-               <item>
-                <widget class="QLineEdit" name="ldapPasswordLineEdit">
-                 <property name="echoMode">
-                  <enum>QLineEdit::Password</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="changeLdapPasswordButton">
-                 <property name="text">
-                  <string>Byt lösenord</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+              <widget class="QPushButton" name="removeAccountButton">
+               <property name="text">
+                <string>Ta bort användarkonto</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

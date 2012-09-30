@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Sat Sep  8 12:18:21 2012
+# Created: Sun Sep 30 11:21:39 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -239,19 +239,12 @@ class Ui_MemberEdit(object):
         self.verticalLayout_8.addLayout(self.gridLayout_2)
         self.verticalLayout_7 = QtGui.QVBoxLayout()
         self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
-        self.createUserAccountsButton = QtGui.QPushButton(self.tab_6)
-        self.createUserAccountsButton.setObjectName(_fromUtf8("createUserAccountsButton"))
-        self.verticalLayout_7.addWidget(self.createUserAccountsButton)
-        self.horizontalLayout_21 = QtGui.QHBoxLayout()
-        self.horizontalLayout_21.setObjectName(_fromUtf8("horizontalLayout_21"))
-        self.ldapPasswordLineEdit = QtGui.QLineEdit(self.tab_6)
-        self.ldapPasswordLineEdit.setEchoMode(QtGui.QLineEdit.Password)
-        self.ldapPasswordLineEdit.setObjectName(_fromUtf8("ldapPasswordLineEdit"))
-        self.horizontalLayout_21.addWidget(self.ldapPasswordLineEdit)
-        self.changeLdapPasswordButton = QtGui.QPushButton(self.tab_6)
-        self.changeLdapPasswordButton.setObjectName(_fromUtf8("changeLdapPasswordButton"))
-        self.horizontalLayout_21.addWidget(self.changeLdapPasswordButton)
-        self.verticalLayout_7.addLayout(self.horizontalLayout_21)
+        self.createUserAccountsOrChangePasswordButton = QtGui.QPushButton(self.tab_6)
+        self.createUserAccountsOrChangePasswordButton.setObjectName(_fromUtf8("createUserAccountsOrChangePasswordButton"))
+        self.verticalLayout_7.addWidget(self.createUserAccountsOrChangePasswordButton)
+        self.removeAccountButton = QtGui.QPushButton(self.tab_6)
+        self.removeAccountButton.setObjectName(_fromUtf8("removeAccountButton"))
+        self.verticalLayout_7.addWidget(self.removeAccountButton)
         self.verticalLayout_8.addLayout(self.verticalLayout_7)
         self.tabWidget.addTab(self.tab_6, _fromUtf8(""))
         self.tab_2 = QtGui.QWidget()
@@ -344,7 +337,7 @@ class Ui_MemberEdit(object):
         self.label_9.setBuddy(self.group_comboBox)
 
         self.retranslateUi(MemberEdit)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), MemberEdit.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), MemberEdit.reject)
         QtCore.QMetaObject.connectSlotsByName(MemberEdit)
@@ -405,8 +398,8 @@ class Ui_MemberEdit(object):
         self.billAccountCreditLabel.setText(QtGui.QApplication.translate("MemberEdit", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.ldapAccountStatusLabel.setText(QtGui.QApplication.translate("MemberEdit", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.label_21.setText(QtGui.QApplication.translate("MemberEdit", "LDAP-Grupper", None, QtGui.QApplication.UnicodeUTF8))
-        self.createUserAccountsButton.setText(QtGui.QApplication.translate("MemberEdit", "Skapa användarkonton", None, QtGui.QApplication.UnicodeUTF8))
-        self.changeLdapPasswordButton.setText(QtGui.QApplication.translate("MemberEdit", "Byt lösenord", None, QtGui.QApplication.UnicodeUTF8))
+        self.createUserAccountsOrChangePasswordButton.setText(QtGui.QApplication.translate("MemberEdit", "Skapa användarkonton/Byt lösenord", None, QtGui.QApplication.UnicodeUTF8))
+        self.removeAccountButton.setText(QtGui.QApplication.translate("MemberEdit", "Ta bort användarkonto", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), QtGui.QApplication.translate("MemberEdit", "Användarkonton", None, QtGui.QApplication.UnicodeUTF8))
         self.label_10.setText(QtGui.QApplication.translate("MemberEdit", "Studieinriktning:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_9.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till studieinriktning:", None, QtGui.QApplication.UnicodeUTF8))
