@@ -12,7 +12,7 @@ from sqlalchemy.orm import scoped_session
 
 from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
-        create_member, create_phux)
+        create_member, create_phux, backup_everything, restore_everything)
 from backend.listmodels import (GroupListModel, PostListModel,
         DepartmentListModel, MembershipListModel, MembershipDelegate,
         configure_membership_qcombobox, assign_membership_to_member)
@@ -22,6 +22,7 @@ from ui.memberedit import Ui_MemberEdit
 from ui.newmember import Ui_NewMember
 
 import passwordsafe
+import useraccounts
 
 
 def init_gender_combobox(combobox, member=None):
@@ -87,8 +88,13 @@ class UsernameValidator(QValidator):
 
     """
     def __init__(self, session, parent):
-        """Construct the validator with given  session.
+        """Construct the validator with given session and parent.
 
+        session -- Sqlalchemy session.
+        parent -- Parent including "member" and ui.username_fld members.
+
+        The MemberEdit and NewMemberDialog classes are designed to be parent
+        parameters.
         """
 
         super().__init__()
@@ -96,10 +102,11 @@ class UsernameValidator(QValidator):
         self.session = session
 
     def fixup(self, input):
-        # Strip whitespace and special characters.
-        return ''.join(c for c in input if c.isalnum())
+        """Strip whitespace + special characters and make lower case"""
+        return ''.join(c.lower() for c in input if c.isalnum())
 
     def validate(self, input, pos):
+        """Checks for username uniqueness."""
         stripped = self.fixup(input)
         not_unique = self.session.query(Member).filter(Member.username_fld ==
                 stripped).filter(Member.objectId !=
@@ -116,6 +123,11 @@ class UsernameValidator(QValidator):
 
 class NewMemberDialog(QDialog):
     def __init__(self, session, parent=None):
+        """Create the dialog and initialize the fields.
+
+        session -- Sqlalchemy session.
+        parent -- Parent for the QDialog.
+        """
         self.parent = parent
         super().__init__(parent=self.parent)
         self.ui = Ui_NewMember()
@@ -126,6 +138,8 @@ class NewMemberDialog(QDialog):
         self.member = Member()  # Needed in UsernameValidator
         self.ui.username_fld.setValidator(self.usernamevalidator)
         init_gender_combobox(self.ui.gender_fld)
+        configure_membership_qcombobox(self.ui.department_comboBox,
+                "Department", self.session)
 
         # Set correct lengths for QTextEdits
         for field in self.member.editable_text_fields:
@@ -135,10 +149,13 @@ class NewMemberDialog(QDialog):
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
 
-        configure_membership_qcombobox(self.ui.department_comboBox, "Department",
-                self.session)
+        if self.member.birthDate_fld:
+            self.ui.birthDate_fld.setDateTime(self.member.birthDate_fld)
+
+        self.show()
 
     def accept(self):
+        """Commit the new member to the database."""
         member = None
         if self.ui.makePhux_CheckBox.isChecked():
             member = create_phux(self.session)
@@ -153,7 +170,9 @@ class NewMemberDialog(QDialog):
 
             update_qtextfield_to_db(self.ui, field, member)
 
-        member.gender_fld = self.ui.gender_fld.currentIndex()
+        self.member.gender_fld = self.ui.gender_fld.currentIndex()
+        self.member.birthDate_fld = self.ui.birthDate_fld.dateTime(
+                ).toPyDateTime()
 
         contactinfo = member.contactinfo
         for field in contactinfo.publicfields:
@@ -171,18 +190,29 @@ class NewMemberDialog(QDialog):
         super().accept()
 
     def reject(self):
+        """Close the dialog without saving any changes."""
         super().reject()
 
 
-class MemberEdit(QDialog):
-    def __init__(self, session, member, parent=None):
+class MemberEdit(QWidget):
+    """Dialog to edit almost every aspect of a member."""
+    def __init__(self, session, member, parent=None, ldapmanager=None):
+        """Create the dialog and fill in the values from a member.
+
+        session -- Sqlalchemy session.
+        member -- backend.orm.Member to be edited.
+        parent -- Parent for the QDialog
+
+        """
         self.parent = parent
-        super().__init__(parent=self.parent)
+        super().__init__()
         self.ui = Ui_MemberEdit()
         self.ui.setupUi(self)
         self.session = session
         self.member = self.session.query(Member).filter_by(
                 objectId=member.objectId).one()
+
+        self.ldapmanager = ldapmanager
 
         self.fillFields()
         self.setWindowTitle(self.member.getWholeName())
@@ -191,12 +221,85 @@ class MemberEdit(QDialog):
                 self)
         self.ui.username_fld.setValidator(self.usernamevalidator)
 
+
+    def refreshUserAccounts(self):
+        ldapuserexists = "Nej"
+        billuserexists = "Nej"
+        ldapcolor = "red"
+        billcolor = "red"
+        self.ui.removeAccountButton.setEnabled(False)
+        self.ui.username_fld.setEnabled(True)
+        self.ui.billAccountCreditLabel.setText("Icke tillgänglig")
+        if self.ldapmanager.check_bill_account(self.member):
+            billuserexists = "Ja"
+            billcolor = "green"
+            self.ui.billAccountCreditLabel.setText(str(
+                self.ldapmanager.get_bill_balance(self.member)) + " €")
+
+        if self.ldapmanager.checkldapuser(self.member):
+            ldapuserexists = "Ja"
+            ldapcolor = "green"
+            self.ui.ldapGroupsLabel.setPlainText("\n".join(self.ldapmanager.getPosixGroups(self.member)))
+            self.ui.removeAccountButton.setEnabled(True)
+            self.ui.username_fld.setEnabled(False)
+
+        self.ui.ldapAccountStatusLabel.setText(ldapuserexists)
+        self.ui.billAccountStatusLabel.setText(billuserexists)
+        stylesheet = "QLabel {color:%s}" % ldapcolor
+        self.ui.ldapAccountStatusLabel.setStyleSheet(stylesheet)
+        stylesheet = "QLabel {color:%s}" % billcolor
+        self.ui.billAccountStatusLabel.setStyleSheet(stylesheet)
+
+
+    def createAccountOrChangePassword(self):
+        password, ok = QInputDialog.getText(self, "Ange lösenord", "Lösenord",
+                QLineEdit.Password)
+
+        if not ok:
+            return
+
+        if self.ldapmanager.checkldapuser(self.member):
+            # Change only password if account exists
+            self.ldapmanager.change_ldap_password(self.member.username_fld, password)
+            self.refreshUserAccounts()
+            return
+
+        username = self.ui.username_fld.text()
+        email = self.ui.email_fld.text()
+        preferredname = self.ui.preferredName_fld.text()
+        surname = self.ui.surName_fld.text()
+
+        if (username and email and preferredname and surname
+                and self.member.ifOrdinarieMedlem()):
+            self.member.username_fld = username
+            self.member.email_fld = email
+            self.member.preferredName_fld = preferredname
+            self.member.surName_fld = surname
+            self.session.commit()
+            self.ldapmanager.addldapuser(self.member, password)
+            self.refreshUserAccounts()
+            return
+
+        QMessageBox.information(self, "Kunde inte skapa användarkonto",
+                "Felaktigt användarnamn, email, efternamn, tilltalsnamn eller" +
+                "medlemen tillhör inte gruppen 'Ordinarie medlem'.", 1)
+
+
+    def removeAccount(self):
+        if QMessageBox.question(self, "Ta bort användarkonto?",
+                "Är du säker att du vill radera användarkontot för användaren %s?"
+                % self.member.username_fld + " BILL krediter kommer att bevaras.",
+                "Nej", "Ja", defaultButtonNumber=0, escapeButtonNumber=0):
+            self.ldapmanager.delldapuser(self.member)
+            self.refreshUserAccounts()
+
+
     def fillFields(self):
+        """Fill every widget with the corresponding values of a Member."""
         for field in Member.editable_text_fields:
             fill_qlineedit_from_db(self.ui, field, self.member)
 
         self.ui.notes_fld.setPlainText(self.member.notes_fld)
-
         self.ui.dead_fld.setChecked(bool(self.member.dead_fld))
         if self.member.birthDate_fld:
             self.ui.birthDate_fld.setDateTime(self.member.birthDate_fld)
@@ -207,7 +310,6 @@ class MemberEdit(QDialog):
 
         # Contact information
         contactinfo = self.member.contactinfo
-
         for field in contactinfo.publicfields:
             fill_qlineedit_from_db(self.ui, field, contactinfo)
 
@@ -243,23 +345,48 @@ class MemberEdit(QDialog):
 
         # Memberships
         membershiplistmodel = MembershipListModel(self.session, self.member,
-                self, None)
+                self, self.ui.membership_comboBox)
         self.ui.membershipView.setModel(membershiplistmodel)
         self.ui.removeMembershipButton.clicked.connect(lambda:
                 self.removeSelectedMembership(self.ui.membershipView))
         self.ui.membershipView.setItemDelegate(mshipdelegate)
 
+        self.ui.makePhuxButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("Phux"))
+
+        self.ui.makeOrdinarieButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("Ordinarie medlem"))
+
+        self.ui.makeStAlMButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("StÄlM"))
+
+        self.ui.makeEjMedlemButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("Ej längre medlem"))
+
+        # Optional LDAP-integration.
+        self.ui.tabWidget.setTabEnabled(1, False)
+        if self.ldapmanager:
+            self.ui.createUserAccountOrChangePasswordButton.clicked.connect(
+                    lambda: self.createAccountOrChangePassword())
+            self.ui.removeAccountButton.clicked.connect(lambda:
+                    self.removeAccount())
+            self.ui.tabWidget.setTabEnabled(1, True)
+            self.refreshUserAccounts()
+
+
     def removeSelectedMembership(self, listview):
+        """Remove selected items from a QListView."""
         selections = listview.selectedIndexes()
         for index in selections:
             listview.model().removeRow(index.row())
 
-    def createAccount(self):
-        if not self.member.username_fld:
-            print("No username field")
-            return
-
     def accept(self):
+        """Commit Member.*_fld and contactinfo.*_fld changes to database.
+
+        Most notably all the QListView changes are already committed.
+
+        """
+
         for field in Member.editable_text_fields:
             if (field == "username_fld" and not
                     self.ui.username_fld.hasAcceptableInput()):
@@ -287,22 +414,39 @@ class MemberEdit(QDialog):
 
         self.session.commit()
         self.parent.populateMemberList(choosemember=self.member)
-        super().accept()
+        self.close()
 
     def reject(self):
-        super().reject()
+        """Close the dialog without saving the fields to the database."""
+        #TODO: Also rollback the MembershipListView changes.
+        self.session.rollback()
+        self.close()
 
 
 class SvakSvat(QMainWindow):
-    def __init__(self, SessionMaker):
+    """Member Registry Application."""
+    def __init__(self, session):
+        """Create the window.
+
+        session -- Sqlalchemy scoped_session.
+
+        """
         super().__init__()
-        self.session = SessionMaker  # Assuming scoped_session
+        self.session = session  # Assuming scoped_session
 
         self.initUI()
+
+        try:
+            self.ldapmanager = useraccounts.LDAPAccountManager()
+        except Exception as e:
+            print(e)
+            print("Deaktiverar LDAP-integration.")
+            self.ldapmanager = None
+
         self.setStatusMessage("Redo!", 3000)
 
     def initUI(self):
-        vbox = QVBoxLayout()
+        """Create the window and connect the Qt signals to slots"""
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -315,6 +459,8 @@ class SvakSvat(QMainWindow):
         self.ui.actionNewMember.triggered.connect(self.createMember)
         self.ui.actionRemoveMember.triggered.connect(self.removeMember)
         self.ui.actionEditMember.triggered.connect(self.editMember)
+        self.ui.actionMakeBackup.triggered.connect(self.makeBackup)
+        self.ui.actionRestoreFromBackup.triggered.connect(self.restoreFromBackup)
 
         self.ui.memberlistwidget.addAction(self.ui.actionEditMember)
         self.ui.memberlistwidget.addAction(self.ui.actionRemoveMember)
@@ -324,11 +470,26 @@ class SvakSvat(QMainWindow):
 
         self.setWindowTitle('SvakSvat')
 
+    def makeBackup(self):
+        filename = QFileDialog.getSaveFileName(self,
+                'Välj namn för säkerhetskopia', '.')
+        with open(filename, 'wb') as f:
+            f.write(backup_everything(self.session))
+
+    def restoreFromBackup(self):
+        filename = QFileDialog.getOpenFileName(self, 'Öppna säkerthetskopia', '.')
+        with open(filename, 'rb') as f:
+            data = f.read()
+            if restore_everything(self.session, data):
+                self.session.commit()
+                self.populateMemberList()
+
     def createMember(self):
         newmemberdialog = NewMemberDialog(self.session, self)
         newmemberdialog.exec()
 
     def removeMember(self):
+        """Remove selected member."""
         member = self.currentMember()
         wholename = member.getWholeName()
         self.session.delete(member)
@@ -337,6 +498,7 @@ class SvakSvat(QMainWindow):
         self.setStatusMessage("Användare %s borttagen!" % wholename)
 
     def populateMemberList(self, choosemember=None):
+        """Fill the memberlist from the database."""
         self.memberlist = self.session.query(Member).order_by(
                 Member.surName_fld).all()
         self.ui.searchfield.clear()
@@ -346,15 +508,23 @@ class SvakSvat(QMainWindow):
             self.ui.memberlistwidget.setCurrentRow(memberindex)
 
     def currentMember(self):
+        """Returns the currently selected member."""
         member = self.filteredmemberlist[self.ui.memberlistwidget.currentRow()]
         return member
 
     def editMember(self):
+        """Edit the currently selected member."""
         member = self.currentMember()
-        self.membereditwidget = MemberEdit(self.session, member, self)
+        self.membereditwidget = MemberEdit(self.session, member, self,
+                self.ldapmanager)
         self.membereditwidget.show()
 
     def searchlist(self, pattern=''):
+        """Perform a filter operation on the memberlist.
+
+        pattern -- The string to match.
+
+        """
         self.filteredmemberlist = [member for member in self.memberlist
                 if member.getWholeName().upper().find(pattern.upper()) != -1]
         self.ui.memberlistwidget.clear()
@@ -362,6 +532,10 @@ class SvakSvat(QMainWindow):
             self.ui.memberlistwidget.addItem(member.getWholeName())
 
     def showMemberInfo(self, member=None):
+        """Show the member's info in the panel below.
+
+        member -- backend.orm.Member to show.
+        """
         if not member:
             member = self.currentMember()
         contactinfo = member.contactinfo
@@ -388,6 +562,11 @@ Användarnamn: %s
         self.ui.memberinfo.setText(memberinfo + membershipinfo)
 
     def getMembershipInfo(self, member):
+        """Get the current membershipinfo for a member.
+
+        member -- backend.orm.Member
+
+        Used in showMemberInfo"""
         currentposts = [postmembership.post.name_fld for postmembership in
                 member.postmemberships if postmembership.isCurrent()]
         currentgroups = [groupmembership.group.name_fld for groupmembership in
@@ -397,6 +576,12 @@ Användarnamn: %s
                 "\n".join(["\n\nGrupper:"] + currentgroups))
 
     def setStatusMessage(self, message, milliseconds=3000):
+        """Sets a status message in the MainWindow.
+
+        message -- The status message to set.
+        milliseconds -- The lifetime of the message.
+
+        """
         self.ui.statusbar.showMessage(message, milliseconds)
 
 
@@ -406,6 +591,7 @@ def main():
     app = QApplication(sys.argv)
     sr = SvakSvat(SessionMaker)
     sr.show()
+
     return app.exec_()
 
 if __name__ == '__main__':

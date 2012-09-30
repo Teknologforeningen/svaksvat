@@ -20,6 +20,8 @@ from backend.ldaplogin import (get_member_with_real_name,
         DuplicateNamesException, PersonNotFoundException)
 from backend import connect
 from backend.orm import *
+from backend.commonutils import which
+
 import passwordsafe
 
 # constants
@@ -84,15 +86,49 @@ class LDAPAccountManager:
     def __init__(self, dry_run=False):
         self.dry_run = dry_run
 
+        self.ldapmodifypath = which("ldapmodify")
+        self.ldapsearchpath = which("ldapsearch")
+        self.ldappasswdpath = which("ldappasswd")
+        self.ldapdeletepath = which("ldapdelete")
+
         self.ps = passwordsafe.PasswordSafe()
         self.ldaphost = self.ps.get_config_value("ldap", "host")
         auth, self.servicelogin, self.servicepassword = self.ps.askcredentials(
                 self.check_ldap_login, "ldap", "servicelogin")
 
-        self.LDAPMODIFY_CMD = shlex.split("""ldapmodify -h \
-            %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (
+        SessionMaker = self.ps.connect_with_config("pykota")
+        self.pykotasession = SessionMaker()
+
+        self.LDAPMODIFY_CMD = shlex.split("""%s -h \
+            %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (self.ldapmodifypath,
                 self.ldaphost, self.servicelogin, self.servicepassword))
 
+    def check_bill_account(self, member):
+        if member.username_fld:
+            return bool(self.pykotasession.execute(
+            "select * from users where username='%s'" %
+            member.username_fld).rowcount)
+
+        return False
+
+
+    def get_bill_balance(self, member):
+        try:
+            return self.pykotasession.execute(
+                "select balance from users where username='%s';" %
+                member.username_fld).fetchone()['balance']
+        except:
+            return None
+
+
+    def get_bill_code(self, member):
+        try:
+            return "".joint(self.pykotasession.execute(
+                "select id, pin from users where username='%s';" %
+                member.username_fld).fetchone()[:])
+
+        except:
+            return None
 
     def ldapsearch(self, query):
         """"Execute ldapsearch command with saved credentials."""
@@ -100,9 +136,9 @@ class LDAPAccountManager:
 
     def ldapsearch_with_credentials(self, username, password, query):
         """"Execute ldapsearch command."""
-        ldapquery = shlex.split("""ldapsearch -h %s\
+        ldapquery = shlex.split("""%s -h %s\
                 -b dc=fi -D cn=%s,dc=teknologforeningen,dc=fi -w\
-                %s %s""" % (self.ldaphost, username, password, query))
+                %s %s""" % (self.ldapsearchpath, self.ldaphost, username, password, query))
 
         return check_output(ldapquery, universal_newlines=True)
 
@@ -121,8 +157,12 @@ class LDAPAccountManager:
         """Generates the strings needed to create the ldap user."""
         username = member.username_fld
         preferredname = member.preferredName_fld
+        name = member.getName()
         surname = member.surName_fld
         email = member.contactinfo.email_fld
+
+        if not all([username, preferredname, name, surname, email]):
+            return None, None
 
         # LDIF used to create the user account.
         userldif = """
@@ -149,7 +189,7 @@ objectClass: billAccount
 krbName: %s
 mail: %s
 userPassword: %s
-        """ % (username, username, preferredname + " " + surname, username,
+        """ % (username, username, name, username,
                 uidnumber, surname, preferredname, username, email, passwd)
 
         # LDIF used to add the user to the medlem group.
@@ -179,6 +219,9 @@ memberUid: %s
         return last + 1
 
     def checkldapuser(self, member):
+        if not member.username_fld:
+            return False
+
         output = self.ldapsearch("uid=" + member.username_fld)
 
         return "\n# numEntries: 1" in output
@@ -192,17 +235,22 @@ memberUid: %s
         return groups
 
     def delldapuser(self, member):
+        if not member.username_fld:
+            return
+
         # Delete LDAP user account
-        delusercmd = shlex.split("""ldapdelete -h \
+        delusercmd = shlex.split("""%s -h \
                 %s -xD  cn=%s,dc=teknologforeningen,dc=fi -w \
                 %s uid=%s,ou=People,dc=teknologforeningen,dc=fi""" % (
-                    self.ldaphost, self.servicelogin, self.servicepassword,
-                    member.username_fld))
+
+                    self.ldapdeletepath, self.ldaphost, self.servicelogin,
+                    self.servicepassword, member.username_fld))
 
         if self.dry_run:
             delusercmd.append("-n")
 
         check_output(delusercmd)
+        print("User %s deleted." % member.username_fld)
 
         # Delete user from Members group
         deluserfromgroupldif = """
@@ -217,20 +265,46 @@ memberUid: """ + member.username_fld
 
         return True
 
-    def change_ldap_password(self, uid, newpassword):
+    def change_ldap_password(self, username, newpassword):
         """Change password for user account."""
-        changepwcommand = shlex.split("""ldappasswd -h %s -D \
+        changepwcommand = shlex.split("""%s -h %s -D \
                 cn=%s,dc=teknologforeningen,dc=fi -w %s -s %s \
                 uid=%s,ou=People,dc=teknologforeningen,dc=fi""" %
-                (self.ldaphost, self.servicelogin, self.servicepassword,
-                    newpassword, uid))
+                (self.ldappasswdpath, self.ldaphost, self.servicelogin, self.servicepassword,
+                    newpassword, username))
 
         check_output(changepwcommand, universal_newlines=True)
+        print("New password set for user %s." % username)
+
+    def create_bill_account(self, member):
+        """Create BILL account and return BILL-code."""
+        if not member.username_fld:
+            return False
+        username = member.username_fld
+
+        self.pykotasession.execute(
+        "INSERT INTO users(username, name, pin) VALUES('%s', '%s',\
+                '$[($RANDOM %% 8999 + 1000)]');" % (username,
+                    member.getName()))
+
+        self.pykotasession.execute(
+        "INSERT INTO userpquota(userid,printerid,balancelimit) \
+                SELECT (SELECT id FROM users WHERE username='%s'\
+                ),id,deflimit_u FROM printers WHERE defactivate_u='t';" %
+                username)
+
+        self.pykotasession.commit()
+
+        return self.get_bill_code(member)
 
 
     def addldapuser(self, member, passwd):
         uidnumber = self.get_next_uidnumber()
         userldif, usergroupldif = self.generate_ldifs(member, uidnumber, passwd)
+
+        if not userldif: # Something is missing in member.
+            return False
+
         # Add the user to LDAP
         cmd = self.LDAPMODIFY_CMD
         if self.dry_run:
@@ -239,19 +313,24 @@ memberUid: """ + member.username_fld
         adduserproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         out1 = adduserproc.communicate(input=userldif.encode())
         print(out1[0].decode())
-        if adduserproc.returncode: # Failed command
-            return False
-
-        # Add the user to Members-group
-        groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-        out2 = groupmodproc.communicate(input=usergroupldif.encode())
-        print(out2[0].decode())
 
         # Workaround because password setting with ldif doesn't work.
         if not self.dry_run:
             self.change_ldap_password(member.username_fld, passwd)
 
-        return True
+        if self.checkldapuser(member): # if user add successful
+            # Add the user to Members-group
+            groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+            out2 = groupmodproc.communicate(input=usergroupldif.encode())
+            print(out2[0].decode())
+
+            if not self.check_bill_account(member):
+                # Create BILL-account if it does not exist.
+                self.create_bill_account(member)
+
+            return True
+
+        return False
 
 
 def main():
@@ -265,9 +344,10 @@ def main():
     output = lm.ldapsearch("uid=test123")
     passwd= "hunter2"
     print(lm.getPosixGroups(member))
-    #if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
+    if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
+        ...
         #lm.delldapuser(member)
-    #print(lm.checkldapuser(member))
+    print(lm.checkldapuser(member))
     return 0
 
 if __name__ == '__main__':

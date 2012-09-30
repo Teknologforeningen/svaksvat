@@ -380,9 +380,6 @@
             </layout>
            </item>
           </layout>
-          <zorder>groupView</zorder>
-          <zorder>removeGroupButton</zorder>
-          <zorder></zorder>
           <zorder>label</zorder>
           <zorder></zorder>
           <zorder>label_2</zorder>
@@ -466,29 +463,18 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_7">
              <item>
-              <widget class="QPushButton" name="createUserAccountsButton">
+              <widget class="QPushButton" name="createUserAccountOrChangePasswordButton">
                <property name="text">
-                <string>Skapa användarkonton</string>
+                <string>Skapa användarkonton/Byt lösenord</string>
                </property>
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_21">
-               <item>
-                <widget class="QLineEdit" name="ldapPasswordLineEdit">
-                 <property name="echoMode">
-                  <enum>QLineEdit::Password</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="changeLdapPasswordButton">
-                 <property name="text">
-                  <string>Byt lösenord</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+              <widget class="QPushButton" name="removeAccountButton">
+               <property name="text">
+                <string>Ta bort användarkonto</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -576,30 +562,54 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_14">
              <item>
-              <widget class="QPushButton" name="pushButton">
+              <widget class="QPushButton" name="makePhuxButton">
                <property name="text">
                 <string>Phux</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_2">
+              <widget class="QPushButton" name="makeOrdinarieButton">
                <property name="text">
                 <string>Ordinarie</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_3">
+              <widget class="QPushButton" name="makeStAlMButton">
                <property name="text">
                 <string>StÄlM</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_4">
+              <widget class="QPushButton" name="makeEjMedlemButton">
                <property name="text">
                 <string>Ej medlem</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Lägg till medlemskapstyp:</string>
+               </property>
+               <property name="buddy">
+                <cstring>group_comboBox</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="membership_comboBox">
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+               <property name="insertPolicy">
+                <enum>QComboBox::InsertAlphabetically</enum>
                </property>
               </widget>
              </item>

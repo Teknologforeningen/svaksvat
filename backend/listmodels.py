@@ -138,11 +138,11 @@ class MembershipListModel(QAbstractListModel):
         self.endRemoveRows()
         return True
 
-    def insertRows(self, row, count, parent=QModelIndex()):
-        self.beginInsertRows(parent, row, row+count-1)
-
-        membershipname = self.combobox.currentText()
+    def insertMembership(self, membershipname, count=1):
         membershiptypename = self.membershiptype.title()
+        lastrow = self.rowCount()
+
+        self.beginInsertRows(QModelIndex(), lastrow, lastrow)
 
         for i in range(count):
 
@@ -155,6 +155,12 @@ class MembershipListModel(QAbstractListModel):
         self.endInsertRows()
 
         return True
+
+    def insertRows(self, row, count, parent=QModelIndex()):
+        membershipname = self.combobox.currentText()
+
+        return self.insertMembership(membershipname)
+
 
     def endRemoveRows(self):
         self.session.commit()
@@ -231,9 +237,6 @@ class MembershipDelegate(QStyledItemDelegate):
         editor.ui.buttonBox.rejected.connect(
                 lambda: self.closeEditor.emit(editor,
                     QAbstractItemDelegate.NoHint))
-        editor.ui.wholeyear_radioButton.toggled.connect(editor.ui.startYearWidget.setVisible)
-        editor.ui.laborday_radioButton.toggled.connect(editor.ui.startYearWidget.setVisible)
-        editor.ui.otherMandate_radioButton.toggled.connect(editor.ui.startAndEndTimeWidget.setVisible)
 
         return editor
 
@@ -241,12 +244,22 @@ class MembershipDelegate(QStyledItemDelegate):
         membership = index.data(Qt.EditRole)
 
         startdate = membership.startTime_fld.date()
-        enddate = membership.endTime_fld.date()
+
+        enddate = None
+        if membership.endTime_fld:
+            enddate = membership.endTime_fld.date()
 
         editor.ui.startYear_spinBox.setFocus()
 
+        # Onwards mandate
+        if not enddate:
+            editor.ui.onwards_radioButton.toggle()
+            editor.ui.startYearWidget.hide()
+            editor.ui.endTime_fld.hide()
+            editor.ui.endTimeLabel.hide()
+
         # Whole year mandate
-        if (startdate.year == enddate.year and
+        elif (startdate.year == enddate.year and
                 startdate == datetime.date(startdate.year, 1, 1) and
                 enddate == datetime.date(startdate.year, 12, 31)):
             editor.ui.wholeyear_radioButton.toggle()
@@ -287,6 +300,10 @@ class MembershipDelegate(QStyledItemDelegate):
         elif editor.ui.wholeyear_radioButton.isChecked():
             starttime = datetime.datetime(startyear, 1, 1)
             endtime = datetime.datetime(startyear, 12, 31)
+
+        elif editor.ui.onwards_radioButton.isChecked():
+            starttime = editor.ui.startTime_fld.dateTime().toPyDateTime()
+            endtime = None
 
         else: assert()
 

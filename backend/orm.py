@@ -1,10 +1,11 @@
 """
 The ORM mappings for both Joomla's MySQL and the member registry's Postgres
-databases.
+databases and related functions.
 """
 
 # imports
 from datetime import (date, datetime, timedelta)
+import pickle
 
 from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
@@ -26,8 +27,45 @@ class TooLongValueException(Exception):
         return ("The value %s for the field %s is over %d in length." %
                 (self.value, self.field, self.maxlength))
 
-
 # interface functions
+def backup_everything(session):
+    # Get all objects.
+    backupdict = {}
+    for table in [x.__table__ for x in MEMBERSDBTABLES]:
+        data = fetchall_from_table(table, session)
+        backupdict[table] = data
+
+    serialized_backupdict = None
+    pickle.dump(backupdict, serialized_backupdict)
+    return serialized_backupdict
+
+def fetchall_from_table(table, session):
+    data = session.execute(table.__table__.select()).fetchall()
+    return data
+
+def restore_everything(session, serialized_data):
+    # Truncate tables
+    for table in [x.__table__ for x in MEMBERSDBTABLES]:
+        session.execute(table.delete())
+
+    # Add recovered objects
+    session.commit()
+    session.close()
+    restore_objects = loads(serialized_data, get_declarative_base().metadata, session)
+    failured_objects = []
+    for obj in restore_objects:
+        try:
+            session.merge(obj)
+
+        except sqlalchemy.exc.IntegrityError:
+            failured_objects.append(obj)
+
+    for obj in failured_objects:
+        session.merge(obj)
+
+    return True
+
+
 def create_row(table_orm, session):
     row = table_orm()
     sequence = session.query(Sequence).filter(Sequence.objectname ==
@@ -42,9 +80,10 @@ def create_row(table_orm, session):
 def create_member(session):
     new_member = create_row(Member, session)
     new_contactinfo = create_row(ContactInformation, session)
-    new_contactinfo.member = new_member
-    new_member.primaryContactId_fld = new_contactinfo.objectId
-    session.add_all([new_member, new_contactinfo])
+    new_member.contactinfo = new_contactinfo
+    new_member.contactinfos = [new_contactinfo]
+    session.add(new_member)
+    session.add(new_contactinfo)
     return new_member
 
 
@@ -292,14 +331,21 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     photo_fld = Column(Text)
     title_fld = Column(String(30))
     nationality_fld = Column(String(3))
-    primaryContactId_fld = Column(String(33))
+    primaryContactId_fld = Column(String(33),
+            ForeignKey('ContactInformationTable.objectId', use_alter=True,
+                name="fk_primary_contactinfo"))
     dead_fld = Column(Integer)
     subscribedtomodulen_fld = Column(Integer, default=1)
     username_fld = Column(String(150))
     lastsync_fld = Column(DateTime, default=datetime.min)
 
-    contactinfo = relationship("ContactInformation", uselist=False,
-            backref='member', cascade="all, delete, delete-orphan")
+    contactinfos = relationship(ContactInformation,
+            backref='member', cascade="all, delete, delete-orphan",
+            primaryjoin="Member.objectId==ContactInformation.member_fld")
+    contactinfo = relationship(ContactInformation,
+            primaryjoin=primaryContactId_fld==ContactInformation.objectId,
+            post_update=True)
+
     departmentmemberships = relationship("DepartmentMembership",
             backref='member', cascade="all, delete, delete-orphan")
     groupmemberships = relationship("GroupMembership", backref='member',
@@ -344,6 +390,12 @@ class Member(get_declarative_base(), MemberRegistryCommon):
         """
         return (self.surName_fld or '') + " " + (self.preferredName_fld or
                 self.givenNames_fld or '')
+
+    def ifOrdinarieMedlem(self):
+        membershipnames = [mship.membership.name_fld for mship in
+                self.membershipmemberships]
+
+        return "Ordinarie medlem" in membershipnames
 
 
 
@@ -478,6 +530,11 @@ class Jos_Fields(get_declarative_base()):
     __tablename__ = "jos_comprofiler_fields"
     fieldid = Column(Integer, primary_key=True)
     name = Column(String(50))
+
+MEMBERSDBTABLES = [DepartmentMembership, Department, DepartmentType,
+        GroupMembership, Group, GroupType, PostMembership, Post, PostType,
+        MembershipMembership, Membership, Presence, ContactInformation, Member,
+        Sequence]
 
 
 if __name__ == '__main__':

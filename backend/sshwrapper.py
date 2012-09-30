@@ -13,8 +13,25 @@ import pipes
 import tempfile
 import shutil
 
+from .commonutils import which
+
 __all__ = 'SSHConnection SSHResult SSHError'.split()
 
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if is_exe(program):
+        return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
 
 class SSHConnection(object):
     """
@@ -23,7 +40,8 @@ class SSHConnection(object):
     """
 
     def __init__(self, server, login=None, port=None, configfile=None,
-            identity_file=None, ssh_agent_socket=None, portforward_local=None, timeout=60):
+            identity_file=None, ssh_agent_socket=None, portforward_local=None,
+            timeout=60):
         """
         Create new object to establish SSH connection to remote
         servers.
@@ -112,8 +130,7 @@ class SSHConnection(object):
             if command:
                 out, err = pipe.communicate(command.encode())
             else:
-                while not pipe.poll():
-                    pass
+                out, err = pipe.communicate()
         except IOError as exc:
             # pipe.terminate() # only in python 2.6 allowed
             os.kill(pipe.pid, signal.SIGTERM)
@@ -231,7 +248,12 @@ class SSHConnection(object):
         """ Build the command string to connect to the server
         and start the given interpreter. """
         interpreter = str(interpreter)
-        cmd = ['/usr/bin/ssh', ]
+        if os.name == 'nt':
+            puttypath = which("putty") or which("putty.exe")
+            cmd = [puttypath, ]
+        else:
+            cmd = [which("ssh"), ]
+
         if self.login:
             cmd += ['-l', self.login]
         if self.configfile:
@@ -245,7 +267,7 @@ class SSHConnection(object):
         if self.portforward_local:
             cmd += ['-N', '-L', self.portforward_local]
         cmd.append(self.server)
-        cmd.append(interpreter)
+        #cmd.append(interpreter)
         return cmd
 
     def scp_command(self, files, target):
@@ -317,11 +339,13 @@ class SSHError(Exception):
 
 def portforward_to_localhost(host, login, port, threadfinishedmutex=None):
     """Convenience function to forward to localhost. Locks threadfinishedmutex
-    on success"""
+    on failure."""
     conn = SSHConnection(host, login,
-            portforward_local=str(port) + ":localhost:" + str(port), timeout=None)
+            portforward_local=str(port) + ":localhost:" + str(port),
+            timeout=None)
     try:
         conn.run(None)
+        threadfinishedmutex.acquire() # Signal that thread has finished
 
     except SSHError:
         threadfinishedmutex.acquire()
@@ -329,5 +353,4 @@ def portforward_to_localhost(host, login, port, threadfinishedmutex=None):
 if __name__ == "__main__":
     import sys
     conn = portforward_to_localhost(sys.argv[1], sys.argv[2], 5432)
-    print(conn)
     sys.exit(0)

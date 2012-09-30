@@ -3,3 +3,16 @@ SvakSvat uses Sphinx (sphinx.pocoo.org) for the documentation.
 To build the documentation just run:
 sphinx-build doc/source doc/build 
 and open doc/build/index.html in your favorite browser.
+
+Dependencies for SvakSvatGUI as Ubuntu packages:
+python3-sqlalchemy
+python3-pyqt4
+python3-keyring
+python3-psycopg2
+python3-dbus (for SecretServiceKeyring)
+ldap-utils (for LDAP support)
+openssh-client (to perform SSH port forwarding)
+
+To run on Ubuntu:
+cp svaksvat.cfg.cp svaksvat.cfg
+python3 svaksvatgui.py
