@@ -326,11 +326,23 @@ class MemberEdit(QWidget):
 
         # Memberships
         membershiplistmodel = MembershipListModel(self.session, self.member,
-                self, None)
+                self, self.ui.membership_comboBox)
         self.ui.membershipView.setModel(membershiplistmodel)
         self.ui.removeMembershipButton.clicked.connect(lambda:
                 self.removeSelectedMembership(self.ui.membershipView))
         self.ui.membershipView.setItemDelegate(mshipdelegate)
+
+        self.ui.makePhuxButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("Phux"))
+
+        self.ui.makeOrdinarieButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("Ordinarie medlem"))
+
+        self.ui.makeStAlMButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("StÄlM"))
+
+        self.ui.makeEjMedlemButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("Ej längre medlem"))
 
         # Optional LDAP-integration.
         self.ui.tabWidget.setTabEnabled(1, False)

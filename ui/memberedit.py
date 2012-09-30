@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Sun Sep 30 12:13:43 2012
+# Created: Sun Sep 30 14:36:19 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -292,19 +292,30 @@ class Ui_MemberEdit(object):
         self.verticalLayout_5.addLayout(self.horizontalLayout_13)
         self.horizontalLayout_14 = QtGui.QHBoxLayout()
         self.horizontalLayout_14.setObjectName(_fromUtf8("horizontalLayout_14"))
-        self.pushButton = QtGui.QPushButton(self.tab_2)
-        self.pushButton.setObjectName(_fromUtf8("pushButton"))
-        self.horizontalLayout_14.addWidget(self.pushButton)
-        self.pushButton_2 = QtGui.QPushButton(self.tab_2)
-        self.pushButton_2.setObjectName(_fromUtf8("pushButton_2"))
-        self.horizontalLayout_14.addWidget(self.pushButton_2)
-        self.pushButton_3 = QtGui.QPushButton(self.tab_2)
-        self.pushButton_3.setObjectName(_fromUtf8("pushButton_3"))
-        self.horizontalLayout_14.addWidget(self.pushButton_3)
-        self.pushButton_4 = QtGui.QPushButton(self.tab_2)
-        self.pushButton_4.setObjectName(_fromUtf8("pushButton_4"))
-        self.horizontalLayout_14.addWidget(self.pushButton_4)
+        self.makePhuxButton = QtGui.QPushButton(self.tab_2)
+        self.makePhuxButton.setObjectName(_fromUtf8("makePhuxButton"))
+        self.horizontalLayout_14.addWidget(self.makePhuxButton)
+        self.makeOrdinarieButton = QtGui.QPushButton(self.tab_2)
+        self.makeOrdinarieButton.setObjectName(_fromUtf8("makeOrdinarieButton"))
+        self.horizontalLayout_14.addWidget(self.makeOrdinarieButton)
+        self.makeStAlMButton = QtGui.QPushButton(self.tab_2)
+        self.makeStAlMButton.setObjectName(_fromUtf8("makeStAlMButton"))
+        self.horizontalLayout_14.addWidget(self.makeStAlMButton)
+        self.makeEjMedlemButton = QtGui.QPushButton(self.tab_2)
+        self.makeEjMedlemButton.setObjectName(_fromUtf8("makeEjMedlemButton"))
+        self.horizontalLayout_14.addWidget(self.makeEjMedlemButton)
         self.verticalLayout_5.addLayout(self.horizontalLayout_14)
+        self.horizontalLayout_9 = QtGui.QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(_fromUtf8("horizontalLayout_9"))
+        self.label_11 = QtGui.QLabel(self.tab_2)
+        self.label_11.setObjectName(_fromUtf8("label_11"))
+        self.horizontalLayout_9.addWidget(self.label_11)
+        self.membership_comboBox = QtGui.QComboBox(self.tab_2)
+        self.membership_comboBox.setEditable(True)
+        self.membership_comboBox.setInsertPolicy(QtGui.QComboBox.InsertAlphabetically)
+        self.membership_comboBox.setObjectName(_fromUtf8("membership_comboBox"))
+        self.horizontalLayout_9.addWidget(self.membership_comboBox)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_9)
         self.tabWidget.addTab(self.tab_2, _fromUtf8(""))
         self.verticalLayout_2.addWidget(self.tabWidget)
         self.horizontalLayout.addLayout(self.verticalLayout_2)
@@ -335,6 +346,7 @@ class Ui_MemberEdit(object):
         self.label_3.setBuddy(self.group_comboBox)
         self.label_4.setBuddy(self.post_comboBox)
         self.label_9.setBuddy(self.group_comboBox)
+        self.label_11.setBuddy(self.group_comboBox)
 
         self.retranslateUi(MemberEdit)
         self.tabWidget.setCurrentIndex(0)
@@ -404,10 +416,11 @@ class Ui_MemberEdit(object):
         self.label_10.setText(QtGui.QApplication.translate("MemberEdit", "Studieinriktning:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_9.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till studieinriktning:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_12.setText(QtGui.QApplication.translate("MemberEdit", "TF Medlemskapstyper:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("MemberEdit", "Phux", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_2.setText(QtGui.QApplication.translate("MemberEdit", "Ordinarie", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_3.setText(QtGui.QApplication.translate("MemberEdit", "StÄlM", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_4.setText(QtGui.QApplication.translate("MemberEdit", "Ej medlem", None, QtGui.QApplication.UnicodeUTF8))
+        self.makePhuxButton.setText(QtGui.QApplication.translate("MemberEdit", "Phux", None, QtGui.QApplication.UnicodeUTF8))
+        self.makeOrdinarieButton.setText(QtGui.QApplication.translate("MemberEdit", "Ordinarie", None, QtGui.QApplication.UnicodeUTF8))
+        self.makeStAlMButton.setText(QtGui.QApplication.translate("MemberEdit", "StÄlM", None, QtGui.QApplication.UnicodeUTF8))
+        self.makeEjMedlemButton.setText(QtGui.QApplication.translate("MemberEdit", "Ej medlem", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till medlemskapstyp:", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("MemberEdit", "Aalto och TF medlemskap", None, QtGui.QApplication.UnicodeUTF8))
 
 import svaksvat_rc

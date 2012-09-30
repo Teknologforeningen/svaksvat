@@ -138,11 +138,11 @@ class MembershipListModel(QAbstractListModel):
         self.endRemoveRows()
         return True
 
-    def insertRows(self, row, count, parent=QModelIndex()):
-        self.beginInsertRows(parent, row, row+count-1)
-
-        membershipname = self.combobox.currentText()
+    def insertMembership(self, membershipname, count=1):
         membershiptypename = self.membershiptype.title()
+        lastrow = self.rowCount()
+
+        self.beginInsertRows(QModelIndex(), lastrow, lastrow)
 
         for i in range(count):
 
@@ -155,6 +155,12 @@ class MembershipListModel(QAbstractListModel):
         self.endInsertRows()
 
         return True
+
+    def insertRows(self, row, count, parent=QModelIndex()):
+        membershipname = self.combobox.currentText()
+
+        return self.insertMembership(membershipname)
+
 
     def endRemoveRows(self):
         self.session.commit()
