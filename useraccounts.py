@@ -20,6 +20,8 @@ from backend.ldaplogin import (get_member_with_real_name,
         DuplicateNamesException, PersonNotFoundException)
 from backend import connect
 from backend.orm import *
+from backend.commonutils import which
+
 import passwordsafe
 
 # constants
@@ -84,13 +86,17 @@ class LDAPAccountManager:
     def __init__(self, dry_run=False):
         self.dry_run = dry_run
 
+        self.ldapmodifypath = which("ldapmodify")
+        self.ldapsearchpath = which("ldapsearch")
+        self.ldappasswdpath = which("ldappasswd")
+
         self.ps = passwordsafe.PasswordSafe()
         self.ldaphost = self.ps.get_config_value("ldap", "host")
         auth, self.servicelogin, self.servicepassword = self.ps.askcredentials(
                 self.check_ldap_login, "ldap", "servicelogin")
 
-        self.LDAPMODIFY_CMD = shlex.split("""ldapmodify -h \
-            %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (
+        self.LDAPMODIFY_CMD = shlex.split("""%s -h \
+            %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (self.ldapmodifypath,
                 self.ldaphost, self.servicelogin, self.servicepassword))
 
 
@@ -100,9 +106,9 @@ class LDAPAccountManager:
 
     def ldapsearch_with_credentials(self, username, password, query):
         """"Execute ldapsearch command."""
-        ldapquery = shlex.split("""ldapsearch -h %s\
+        ldapquery = shlex.split("""%s -h %s\
                 -b dc=fi -D cn=%s,dc=teknologforeningen,dc=fi -w\
-                %s %s""" % (self.ldaphost, username, password, query))
+                %s %s""" % (self.ldapsearchpath, self.ldaphost, username, password, query))
 
         return check_output(ldapquery, universal_newlines=True)
 
@@ -219,10 +225,10 @@ memberUid: """ + member.username_fld
 
     def change_ldap_password(self, uid, newpassword):
         """Change password for user account."""
-        changepwcommand = shlex.split("""ldappasswd -h %s -D \
+        changepwcommand = shlex.split("""%s -h %s -D \
                 cn=%s,dc=teknologforeningen,dc=fi -w %s -s %s \
                 uid=%s,ou=People,dc=teknologforeningen,dc=fi""" %
-                (self.ldaphost, self.servicelogin, self.servicepassword,
+                (self.ldappasswdpath, self.ldaphost, self.servicelogin, self.servicepassword,
                     newpassword, uid))
 
         check_output(changepwcommand, universal_newlines=True)
