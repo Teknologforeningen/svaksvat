@@ -13,6 +13,8 @@ import pipes
 import tempfile
 import shutil
 
+from .commonutils import which
+
 __all__ = 'SSHConnection SSHResult SSHError'.split()
 
 def which(program):
@@ -246,12 +248,12 @@ class SSHConnection(object):
         """ Build the command string to connect to the server
         and start the given interpreter. """
         interpreter = str(interpreter)
-        cmd = [which("ssh"), ]
         if os.name == 'nt':
             puttypath = which("putty") or which("putty.exe")
-            if not puttypath:
-                raise SSHError()
             cmd = [puttypath, ]
+        else:
+            cmd = [which("ssh"), ]
+
         if self.login:
             cmd += ['-l', self.login]
         if self.configfile:
