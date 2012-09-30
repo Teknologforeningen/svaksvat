@@ -391,6 +391,12 @@ class Member(get_declarative_base(), MemberRegistryCommon):
         return (self.surName_fld or '') + " " + (self.preferredName_fld or
                 self.givenNames_fld or '')
 
+    def ifOrdinarieMedlem(self):
+        membershipnames = [mship.membership.name_fld for mship in
+                self.membershipmemberships]
+
+        return "Ordinarie medlem" in membershipnames
+
 
 
 class MembershipMembership(get_declarative_base(),

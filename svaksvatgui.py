@@ -254,13 +254,16 @@ class MemberEdit(QWidget):
             return
 
         username = self.ui.username_fld.text()
-        if username:
+        if username and self.member.ifOrdinarieMedlem():
             self.member.username_fld = username
             self.session.commit()
             self.ldapmanager.addldapuser(self.member, password)
             self.refreshUserAccounts()
             return
 
+        QMessageBox.information(self, "Kunde inte skapa användarkonto",
+                "Felaktigt användarnamn eller medlemen tillhör inte gruppen" +
+                " 'Ordinarie medlem'.", 1)
 
 
     def removeAccount(self):
