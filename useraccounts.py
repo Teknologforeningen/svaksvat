@@ -98,9 +98,19 @@ class LDAPAccountManager:
 
         SessionMaker = self.ps.connect_with_config("pykota")
         self.pykotasession = SessionMaker()
+
         self.LDAPMODIFY_CMD = shlex.split("""%s -h \
             %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (self.ldapmodifypath,
                 self.ldaphost, self.servicelogin, self.servicepassword))
+
+    def check_bill_account(self, member):
+        if member.username_fld:
+            return bool(self.pykotasession.execute(
+            "select * from users where username='%s'" %
+            member.username_fld).rowcount)
+
+        return False
+
 
     def get_bill_balance(self, member):
         try:
@@ -147,8 +157,12 @@ class LDAPAccountManager:
         """Generates the strings needed to create the ldap user."""
         username = member.username_fld
         preferredname = member.preferredName_fld
+        name = member.getName()
         surname = member.surName_fld
         email = member.contactinfo.email_fld
+
+        if not all([username, preferredname, name, surname, email]):
+            return None, None
 
         # LDIF used to create the user account.
         userldif = """
@@ -175,7 +189,7 @@ objectClass: billAccount
 krbName: %s
 mail: %s
 userPassword: %s
-        """ % (username, username, preferredname + " " + surname, username,
+        """ % (username, username, name, username,
                 uidnumber, surname, preferredname, username, email, passwd)
 
         # LDIF used to add the user to the medlem group.
@@ -249,19 +263,18 @@ memberUid: """ + member.username_fld
         out = groupmodproc.communicate(input=deluserfromgroupldif.encode())
         print(out[0].decode())
 
-        self.create_bill_account(member)
-
         return True
 
-    def change_ldap_password(self, uid, newpassword):
+    def change_ldap_password(self, username, newpassword):
         """Change password for user account."""
         changepwcommand = shlex.split("""%s -h %s -D \
                 cn=%s,dc=teknologforeningen,dc=fi -w %s -s %s \
                 uid=%s,ou=People,dc=teknologforeningen,dc=fi""" %
                 (self.ldappasswdpath, self.ldaphost, self.servicelogin, self.servicepassword,
-                    newpassword, uid))
+                    newpassword, username))
 
         check_output(changepwcommand, universal_newlines=True)
+        print("New password set for user %s." % username)
 
     def create_bill_account(self, member):
         """Create BILL account and return BILL-code."""
@@ -288,6 +301,10 @@ memberUid: """ + member.username_fld
     def addldapuser(self, member, passwd):
         uidnumber = self.get_next_uidnumber()
         userldif, usergroupldif = self.generate_ldifs(member, uidnumber, passwd)
+
+        if not userldif: # Something is missing in member.
+            return False
+
         # Add the user to LDAP
         cmd = self.LDAPMODIFY_CMD
         if self.dry_run:
@@ -296,15 +313,20 @@ memberUid: """ + member.username_fld
         adduserproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         out1 = adduserproc.communicate(input=userldif.encode())
         print(out1[0].decode())
-        if self.checkldapuser(member): # Successful
+
+        # Workaround because password setting with ldif doesn't work.
+        if not self.dry_run:
+            self.change_ldap_password(member.username_fld, passwd)
+
+        if self.checkldapuser(member): # if user add successful
             # Add the user to Members-group
             groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
             out2 = groupmodproc.communicate(input=usergroupldif.encode())
             print(out2[0].decode())
 
-            # Workaround because password setting with ldif doesn't work.
-            if not self.dry_run:
-                self.change_ldap_password(member.username_fld, passwd)
+            if not self.check_bill_account(member):
+                # Create BILL-account if it does not exist.
+                self.create_bill_account(member)
 
             return True
 
@@ -324,7 +346,7 @@ def main():
     print(lm.getPosixGroups(member))
     if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
         ...
-        lm.delldapuser(member)
+        #lm.delldapuser(member)
     print(lm.checkldapuser(member))
     return 0
 

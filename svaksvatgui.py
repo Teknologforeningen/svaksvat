@@ -224,24 +224,35 @@ class MemberEdit(QWidget):
 
     def refreshUserAccounts(self):
         ldapuserexists = "Nej"
-        color = "red"
+        billuserexists = "Nej"
+        ldapcolor = "red"
+        billcolor = "red"
         self.ui.removeAccountButton.setEnabled(False)
         self.ui.username_fld.setEnabled(True)
+        self.ui.billAccountCreditLabel.setText("Icke tillgänglig")
+        if self.ldapmanager.check_bill_account(self.member):
+            billuserexists = "Ja"
+            billcolor = "green"
+            self.ui.billAccountCreditLabel.setText(str(
+                self.ldapmanager.get_bill_balance(self.member)) + " €")
+
         if self.ldapmanager.checkldapuser(self.member):
             ldapuserexists = "Ja"
-            color = "green"
+            ldapcolor = "green"
             self.ui.ldapGroupsLabel.setPlainText("\n".join(self.ldapmanager.getPosixGroups(self.member)))
             self.ui.removeAccountButton.setEnabled(True)
             self.ui.username_fld.setEnabled(False)
 
-        stylesheet = "QLabel {color:%s}" % color
         self.ui.ldapAccountStatusLabel.setText(ldapuserexists)
-
+        self.ui.billAccountStatusLabel.setText(billuserexists)
+        stylesheet = "QLabel {color:%s}" % ldapcolor
         self.ui.ldapAccountStatusLabel.setStyleSheet(stylesheet)
+        stylesheet = "QLabel {color:%s}" % billcolor
+        self.ui.billAccountStatusLabel.setStyleSheet(stylesheet)
 
 
     def createAccountOrChangePassword(self):
-        ok, password = QInputDialog.getText(self, "Ange lösenord", "Lösenord",
+        password, ok = QInputDialog.getText(self, "Ange lösenord", "Lösenord",
                 QLineEdit.Password)
 
         if not ok:
@@ -254,16 +265,24 @@ class MemberEdit(QWidget):
             return
 
         username = self.ui.username_fld.text()
-        if username and self.member.ifOrdinarieMedlem():
+        email = self.ui.email_fld.text()
+        preferredname = self.ui.preferredName_fld.text()
+        surname = self.ui.surName_fld.text()
+
+        if (username and email and preferredname and surname
+                and self.member.ifOrdinarieMedlem()):
             self.member.username_fld = username
+            self.member.email_fld = email
+            self.member.preferredName_fld = preferredname
+            self.member.surName_fld = surname
             self.session.commit()
             self.ldapmanager.addldapuser(self.member, password)
             self.refreshUserAccounts()
             return
 
         QMessageBox.information(self, "Kunde inte skapa användarkonto",
-                "Felaktigt användarnamn eller medlemen tillhör inte gruppen" +
-                " 'Ordinarie medlem'.", 1)
+                "Felaktigt användarnamn, email, efternamn, tilltalsnamn eller" +
+                "medlemen tillhör inte gruppen 'Ordinarie medlem'.", 1)
 
 
     def removeAccount(self):
