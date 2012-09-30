@@ -24,6 +24,8 @@ from ui.newmember import Ui_NewMember
 import passwordsafe
 import useraccounts
 
+import svaksvat_rc
+
 
 def init_gender_combobox(combobox, member=None):
     """Initializes a QComboBox to gender_fld.
@@ -586,11 +588,21 @@ Användarnamn: %s
 
 
 def main():
-    ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
     app = QApplication(sys.argv)
-    sr = SvakSvat(SessionMaker)
-    sr.show()
+
+    # Create and display the splash screen
+    splash_pix = QPixmap(":/images/res/splashscreen.png")
+    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+    splash.setMask(splash_pix.mask())
+    splash.show()
+    app.processEvents()
+
+    # Initialize SvakSvat
+    ps = passwordsafe.PasswordSafe()
+    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
+    ss = SvakSvat(SessionMaker)
+    ss.show()
+    splash.finish(ss)
 
     return app.exec_()
 
