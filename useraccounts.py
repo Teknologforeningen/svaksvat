@@ -96,10 +96,29 @@ class LDAPAccountManager:
         auth, self.servicelogin, self.servicepassword = self.ps.askcredentials(
                 self.check_ldap_login, "ldap", "servicelogin")
 
+        SessionMaker = self.ps.connect_with_config("pykota")
+        self.pykotasession = SessionMaker()
         self.LDAPMODIFY_CMD = shlex.split("""%s -h \
             %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (self.ldapmodifypath,
                 self.ldaphost, self.servicelogin, self.servicepassword))
 
+    def get_bill_balance(self, member):
+        try:
+            return self.pykotasession.execute(
+                "select balance from users where username='%s';" %
+                member.username_fld).fetchone()['balance']
+        except:
+            return None
+
+
+    def get_bill_code(self, member):
+        try:
+            return "".joint(self.pykotasession.execute(
+                "select id, pin from users where username='%s';" %
+                member.username_fld).fetchone()[:])
+
+        except:
+            return None
 
     def ldapsearch(self, query):
         """"Execute ldapsearch command with saved credentials."""
@@ -230,6 +249,8 @@ memberUid: """ + member.username_fld
         out = groupmodproc.communicate(input=deluserfromgroupldif.encode())
         print(out[0].decode())
 
+        self.create_bill_account(member)
+
         return True
 
     def change_ldap_password(self, uid, newpassword):
@@ -241,6 +262,27 @@ memberUid: """ + member.username_fld
                     newpassword, uid))
 
         check_output(changepwcommand, universal_newlines=True)
+
+    def create_bill_account(self, member):
+        """Create BILL account and return BILL-code."""
+        if not member.username_fld:
+            return False
+        username = member.username_fld
+
+        self.pykotasession.execute(
+        "INSERT INTO users(username, name, pin) VALUES('%s', '%s',\
+                '$[($RANDOM %% 8999 + 1000)]');" % (username,
+                    member.getName()))
+
+        self.pykotasession.execute(
+        "INSERT INTO userpquota(userid,printerid,balancelimit) \
+                SELECT (SELECT id FROM users WHERE username='%s'\
+                ),id,deflimit_u FROM printers WHERE defactivate_u='t';" %
+                username)
+
+        self.pykotasession.commit()
+
+        return self.get_bill_code(member)
 
 
     def addldapuser(self, member, passwd):
@@ -282,7 +324,7 @@ def main():
     print(lm.getPosixGroups(member))
     if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
         ...
-        #lm.delldapuser(member)
+        lm.delldapuser(member)
     print(lm.checkldapuser(member))
     return 0
 
