@@ -89,6 +89,7 @@ class LDAPAccountManager:
         self.ldapmodifypath = which("ldapmodify")
         self.ldapsearchpath = which("ldapsearch")
         self.ldappasswdpath = which("ldappasswd")
+        self.ldapdeletepath = which("ldapdelete")
 
         self.ps = passwordsafe.PasswordSafe()
         self.ldaphost = self.ps.get_config_value("ldap", "host")
@@ -201,17 +202,22 @@ memberUid: %s
         return groups
 
     def delldapuser(self, member):
+        if not member.username_fld:
+            return
+
         # Delete LDAP user account
-        delusercmd = shlex.split("""ldapdelete -h \
+        delusercmd = shlex.split("""%s -h \
                 %s -xD  cn=%s,dc=teknologforeningen,dc=fi -w \
                 %s uid=%s,ou=People,dc=teknologforeningen,dc=fi""" % (
-                    self.ldaphost, self.servicelogin, self.servicepassword,
-                    member.username_fld))
+
+                    self.ldapdeletepath, self.ldaphost, self.servicelogin,
+                    self.servicepassword, member.username_fld))
 
         if self.dry_run:
             delusercmd.append("-n")
 
         check_output(delusercmd)
+        print("User %s deleted." % member.username_fld)
 
         # Delete user from Members group
         deluserfromgroupldif = """
@@ -248,19 +254,19 @@ memberUid: """ + member.username_fld
         adduserproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         out1 = adduserproc.communicate(input=userldif.encode())
         print(out1[0].decode())
-        if adduserproc.returncode: # Failed command
-            return False
+        if self.checkldapuser(member): # Successful
+            # Add the user to Members-group
+            groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+            out2 = groupmodproc.communicate(input=usergroupldif.encode())
+            print(out2[0].decode())
 
-        # Add the user to Members-group
-        groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-        out2 = groupmodproc.communicate(input=usergroupldif.encode())
-        print(out2[0].decode())
+            # Workaround because password setting with ldif doesn't work.
+            if not self.dry_run:
+                self.change_ldap_password(member.username_fld, passwd)
 
-        # Workaround because password setting with ldif doesn't work.
-        if not self.dry_run:
-            self.change_ldap_password(member.username_fld, passwd)
+            return True
 
-        return True
+        return False
 
 
 def main():
@@ -274,9 +280,10 @@ def main():
     output = lm.ldapsearch("uid=test123")
     passwd= "hunter2"
     print(lm.getPosixGroups(member))
-    #if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
+    if lm.addldapuser(member, passwd) and lm.checkldapuser(member):
+        ...
         #lm.delldapuser(member)
-    #print(lm.checkldapuser(member))
+    print(lm.checkldapuser(member))
     return 0
 
 if __name__ == '__main__':

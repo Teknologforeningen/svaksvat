@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Sun Sep 30 11:21:39 2012
+# Created: Sun Sep 30 12:13:43 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -239,9 +239,9 @@ class Ui_MemberEdit(object):
         self.verticalLayout_8.addLayout(self.gridLayout_2)
         self.verticalLayout_7 = QtGui.QVBoxLayout()
         self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
-        self.createUserAccountsOrChangePasswordButton = QtGui.QPushButton(self.tab_6)
-        self.createUserAccountsOrChangePasswordButton.setObjectName(_fromUtf8("createUserAccountsOrChangePasswordButton"))
-        self.verticalLayout_7.addWidget(self.createUserAccountsOrChangePasswordButton)
+        self.createUserAccountOrChangePasswordButton = QtGui.QPushButton(self.tab_6)
+        self.createUserAccountOrChangePasswordButton.setObjectName(_fromUtf8("createUserAccountOrChangePasswordButton"))
+        self.verticalLayout_7.addWidget(self.createUserAccountOrChangePasswordButton)
         self.removeAccountButton = QtGui.QPushButton(self.tab_6)
         self.removeAccountButton.setObjectName(_fromUtf8("removeAccountButton"))
         self.verticalLayout_7.addWidget(self.removeAccountButton)
@@ -337,7 +337,7 @@ class Ui_MemberEdit(object):
         self.label_9.setBuddy(self.group_comboBox)
 
         self.retranslateUi(MemberEdit)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), MemberEdit.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), MemberEdit.reject)
         QtCore.QMetaObject.connectSlotsByName(MemberEdit)
@@ -398,7 +398,7 @@ class Ui_MemberEdit(object):
         self.billAccountCreditLabel.setText(QtGui.QApplication.translate("MemberEdit", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.ldapAccountStatusLabel.setText(QtGui.QApplication.translate("MemberEdit", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.label_21.setText(QtGui.QApplication.translate("MemberEdit", "LDAP-Grupper", None, QtGui.QApplication.UnicodeUTF8))
-        self.createUserAccountsOrChangePasswordButton.setText(QtGui.QApplication.translate("MemberEdit", "Skapa användarkonton/Byt lösenord", None, QtGui.QApplication.UnicodeUTF8))
+        self.createUserAccountOrChangePasswordButton.setText(QtGui.QApplication.translate("MemberEdit", "Skapa användarkonton/Byt lösenord", None, QtGui.QApplication.UnicodeUTF8))
         self.removeAccountButton.setText(QtGui.QApplication.translate("MemberEdit", "Ta bort användarkonto", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), QtGui.QApplication.translate("MemberEdit", "Användarkonton", None, QtGui.QApplication.UnicodeUTF8))
         self.label_10.setText(QtGui.QApplication.translate("MemberEdit", "Studieinriktning:", None, QtGui.QApplication.UnicodeUTF8))

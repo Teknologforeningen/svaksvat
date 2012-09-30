@@ -225,13 +225,51 @@ class MemberEdit(QWidget):
     def refreshUserAccounts(self):
         ldapuserexists = "Nej"
         color = "red"
+        self.ui.removeAccountButton.setEnabled(False)
+        self.ui.username_fld.setEnabled(True)
         if self.ldapmanager.checkldapuser(self.member):
             ldapuserexists = "Ja"
             color = "green"
+            self.ui.ldapGroupsLabel.setPlainText("\n".join(self.ldapmanager.getPosixGroups(self.member)))
+            self.ui.removeAccountButton.setEnabled(True)
+            self.ui.username_fld.setEnabled(False)
 
         stylesheet = "QLabel {color:%s}" % color
         self.ui.ldapAccountStatusLabel.setText(ldapuserexists)
+
         self.ui.ldapAccountStatusLabel.setStyleSheet(stylesheet)
+
+
+    def createAccountOrChangePassword(self):
+        ok, password = QInputDialog.getText(self, "Ange lösenord", "Lösenord",
+                QLineEdit.Password)
+
+        if not ok:
+            return
+
+        if self.ldapmanager.checkldapuser(self.member):
+            # Change only password if account exists
+            self.ldapmanager.change_ldap_password(self.member.username_fld, password)
+            self.refreshUserAccounts()
+            return
+
+        username = self.ui.username_fld.text()
+        if username:
+            self.member.username_fld = username
+            self.session.commit()
+            self.ldapmanager.addldapuser(self.member, password)
+            self.refreshUserAccounts()
+            return
+
+
+
+    def removeAccount(self):
+        if QMessageBox.question(self, "Ta bort användarkonto?",
+                "Är du säker att du vill radera användarkontot för användaren %s?"
+                % self.member.username_fld + " BILL krediter kommer att bevaras.",
+                "Nej", "Ja", defaultButtonNumber=0, escapeButtonNumber=0):
+            self.ldapmanager.delldapuser(self.member)
+            self.refreshUserAccounts()
 
 
     def fillFields(self):
@@ -294,6 +332,10 @@ class MemberEdit(QWidget):
         # Optional LDAP-integration.
         self.ui.tabWidget.setTabEnabled(1, False)
         if self.ldapmanager:
+            self.ui.createUserAccountOrChangePasswordButton.clicked.connect(
+                    lambda: self.createAccountOrChangePassword())
+            self.ui.removeAccountButton.clicked.connect(lambda:
+                    self.removeAccount())
             self.ui.tabWidget.setTabEnabled(1, True)
             self.refreshUserAccounts()
 
@@ -303,11 +345,6 @@ class MemberEdit(QWidget):
         selections = listview.selectedIndexes()
         for index in selections:
             listview.model().removeRow(index.row())
-
-    def createAccount(self):
-        if not self.member.username_fld:
-            print("No username field")
-            return
 
     def accept(self):
         """Commit Member.*_fld and contactinfo.*_fld changes to database.

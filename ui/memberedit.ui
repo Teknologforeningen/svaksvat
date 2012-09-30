@@ -277,7 +277,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -463,7 +463,7 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_7">
              <item>
-              <widget class="QPushButton" name="createUserAccountsOrChangePasswordButton">
+              <widget class="QPushButton" name="createUserAccountOrChangePasswordButton">
                <property name="text">
                 <string>Skapa användarkonton/Byt lösenord</string>
                </property>
