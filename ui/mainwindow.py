@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Sep  2 16:08:09 2012
+# Created: Sun Sep 30 20:10:11 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -18,6 +18,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(337, 400)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/images/res/mainicon.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.centralwidget)
@@ -121,3 +124,4 @@ class Ui_MainWindow(object):
         self.actionRemoveMember.setText(QtGui.QApplication.translate("MainWindow", "Ta bort medlem", None, QtGui.QApplication.UnicodeUTF8))
         self.actionEditMember.setText(QtGui.QApplication.translate("MainWindow", "Editera Medlem", None, QtGui.QApplication.UnicodeUTF8))
 
+import svaksvat_rc
