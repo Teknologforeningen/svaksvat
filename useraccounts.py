@@ -15,6 +15,8 @@ import argparse
 
 import sqlalchemy
 
+from random import randint
+
 sys.path.append(os.path.dirname(os.getcwd()))  # Add .. to path
 from backend.ldaplogin import (get_member_with_real_name,
         DuplicateNamesException, PersonNotFoundException)
@@ -284,8 +286,8 @@ memberUid: """ + member.username_fld
 
         self.pykotasession.execute(
         "INSERT INTO users(username, name, pin) VALUES('%s', '%s',\
-                '$[($RANDOM %% 8999 + 1000)]');" % (username,
-                    member.getName()))
+                '%s');" % (username,
+                    member.getName(), str(randint(1000, 9999))))
 
         self.pykotasession.execute(
         "INSERT INTO userpquota(userid,printerid,balancelimit) \
