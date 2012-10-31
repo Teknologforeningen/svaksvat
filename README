@@ -16,3 +16,7 @@ openssh-client (to perform SSH port forwarding)
 To run on Ubuntu:
 cp svaksvat.cfg.cp svaksvat.cfg
 python3 svaksvatgui.py
+
+To run svaksvat scripts:
+ex.
+python3 scripts/modulenadresser.py
