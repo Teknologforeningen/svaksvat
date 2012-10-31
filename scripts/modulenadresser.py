@@ -6,13 +6,16 @@ import os
 import sqlalchemy
 import csv
 
+sys.path.append(os.getcwd())  # Add . to path
 sys.path.append(os.path.dirname(os.getcwd()))  # Add .. to path
 from backend.ldaplogin import (get_member_with_real_name,
         DuplicateNamesException, PersonNotFoundException)
 from backend import connect
 from backend.orm import *
+import passwordsafe
 
 import common
+
 
 # constants
 # exception classes
@@ -27,7 +30,7 @@ def get_contactinfo_tuple(member):
     try:
         department = member.department[0].department.name_fld
     except:
-        ...
+        pass
 
     return (member.preferredName_fld, member.surName_fld, contactinfo.email_fld,
             contactinfo.streetAddress_fld, contactinfo.postalCode_fld,
@@ -122,12 +125,17 @@ def get_christmascardaddressess(session):
     return xmascardmembers
 
 def main():
-    SessionMaker = connect.connect_localhost_readwrite()
+    ps = passwordsafe.PasswordSafe()
+    SessionMaker = ps.connect_with_config("mimer")
     session = SessionMaker()
     writer = csv.writer(sys.stdout)
+    members = get_modulenaddresses(session)
+    for member in members:
+        writer.writerow(get_contactinfo_tuple(member))
+
+    """
     radlist = ["dar", "ar", "fr", "far", "konrad"]
     members = []
-    """
     rads = session.query(Group).filter(Group.abbreviation_fld.in_(radlist)).all()
 
     for rad in rads:
@@ -136,7 +144,6 @@ def main():
                 m = membership.member
                 writer.writerow([m.surName_fld + " " + m.preferredName_fld,
                     rad.name_fld])
-    """
 
     memberships = session.query(MembershipType).filter(MembershipType.name_fld
             == "Ordinarie medlem").one().membership
@@ -153,6 +160,7 @@ def main():
         writer.writerow(year)
         for member in members:
             writer.writerow(get_contactinfo_tuple(member))
+    """
 
 if __name__ == '__main__':
     status = main()

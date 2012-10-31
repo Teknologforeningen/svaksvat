@@ -21,7 +21,7 @@ def get_members_with_groupmembership(session, groupname, is_current=False):
             groupname, is_current)
 
 def get_members_with_membership(session, membershipname, is_current=False):
-    return get_members_with_membership_generic(MembershipType, Membership, session,
+    return get_members_with_membership_generic(Membership, MembershipMembership, session,
             membershipname, is_current)
 
 def get_members_with_membership_generic(membershiptypeclass, membershipclass,
@@ -41,7 +41,7 @@ def get_members_with_membership_id_generic(membershipclass, session, membershipi
 
 def get_members_with_current_membership_id_generic(membershipclass, session, membershipid):
     membersquery = get_members_with_membership_id_generic(membershipclass, session, membershipid)
-    now = datetime.datetime.now()
+    now = datetime.now()
     return membersquery.filter(sqlalchemy.or_(membershipclass.endTime_fld > now,
                 membershipclass.endTime_fld == None))
 
