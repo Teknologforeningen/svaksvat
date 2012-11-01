@@ -38,9 +38,12 @@ def get_contactinfo_tuple(member):
 
 
 def get_modulenaddresses(session):
+    print("Hamtar ordinarie")
     ordinarie = common.get_members_with_membership(session,
             "Ordinarie medlem", True).filter(
             Member.subscribedtomodulen_fld == 1).all()
+
+    print("Hamtar StAlM")
     alumni = common.get_members_with_membership(
             session, "StÄlM", True).filter(
             Member.subscribedtomodulen_fld == 1).all()
@@ -128,11 +131,25 @@ def main():
     ps = passwordsafe.PasswordSafe()
     SessionMaker = ps.connect_with_config("mimer")
     session = SessionMaker()
-    writer = csv.writer(sys.stdout)
-    members = get_modulenaddresses(session)
-    for member in members:
-        writer.writerow(get_contactinfo_tuple(member))
 
+    print("Detta script get ut adresser i csv format.")
+    print("Alternativ:")
+    print("1. Modulen")
+    choice = input("Vilka adresser vill du ha?\n")
+ 
+    if choice[0] == "1":
+        print("Modulen vald")
+        filename = "modulenadresser.csv"
+        members = get_modulenaddresses(session)
+
+    print("Oppnar fil.")
+    writer = csv.writer(open(filename, "w"))
+
+    print("Skriver fil: %s/%s" % (os.getcwd(), filename))
+    for member in members:
+            writer.writerow(get_contactinfo_tuple(member))
+
+    print("Fardig")
     """
     radlist = ["dar", "ar", "fr", "far", "konrad"]
     members = []
