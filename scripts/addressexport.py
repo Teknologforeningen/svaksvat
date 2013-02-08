@@ -36,6 +36,45 @@ def get_contactinfo_tuple(member):
             contactinfo.streetAddress_fld, contactinfo.postalCode_fld,
             contactinfo.city_fld, contactinfo.country_fld, department)
 
+def get_allinfo_tuple(member):
+    """Returns tuple with the member's complete information for posting."""
+    contactinfo = member.contactinfo
+    department = '?'
+    try:
+        department = member.department[0].department.name_fld
+    except:
+        pass
+
+
+    return (member.preferredName_fld, 
+            member.surName_fld,
+            member.givenNames_fld,
+            member.maidenName_fld,
+            member.nickName_fld,
+            member.birthDate_fld,
+            member.studentId_fld,
+            member.gender_fld,
+            member.graduated_fld,
+            member.occupation_fld,
+            member.photo_fld,
+            member.title_fld,
+            member.nationality_fld,
+            member.dead_fld,
+            member.subscribedtomodulen_fld,
+            member.username_fld,
+            member.lastsync_fld,
+            contactinfo.email_fld,
+            contactinfo.streetAddress_fld, 
+            contactinfo.postalCode_fld,
+            contactinfo.city_fld, 
+            contactinfo.country_fld,
+            contactinfo.fax_fld,
+            contactinfo.url_fld,
+            contactinfo.location_fld,
+            contactinfo.phone_fld,
+            contactinfo.cellPhone_fld, 
+            department)
+
 
 def get_modulenaddresses(session):
     print("Hamtar ordinarie")
@@ -49,6 +88,23 @@ def get_modulenaddresses(session):
             Member.subscribedtomodulen_fld == 1).all()
 
     return ordinarie + alumni
+
+def get_stalmar(session):
+
+    print("Hamtar StAlM")
+    alumni = common.get_members_with_membership(
+            session, "StÄlM", True).filter(
+            Member.subscribedtomodulen_fld == 1).all()
+
+    return alumni
+
+def get_ordinarie(session):
+    print("Hamtar ordinarie")
+    ordinarie = common.get_members_with_membership(session,
+            "Ordinarie medlem", True).filter(
+            Member.subscribedtomodulen_fld == 1).all()
+
+    return ordinarie
 
 def get_funkisar(session):
     posts = session.query(Post).all()
@@ -135,18 +191,36 @@ def main():
     print("Detta script get ut adresser i csv format.")
     print("Alternativ:")
     print("1. Modulen")
+    print("2. StÄlMar")
+    print("3. Ordinarie")
     choice = input("Vilka adresser vill du ha?\n")
  
     if choice[0] == "1":
         print("Modulen vald")
         filename = "modulenadresser.csv"
         members = get_modulenaddresses(session)
+    elif choice[0] == "2":
+        print("StÄlMar valda")
+        filename = "stalmar.csv"
+        members = get_stalmar(session)
+    elif choice[0] == "3":
+        print("Ordinarie valda")
+        filename = "ordinarie.csv"
+        members = get_ordinarie(session)
 
     print("Oppnar fil.")
     writer = csv.writer(open(filename, "w"))
 
-    print("Skriver fil: %s/%s" % (os.getcwd(), filename))
-    for member in members:
+    choice = input("Vill du ha all info(1) eller adresser(2)?[2]")
+    if choice[0] == "1":
+        print("All info vald")
+        print("Skriver fil: %s/%s" % (os.getcwd(), filename))
+        for member in members:
+            writer.writerow(get_allinfo_tuple(member))
+    else:
+        print("Endast adresser valda")
+        print("Skriver fil: %s/%s" % (os.getcwd(), filename))
+        for member in members:
             writer.writerow(get_contactinfo_tuple(member))
 
     print("Fardig")
