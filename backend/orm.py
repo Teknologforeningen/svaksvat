@@ -11,6 +11,7 @@ from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.serializer import loads, dumps
 import sqlalchemy
 
 # constants
@@ -27,41 +28,39 @@ class TooLongValueException(Exception):
         return ("The value %s for the field %s is over %d in length." %
                 (self.value, self.field, self.maxlength))
 
+
 # interface functions
 def backup_everything(session):
-    # Get all objects.
+    meta = get_declarative_base().metadata
     backupdict = {}
     for table in [x.__table__ for x in MEMBERSDBTABLES]:
-        data = fetchall_from_table(table, session)
-        backupdict[table] = data
+        query = session.query(table)
+        backupdict[table.name] = dumps(query.all())
+        
+    return backupdict
 
-    serialized_backupdict = None
-    pickle.dump(backupdict, serialized_backupdict)
-    return serialized_backupdict
 
-def fetchall_from_table(table, session):
-    data = session.execute(table.__table__.select()).fetchall()
-    return data
-
-def restore_everything(session, serialized_data):
+def restore_everything(session, backupdict):
+    meta = get_declarative_base().metadata
+    for table in meta.sorted_tables:
+        print(table.name)
     # Truncate tables
-    for table in [x.__table__ for x in MEMBERSDBTABLES]:
+    for table in reversed(meta.sorted_tables):
         session.execute(table.delete())
 
     # Add recovered objects
     session.commit()
     session.close()
-    restore_objects = loads(serialized_data, get_declarative_base().metadata, session)
-    failured_objects = []
-    for obj in restore_objects:
-        try:
-            session.merge(obj)
-
-        except sqlalchemy.exc.IntegrityError:
-            failured_objects.append(obj)
-
-    for obj in failured_objects:
-        session.merge(obj)
+    
+    for table in meta.sorted_tables:
+        if table.name in backupdict:
+            print("restoring table %s" % table.name)
+            serialized_table = backupdict[table.name]
+            restored_object = loads(serialized_table, meta, session)
+            session.merge(restored_object)
+            #except sqlalchemy.orm.exc.UnmappedInstanceError as e:
+                #print("Skipping...")
+                #continue
 
     return True
 

@@ -4,6 +4,7 @@ import sys
 import os
 import subprocess
 import datetime
+import pickle
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -12,10 +13,13 @@ from sqlalchemy.orm import scoped_session
 
 from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
-        create_member, create_phux, backup_everything, restore_everything)
+                         create_member, create_phux, backup_everything,
+                         restore_everything)
 from backend.listmodels import (GroupListModel, PostListModel,
-        DepartmentListModel, MembershipListModel, MembershipDelegate,
-        configure_membership_qcombobox, assign_membership_to_member)
+                                DepartmentListModel, MembershipListModel,
+                                MembershipDelegate,
+                                configure_membership_qcombobox,
+                                assign_membership_to_member)
 
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
@@ -476,12 +480,15 @@ class SvakSvat(QMainWindow):
         filename = QFileDialog.getSaveFileName(self,
                 'Välj namn för säkerhetskopia', '.')
         with open(filename, 'wb') as f:
-            f.write(backup_everything(self.session))
+            pickler = pickle.Pickler(f)
+            pickler.dump(backup_everything(self.session))
 
     def restoreFromBackup(self):
-        filename = QFileDialog.getOpenFileName(self, 'Öppna säkerthetskopia', '.')
+        filename = QFileDialog.getOpenFileName(self,
+                                               'Öppna säkerthetskopia',
+                                               '.')
         with open(filename, 'rb') as f:
-            data = f.read()
+            data = pickle.Unpickler(f).load()
             if restore_everything(self.session, data):
                 self.session.commit()
                 self.populateMemberList()

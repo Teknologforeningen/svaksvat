@@ -32,7 +32,8 @@ def get_contactinfo_tuple(member):
     except:
         pass
 
-    return (member.preferredName_fld, member.surName_fld, contactinfo.email_fld,
+    return (member.preferredName_fld, member.surName_fld,
+            contactinfo.email_fld,
             contactinfo.streetAddress_fld, contactinfo.postalCode_fld,
             contactinfo.city_fld, contactinfo.country_fld, department)
 
@@ -89,6 +90,7 @@ def get_modulenaddresses(session):
 
     return ordinarie + alumni
 
+<<<<<<< Updated upstream
 def get_stalmar(session):
 
     print("Hamtar StAlM")
@@ -105,6 +107,8 @@ def get_ordinarie(session):
             Member.subscribedtomodulen_fld == 1).all()
 
     return ordinarie
+=======
+>>>>>>> Stashed changes
 
 def get_funkisar(session):
     posts = session.query(Post).all()
@@ -130,6 +134,7 @@ def get_radmembers(session):
 
     return radmembers
 
+
 def get_dekadenskontakter(session):
     memberships = session.query(Group).filter(Group.name_fld ==
             "Styrelsen").one().memberships
@@ -142,6 +147,7 @@ def get_dekadenskontakter(session):
             dekadenskontakter.add(mship.member)
 
     return dekadenskontakter
+
 
 def get_tfs(year=None):
     if not year:
@@ -157,14 +163,10 @@ def get_tfs(year=None):
             tfs.add(mship.member)
 
 
-
-
-
 def get_christmascardaddressess(session):
     posts = session.query(Post).all()
-    xmascardmembers = set()
 
-    xmascardmembers.add(get_funkisar(session))
+    xmascardmembers = get_funkisar(session)
 
     kanslist = common.get_members_with_membership(session,
             "Kanslist", True).one()
@@ -178,10 +180,10 @@ def get_christmascardaddressess(session):
 
     xmascardmembers.add(kanslist)
 
-
-    xmascardmembers.add(get_radmembers(session))
+    xmascardmembers.update(get_radmembers(session))
 
     return xmascardmembers
+
 
 def main():
     ps = passwordsafe.PasswordSafe()
@@ -191,10 +193,14 @@ def main():
     print("Detta script get ut adresser i csv format.")
     print("Alternativ:")
     print("1. Modulen")
+<<<<<<< Updated upstream
     print("2. StÄlMar")
     print("3. Ordinarie")
+=======
+    print("2. Julkort")
+>>>>>>> Stashed changes
     choice = input("Vilka adresser vill du ha?\n")
- 
+
     if choice[0] == "1":
         print("Modulen vald")
         filename = "modulenadresser.csv"
@@ -207,6 +213,11 @@ def main():
         print("Ordinarie valda")
         filename = "ordinarie.csv"
         members = get_ordinarie(session)
+
+    elif choice[0] == "2":
+        print("Julkort vald")
+        filename = "modulenadresser.csv"
+        members = get_christmascardaddressess(session)
 
     print("Oppnar fil.")
     writer = csv.writer(open(filename, "w"))
