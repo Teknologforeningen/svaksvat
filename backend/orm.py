@@ -33,34 +33,45 @@ class TooLongValueException(Exception):
 def backup_everything(session):
     meta = get_declarative_base().metadata
     backupdict = {}
-    for table in [x.__table__ for x in MEMBERSDBTABLES]:
+    for table in reversed(meta.sorted_tables):
         query = session.query(table)
-        backupdict[table.name] = dumps(query.all())
-        
+        queryresults = query.all()
+        backupdict[table.name] = dumps(queryresults)
+
     return backupdict
 
 
 def restore_everything(session, backupdict):
     meta = get_declarative_base().metadata
-    for table in meta.sorted_tables:
-        print(table.name)
     # Truncate tables
     for table in reversed(meta.sorted_tables):
         session.execute(table.delete())
-
-    # Add recovered objects
     session.commit()
     session.close()
     
+    # Add recovered objects
     for table in meta.sorted_tables:
         if table.name in backupdict:
             print("restoring table %s" % table.name)
             serialized_table = backupdict[table.name]
-            restored_object = loads(serialized_table, meta, session)
-            session.merge(restored_object)
-            #except sqlalchemy.orm.exc.UnmappedInstanceError as e:
-                #print("Skipping...")
-                #continue
+            restored_objects = loads(serialized_table, meta, session)
+            for restored_object in restored_objects:
+
+                table_class = table.name.replace("Table", "")
+                if (table_class == "MembershipType"):
+                    table_class = "Membership"
+                if (table_class == 'members_sequence'):
+                    table_class = "Sequence"
+
+                row = eval(table_class)()
+                i = 0
+                for key in restored_object.keys():
+                    setattr(row, key, restored_object[i])
+                    i += 1
+                session.merge(row)
+
+    session.commit()
+    session.close()
 
     return True
 
