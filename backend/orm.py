@@ -14,6 +14,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.serializer import loads, dumps
 import sqlalchemy
 
+from PyQt4 import QtCore, QtGui
+
 # constants
 Base = declarative_base()
 
@@ -44,15 +46,26 @@ def backup_everything(session):
 def restore_everything(session, backupdict):
     meta = get_declarative_base().metadata
     # Truncate tables
+    progress = QtGui.QProgressDialog()
+    progress.show()
+    progress.setAutoClose(True)
+    progress.setLabelText("Tömmer databas")
+    progress.setMaximum(len(meta.sorted_tables) + 1)
     for table in reversed(meta.sorted_tables):
         session.execute(table.delete())
     session.commit()
     session.close()
+
+    progress.setLabelText("Återställer")
     
     # Add recovered objects
-    for table in meta.sorted_tables:
+    for i, table in enumerate(meta.sorted_tables):
+        progress.setValue(i + 1)
+        if progress.wasCanceled():
+            return False
         if table.name in backupdict:
-            print("restoring table %s" % table.name)
+            progress.setLabelText('Återställer tabellen %s' % table.name)
+            QtCore.QCoreApplication.processEvents()
             serialized_table = backupdict[table.name]
             restored_objects = loads(serialized_table, meta, session)
             for restored_object in restored_objects:
@@ -73,6 +86,7 @@ def restore_everything(session, backupdict):
     session.commit()
     session.close()
 
+    progress.close()
     return True
 
 
