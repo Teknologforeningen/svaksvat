@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'memberedit.ui'
+# Form implementation generated from reading ui file 'ui/memberedit.ui'
 #
-# Created: Sun Sep 30 20:10:01 2012
-#      by: PyQt4 UI code generator 4.9.1
+# Created: Mon Aug 12 14:22:17 2013
+#      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,12 +12,21 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_MemberEdit(object):
     def setupUi(self, MemberEdit):
         MemberEdit.setObjectName(_fromUtf8("MemberEdit"))
-        MemberEdit.resize(850, 638)
+        MemberEdit.resize(981, 655)
         self.gridLayout = QtGui.QGridLayout(MemberEdit)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -301,6 +310,9 @@ class Ui_MemberEdit(object):
         self.makeStAlMButton = QtGui.QPushButton(self.tab_2)
         self.makeStAlMButton.setObjectName(_fromUtf8("makeStAlMButton"))
         self.horizontalLayout_14.addWidget(self.makeStAlMButton)
+        self.makeJuniorStAlMButton = QtGui.QPushButton(self.tab_2)
+        self.makeJuniorStAlMButton.setObjectName(_fromUtf8("makeJuniorStAlMButton"))
+        self.horizontalLayout_14.addWidget(self.makeJuniorStAlMButton)
         self.makeEjMedlemButton = QtGui.QPushButton(self.tab_2)
         self.makeEjMedlemButton.setObjectName(_fromUtf8("makeEjMedlemButton"))
         self.horizontalLayout_14.addWidget(self.makeEjMedlemButton)
@@ -379,48 +391,49 @@ class Ui_MemberEdit(object):
         MemberEdit.setTabOrder(self.removePostButton, self.post_comboBox)
 
     def retranslateUi(self, MemberEdit):
-        MemberEdit.setWindowTitle(QtGui.QApplication.translate("MemberEdit", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.allaFornamnLabel.setText(QtGui.QApplication.translate("MemberEdit", "Alla förnamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.efternamnLabel.setText(QtGui.QApplication.translate("MemberEdit", "Efternamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.tidigareEfternamnLabel.setText(QtGui.QApplication.translate("MemberEdit", "Tidigare efternamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.tilltalsnamnLabel.setText(QtGui.QApplication.translate("MemberEdit", "Tilltalsnamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.studienummerLabel.setText(QtGui.QApplication.translate("MemberEdit", "Studienummer", None, QtGui.QApplication.UnicodeUTF8))
-        self.avlidenLabel.setText(QtGui.QApplication.translate("MemberEdit", "Avliden", None, QtGui.QApplication.UnicodeUTF8))
-        self.fDelsedatumLabel.setText(QtGui.QApplication.translate("MemberEdit", "Födelsedatum", None, QtGui.QApplication.UnicodeUTF8))
-        self.nationalitetLabel.setText(QtGui.QApplication.translate("MemberEdit", "Nationalitet", None, QtGui.QApplication.UnicodeUTF8))
-        self.kNLabel.setText(QtGui.QApplication.translate("MemberEdit", "Kön", None, QtGui.QApplication.UnicodeUTF8))
-        self.subscribedToModulen_fld.setText(QtGui.QApplication.translate("MemberEdit", "Vill ha Modulen", None, QtGui.QApplication.UnicodeUTF8))
-        self.username_fldLabel.setText(QtGui.QApplication.translate("MemberEdit", "Användarnamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.notes_fldLabel.setText(QtGui.QApplication.translate("MemberEdit", "Kommentarer (Max 255 st. tecken)", None, QtGui.QApplication.UnicodeUTF8))
-        self.gatuadressLabel.setText(QtGui.QApplication.translate("MemberEdit", "Gatuadress", None, QtGui.QApplication.UnicodeUTF8))
-        self.postnummerLabel.setText(QtGui.QApplication.translate("MemberEdit", "Postnummer", None, QtGui.QApplication.UnicodeUTF8))
-        self.stadLabel.setText(QtGui.QApplication.translate("MemberEdit", "Stad", None, QtGui.QApplication.UnicodeUTF8))
-        self.landLabel.setText(QtGui.QApplication.translate("MemberEdit", "Land", None, QtGui.QApplication.UnicodeUTF8))
-        self.telefonLabel.setText(QtGui.QApplication.translate("MemberEdit", "Telefon", None, QtGui.QApplication.UnicodeUTF8))
-        self.emailLabel.setText(QtGui.QApplication.translate("MemberEdit", "Email", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("MemberEdit", "Grupper:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till grupp:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("MemberEdit", "Poster:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till post:", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MemberEdit", "TF-Aktivitet", None, QtGui.QApplication.UnicodeUTF8))
-        self.billAccountStatusLabel.setText(QtGui.QApplication.translate("MemberEdit", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_18.setText(QtGui.QApplication.translate("MemberEdit", "LDAP-konto", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_19.setText(QtGui.QApplication.translate("MemberEdit", "BILL-kredit", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_20.setText(QtGui.QApplication.translate("MemberEdit", "BILL-konto", None, QtGui.QApplication.UnicodeUTF8))
-        self.billAccountCreditLabel.setText(QtGui.QApplication.translate("MemberEdit", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.ldapAccountStatusLabel.setText(QtGui.QApplication.translate("MemberEdit", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_21.setText(QtGui.QApplication.translate("MemberEdit", "LDAP-Grupper", None, QtGui.QApplication.UnicodeUTF8))
-        self.createUserAccountOrChangePasswordButton.setText(QtGui.QApplication.translate("MemberEdit", "Skapa användarkonton/Byt lösenord", None, QtGui.QApplication.UnicodeUTF8))
-        self.removeAccountButton.setText(QtGui.QApplication.translate("MemberEdit", "Ta bort användarkonto", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), QtGui.QApplication.translate("MemberEdit", "Användarkonton", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_10.setText(QtGui.QApplication.translate("MemberEdit", "Studieinriktning:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till studieinriktning:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_12.setText(QtGui.QApplication.translate("MemberEdit", "TF Medlemskapstyper:", None, QtGui.QApplication.UnicodeUTF8))
-        self.makePhuxButton.setText(QtGui.QApplication.translate("MemberEdit", "Phux", None, QtGui.QApplication.UnicodeUTF8))
-        self.makeOrdinarieButton.setText(QtGui.QApplication.translate("MemberEdit", "Ordinarie", None, QtGui.QApplication.UnicodeUTF8))
-        self.makeStAlMButton.setText(QtGui.QApplication.translate("MemberEdit", "StÄlM", None, QtGui.QApplication.UnicodeUTF8))
-        self.makeEjMedlemButton.setText(QtGui.QApplication.translate("MemberEdit", "Ej medlem", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_11.setText(QtGui.QApplication.translate("MemberEdit", "Lägg till medlemskapstyp:", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("MemberEdit", "Aalto och TF medlemskap", None, QtGui.QApplication.UnicodeUTF8))
+        MemberEdit.setWindowTitle(_translate("MemberEdit", "Dialog", None))
+        self.allaFornamnLabel.setText(_translate("MemberEdit", "Alla förnamn", None))
+        self.efternamnLabel.setText(_translate("MemberEdit", "Efternamn", None))
+        self.tidigareEfternamnLabel.setText(_translate("MemberEdit", "Tidigare efternamn", None))
+        self.tilltalsnamnLabel.setText(_translate("MemberEdit", "Tilltalsnamn", None))
+        self.studienummerLabel.setText(_translate("MemberEdit", "Studienummer", None))
+        self.avlidenLabel.setText(_translate("MemberEdit", "Avliden", None))
+        self.fDelsedatumLabel.setText(_translate("MemberEdit", "Födelsedatum", None))
+        self.nationalitetLabel.setText(_translate("MemberEdit", "Nationalitet", None))
+        self.kNLabel.setText(_translate("MemberEdit", "Kön", None))
+        self.subscribedToModulen_fld.setText(_translate("MemberEdit", "Vill ha Modulen", None))
+        self.username_fldLabel.setText(_translate("MemberEdit", "Användarnamn", None))
+        self.notes_fldLabel.setText(_translate("MemberEdit", "Kommentarer (Max 255 st. tecken)", None))
+        self.gatuadressLabel.setText(_translate("MemberEdit", "Gatuadress", None))
+        self.postnummerLabel.setText(_translate("MemberEdit", "Postnummer", None))
+        self.stadLabel.setText(_translate("MemberEdit", "Stad", None))
+        self.landLabel.setText(_translate("MemberEdit", "Land", None))
+        self.telefonLabel.setText(_translate("MemberEdit", "Telefon", None))
+        self.emailLabel.setText(_translate("MemberEdit", "Email", None))
+        self.label.setText(_translate("MemberEdit", "Grupper:", None))
+        self.label_3.setText(_translate("MemberEdit", "Lägg till grupp:", None))
+        self.label_2.setText(_translate("MemberEdit", "Poster:", None))
+        self.label_4.setText(_translate("MemberEdit", "Lägg till post:", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MemberEdit", "TF-Aktivitet", None))
+        self.billAccountStatusLabel.setText(_translate("MemberEdit", "TextLabel", None))
+        self.label_18.setText(_translate("MemberEdit", "LDAP-konto", None))
+        self.label_19.setText(_translate("MemberEdit", "BILL-kredit", None))
+        self.label_20.setText(_translate("MemberEdit", "BILL-konto", None))
+        self.billAccountCreditLabel.setText(_translate("MemberEdit", "TextLabel", None))
+        self.ldapAccountStatusLabel.setText(_translate("MemberEdit", "TextLabel", None))
+        self.label_21.setText(_translate("MemberEdit", "LDAP-Grupper", None))
+        self.createUserAccountOrChangePasswordButton.setText(_translate("MemberEdit", "Skapa användarkonton/Byt lösenord", None))
+        self.removeAccountButton.setText(_translate("MemberEdit", "Ta bort användarkonto", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MemberEdit", "Användarkonton", None))
+        self.label_10.setText(_translate("MemberEdit", "Studieinriktning:", None))
+        self.label_9.setText(_translate("MemberEdit", "Lägg till studieinriktning:", None))
+        self.label_12.setText(_translate("MemberEdit", "TF Medlemskapstyper:", None))
+        self.makePhuxButton.setText(_translate("MemberEdit", "Phux", None))
+        self.makeOrdinarieButton.setText(_translate("MemberEdit", "Ordinarie", None))
+        self.makeStAlMButton.setText(_translate("MemberEdit", "StÄlM", None))
+        self.makeJuniorStAlMButton.setText(_translate("MemberEdit", "JuniorStÄlM", None))
+        self.makeEjMedlemButton.setText(_translate("MemberEdit", "Ej medlem", None))
+        self.label_11.setText(_translate("MemberEdit", "Lägg till medlemskapstyp:", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MemberEdit", "Aalto och TF medlemskap", None))
 
 import svaksvat_rc

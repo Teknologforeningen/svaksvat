@@ -366,6 +366,9 @@ class MemberEdit(QWidget):
         self.ui.makeStAlMButton.clicked.connect(lambda:
                 membershiplistmodel.insertMembership("StÄlM"))
 
+        self.ui.makeJuniorStAlMButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("JuniorStÄlM"))
+
         self.ui.makeEjMedlemButton.clicked.connect(lambda:
                 membershiplistmodel.insertMembership("Ej längre medlem"))
 
@@ -606,7 +609,7 @@ def main():
 
     # Initialize SvakSvat
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
+    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
     ss = SvakSvat(SessionMaker)
     ss.show()
     splash.finish(ss)
