@@ -95,8 +95,13 @@ def create_row(table_orm, session):
     sequence = session.query(Sequence).filter(Sequence.objectname ==
             row.sequence_name).one()
 
-    row.objectId = number_to_string(sequence.next)
-    sequence.next += 1
+    hexstring = number_to_string(sequence.next)
+    # Integrity error avoidance due to corrupt sequence.
+    while session.query(table_orm).filter_by(objectId = hexstring).count() != 0:
+        sequence.next += 1
+        hexstring = number_to_string(sequence.next)
+
+    row.objectId = hexstring
 
     return row
 
