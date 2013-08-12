@@ -382,7 +382,6 @@ class MemberEdit(QWidget):
             self.ui.tabWidget.setTabEnabled(1, True)
             self.refreshUserAccounts()
 
-
     def removeSelectedMembership(self, listview):
         """Remove selected items from a QListView."""
         selections = listview.selectedIndexes()
@@ -504,10 +503,17 @@ class SvakSvat(QMainWindow):
         """Remove selected member."""
         member = self.currentMember()
         wholename = member.getWholeName()
-        self.session.delete(member)
-        self.session.commit()
-        self.populateMemberList()
-        self.setStatusMessage("Användare %s borttagen!" % wholename)
+
+        confirm = "Är du säker att du vill ta bort användaren %s?" % wholename
+        reply = QMessageBox.question(self, 'Bekräfta',
+                                           confirm, QMessageBox.Yes,
+                                           QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.session.delete(member)
+            self.session.commit()
+            self.populateMemberList()
+            self.setStatusMessage("Användare %s borttagen!" % wholename)
 
     def populateMemberList(self, choosemember=None):
         """Fill the memberlist from the database."""
