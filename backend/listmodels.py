@@ -14,6 +14,7 @@ from . import orm
 # exception classes
 # interface functions
 
+
 #TODO: Adding membership through combobox sometimes doesn't leave editor open.
 # especially if last group in the list has the same name.
 # Has something to do with MemberEdit being a QDialog. If it's QWidget the
@@ -21,9 +22,9 @@ from . import orm
 def configure_membership_qcombobox(combobox, membershiptypetablename, session):
     membershiptargetclass = getattr(orm, membershiptypetablename)
     membershiptargets = session.query(membershiptargetclass).order_by(
-            membershiptargetclass.name_fld).all()
+        membershiptargetclass.name_fld).all()
     membershiptargetnames = [target.name_fld for target in
-            membershiptargets]
+                             membershiptargets]
 
     completer = QCompleter(membershiptargetnames)
     combobox.setCompleter(completer)
@@ -31,20 +32,23 @@ def configure_membership_qcombobox(combobox, membershiptypetablename, session):
 
     return combobox
 
+
 def assign_membership_to_member(session, membershiptypename, membershipname,
-        member, parent=None, combobox=None, indefinite_time=False):
+                                member, parent=None, combobox=None,
+                                indefinite_time=False):
     membership = orm.create_membership(session,
-            membershiptypename, membershipname)
+                                       membershiptypename, membershipname)
 
     if not membership:
         questiontext = "%s finns inte. Skall den skapas?" % (membershipname)
 
         if QMessageBox.question(parent, membershipname + " hittades inte!",
-                questiontext, "Nej", "Ja",
-                escapeButtonNumber=0):
+                                questiontext, "Nej", "Ja",
+                                escapeButtonNumber=0):
             membership = orm.create_membership(session,
-                    membershiptypename, membershipname,
-                    create_nonexistent_target=True)
+                                               membershiptypename,
+                                               membershipname,
+                                               create_nonexistent_target=True)
             if combobox:
                 combobox.addItem(membershipname)
 
@@ -65,11 +69,12 @@ def assign_membership_to_member(session, membershiptypename, membershipname,
 
 class MembershipListModel(QAbstractListModel):
     def __init__(self, session, member, parent=None,
-        membershiptype="group", add_membership_combobox=None,
-        add_for_indefinite_time=False):
+                 membershiptype="group", add_membership_combobox=None,
+                 add_for_indefinite_time=False):
         super().__init__(parent)
         self.session = session
-        self.member = self.session.merge(member) # Get local object for this Model
+        # Get local object for this Model
+        self.member = self.session.merge(member)
         self.membershiptype = membershiptype
 
         self.membershiptargetname = self.membershiptype
@@ -102,7 +107,7 @@ class MembershipListModel(QAbstractListModel):
         duration = self.membershipDuration(membership)
         if role == Qt.DisplayRole:
             return "%s %s" % (membershiptarget.name_fld,
-                    duration)
+                              duration)
 
         elif role == Qt.EditRole:
             return membership
@@ -121,7 +126,7 @@ class MembershipListModel(QAbstractListModel):
 
     def flags(self, index):
         flag = super().flags(index)
-        return flag|Qt.ItemIsEditable
+        return flag | Qt.ItemIsEditable
 
     def removeRows(self, row, count, parent=QModelIndex()):
         self.beginRemoveRows(parent, row, row+count-1)
@@ -130,7 +135,7 @@ class MembershipListModel(QAbstractListModel):
             return False
 
         memberships_to_delete = [
-                membership for membership in self._data[row:row + count]]
+            membership for membership in self._data[row:row + count]]
 
         for membership in memberships_to_delete:
             self.session.delete(membership)
@@ -146,10 +151,13 @@ class MembershipListModel(QAbstractListModel):
 
         for i in range(count):
 
-            if not assign_membership_to_member(self.session, membershiptypename,
-                    membershipname, self.member, parent=self.parent,
-                    combobox=self.combobox,
-                    indefinite_time=self.add_for_indefinite_time):
+            if not assign_membership_to_member(self.session,
+                                               membershiptypename,
+                                               membershipname, self.member,
+                                               parent=self.parent,
+                                               combobox=self.combobox,
+                                               indefinite_time=
+                                               self.add_for_indefinite_time):
                 return False
 
         self.endInsertRows()
@@ -187,38 +195,37 @@ class MembershipListModel(QAbstractListModel):
         endmonth = membership.endTime_fld.month
         return "%d.%d - %d.%d" % (startmonth, startyear, endmonth, endyear)
 
-
     def configureAddMembershipQComboBox(self):
         # Membershiptype begins with upper-case character
         membershiptypetablename = self.membershiptype.title()
 
         configure_membership_qcombobox(self.combobox, membershiptypetablename,
-                self.session)
+                                       self.session)
         self.combobox.lineEdit().returnPressed.connect(lambda: self.insertRow(self.rowCount()))
 
 class GroupListModel(MembershipListModel):
     def __init__(self, session, member, parent,
-            add_membership_combobox=None):
+                 add_membership_combobox=None):
         super().__init__(session, member, parent, "group",
-                add_membership_combobox)
+                         add_membership_combobox)
 
 class PostListModel(MembershipListModel):
     def __init__(self, session, member, parent,
-            add_membership_combobox):
+                 add_membership_combobox):
         super().__init__(session, member, parent, "post",
-                add_membership_combobox)
+                         add_membership_combobox)
 
 class DepartmentListModel(MembershipListModel):
     def __init__(self, session, member, parent,
-            add_membership_combobox):
+                 add_membership_combobox):
         super().__init__(session, member, parent, "department",
-                add_membership_combobox, True)
+                         add_membership_combobox, True)
 
 class MembershipListModel(MembershipListModel):
     def __init__(self, session, member, parent,
-            add_membership_combobox):
+                 add_membership_combobox):
         super().__init__(session, member, parent, "membership",
-                add_membership_combobox, True)
+                         add_membership_combobox, True)
 
 class MembershipDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
@@ -227,15 +234,17 @@ class MembershipDelegate(QStyledItemDelegate):
         editor.ui = Ui_MembershipEdit()
         editor.ui.setupUi(editor)
 
-        editor.ui.startYear_spinBox.setRange(datetime.MINYEAR, datetime.MAXYEAR)
+        editor.ui.startYear_spinBox.setRange(datetime.MINYEAR,
+                                             datetime.MAXYEAR)
 
         # Connect signals to slots.
-        editor.ui.buttonBox.accepted.connect(lambda:
-                (self.commitData.emit(editor),self.closeEditor.emit(editor,
-                    QAbstractItemDelegate.NoHint)))
+        editor.ui.buttonBox.accepted.connect(
+            lambda: (self.commitData.emit(editor),
+                     self.closeEditor.emit(editor,
+                                           QAbstractItemDelegate.NoHint)))
         editor.ui.buttonBox.rejected.connect(
-                lambda: self.closeEditor.emit(editor,
-                    QAbstractItemDelegate.NoHint))
+            lambda: self.closeEditor.emit(editor,
+                                          QAbstractItemDelegate.NoHint))
 
         return editor
 
@@ -259,15 +268,15 @@ class MembershipDelegate(QStyledItemDelegate):
 
         # Whole year mandate
         elif (startdate.year == enddate.year and
-                startdate == datetime.date(startdate.year, 1, 1) and
-                enddate == datetime.date(startdate.year, 12, 31)):
+              startdate == datetime.date(startdate.year, 1, 1) and
+              enddate == datetime.date(startdate.year, 12, 31)):
             editor.ui.wholeyear_radioButton.toggle()
             editor.ui.startAndEndTimeWidget.hide()
 
         # Labor day to labor day mandate
         elif (startdate.year == (enddate.year - 1) and
-                startdate == datetime.date(startdate.year, 5, 1) and
-                enddate == datetime.date(startdate.year + 1, 4, 30)):
+              startdate == datetime.date(startdate.year, 5, 1) and
+              enddate == datetime.date(startdate.year + 1, 4, 30)):
             editor.ui.laborday_radioButton.toggle()
             editor.ui.startAndEndTimeWidget.hide()
 
@@ -276,9 +285,9 @@ class MembershipDelegate(QStyledItemDelegate):
             editor.ui.otherMandate_radioButton.toggle()
             editor.ui.startYearWidget.hide()
 
-        editor.ui.startYear_spinBox.setValue(membership.startTime_fld.year)
-        editor.ui.startTime_fld.setDate(membership.startTime_fld)
-        editor.ui.endTime_fld.setDate(membership.endTime_fld)
+            editor.ui.startYear_spinBox.setValue(membership.startTime_fld.year)
+            editor.ui.startTime_fld.setDate(membership.startTime_fld)
+            editor.ui.endTime_fld.setDate(membership.endTime_fld)
 
     def setModelData(self, editor, model, index):
         startyear = editor.ui.startYear_spinBox.value()
@@ -290,7 +299,7 @@ class MembershipDelegate(QStyledItemDelegate):
             starttime = editor.ui.startTime_fld.dateTime().toPyDateTime()
             endtime = editor.ui.endTime_fld.dateTime().toPyDateTime()
             if endtime < starttime:
-                endtime = starttime # Don't allow endtime before starttime
+                endtime = starttime  # Don't allow endtime before starttime
 
         elif editor.ui.laborday_radioButton.isChecked():
             starttime = datetime.datetime(startyear, 5, 1)
@@ -304,7 +313,8 @@ class MembershipDelegate(QStyledItemDelegate):
             starttime = editor.ui.startTime_fld.dateTime().toPyDateTime()
             endtime = None
 
-        else: assert()
+        else:
+            assert()
 
         model.setData(index, (starttime, endtime), Qt.EditRole)
 
@@ -314,9 +324,11 @@ class MembershipDelegate(QStyledItemDelegate):
             # pressing tab would otherwise close the editor.
             if event.key() == Qt.Key_Tab:
                 return False
+
         if event.type() == QEvent.FocusOut:
             # Don't close editor when it looses focus.
             return False
+
         return super().eventFilter(editor, event)
 
 # internal functions & classes

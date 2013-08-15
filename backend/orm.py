@@ -201,9 +201,11 @@ def update_fields(table, fielddict, dry_run=False, verbose=False):
         if hasattr(table, field):
             update_field(table, field, value, dry_run, verbose)
 
+
 def get_field_max_length(row, field):
     """Returns maximum length for field."""
     return getattr(row.__class__, field).property.columns[0].type.length
+
 
 def update_field(row, field, value, dry_run=False, verbose=False):
     maxlength = get_field_max_length(row, field)
@@ -228,7 +230,6 @@ class MemberRegistryCommon(object):
     notes_fld = Column(String(255))
     objectId = Column(String(36), primary_key=True)
 
-
 class MembershipCommon(object):
     """Common columns to all membership tables in the member registry."""
     startTime_fld = Column(DateTime)
@@ -247,6 +248,12 @@ class MembershipCommon(object):
         thisyear = date.today().year
         self.startTime_fld = datetime(thisyear, 1, 1)
         self.endTime_fld = datetime(thisyear, 12, 31)
+
+class MembershipTypeCommon(MembershipCommon):
+    """Common columns to all membershiptype tables in the member registry."""
+    def getCurrentMemberships(self):
+        return [mship for mship in self.memberships if mship.isCurrent()]
+
 
 class ContactInformation(get_declarative_base(), MemberRegistryCommon):
     """Member Contact Information"""
@@ -282,7 +289,7 @@ class DepartmentType(get_declarative_base(), MemberRegistryCommon,
 
 
 class Department(get_declarative_base(),
-        MemberRegistryCommon, MembershipCommon):
+        MemberRegistryCommon, MembershipTypeCommon):
     __tablename__ = 'DepartmentTable'
     sequence_name = "department"
 
@@ -313,7 +320,7 @@ class GroupMembership(get_declarative_base(), MemberRegistryCommon,
     post_fld = Column(String, ForeignKey("PostTable.objectId"))
     group_fld = Column(String, ForeignKey("GroupTable.objectId"))
 
-class Group(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
+class Group(get_declarative_base(), MemberRegistryCommon, MembershipTypeCommon):
     __tablename__ = 'GroupTable'
     sequence_name = "group"
 
@@ -327,7 +334,7 @@ class Group(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
 
 
 class GroupType(get_declarative_base(), MemberRegistryCommon,
-        MembershipCommon):
+        MembershipTypeCommon):
     __tablename__ = 'GroupTypeTable'
     sequence_name = "groupType"
 
@@ -429,17 +436,17 @@ class Member(get_declarative_base(), MemberRegistryCommon):
 
 
 class MembershipMembership(get_declarative_base(),
-        MemberRegistryCommon, MembershipCommon):
+                           MemberRegistryCommon, MembershipCommon):
     __tablename__ = "MembershipTable"
     sequence_name = "membership"
 
     member_fld = Column(String, ForeignKey("MemberTable.objectId"))
     membershipType_fld = Column(String,
-            ForeignKey("MembershipTypeTable.objectId"))
+                                ForeignKey("MembershipTypeTable.objectId"))
 
 
 class Membership(get_declarative_base(), MemberRegistryCommon,
-        MembershipCommon):
+                 MembershipTypeCommon):
     __tablename__ = "MembershipTypeTable"
     sequence_name = "membershipType"
 
@@ -451,7 +458,7 @@ class Membership(get_declarative_base(), MemberRegistryCommon,
 
 
 class PostMembership(get_declarative_base(), MemberRegistryCommon,
-        MembershipCommon):
+                     MembershipCommon):
     __tablename__ = "PostMembershipTable"
     sequence_name = "postMembership"
 
@@ -459,7 +466,7 @@ class PostMembership(get_declarative_base(), MemberRegistryCommon,
     member_fld = Column(String, ForeignKey("MemberTable.objectId"))
 
 
-class Post(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
+class Post(get_declarative_base(), MemberRegistryCommon, MembershipTypeCommon):
     __tablename__ = "PostTable"
     sequence_name = "post"
 
@@ -469,9 +476,9 @@ class Post(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
     abbreviation_fld = Column(String)
 
     memberships = relationship("PostMembership", backref='post',
-            cascade="all, delete, delete-orphan")
+                               cascade="all, delete, delete-orphan")
     groupmembership = relationship("GroupMembership", backref='post',
-            cascade="all, delete, delete-orphan")
+                                   cascade="all, delete, delete-orphan")
 
 
 class PostType(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
