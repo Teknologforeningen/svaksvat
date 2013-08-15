@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """SvakSvat Member register GUI."""
 import sys
-import os
-import subprocess
-import datetime
 import pickle
 
 from PyQt4.QtCore import *
@@ -11,7 +8,6 @@ from PyQt4.QtGui import *
 
 from sqlalchemy.orm import scoped_session
 
-from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
                          create_member, create_phux, backup_everything,
                          restore_everything)
@@ -27,9 +23,9 @@ from ui.newmember import Ui_NewMember
 
 import passwordsafe
 import useraccounts
+import mailutil
 
 import svaksvat_rc
-
 
 def init_gender_combobox(combobox, member=None):
     """Initializes a QComboBox to gender_fld.
@@ -276,7 +272,7 @@ class MemberEdit(QWidget):
         surname = self.ui.surName_fld.text()
 
         if (username and email and preferredname and surname
-                and self.member.ifOrdinarieMedlem()):
+            and self.member.ifOrdinarieMedlem()):
             self.member.username_fld = username
             self.member.email_fld = email
             self.member.preferredName_fld = preferredname
@@ -284,12 +280,16 @@ class MemberEdit(QWidget):
             self.session.commit()
             self.ldapmanager.addldapuser(self.member, password)
             self.refreshUserAccounts()
+            mailutil.send_mail(self.ldapmanager.ps, self.member.email_fld,
+                               'Lösenord', password)
+            QMessageBox.information(self, "Användare skapad!",
+                                    "Lösenordet skickat till användarens e-post.", 1)
+
             return
 
         QMessageBox.information(self, "Kunde inte skapa användarkonto",
-                "Felaktigt användarnamn, email, efternamn, tilltalsnamn eller" +
-                "medlemen tillhör inte gruppen 'Ordinarie medlem'.", 1)
-
+                                "Felaktigt användarnamn, email, efternamn, tilltalsnamn eller " +
+                                "medlemen tillhör inte gruppen 'Ordinarie medlem'.", 1)
 
     def removeAccount(self):
         if QMessageBox.question(self, "Ta bort användarkonto?",
@@ -614,8 +614,8 @@ def main():
     app.processEvents()
 
     # Initialize SvakSvat
-    ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
+    ps = passwordsafe.PasswordSafe(enablegui=True)
+    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
     ss = SvakSvat(SessionMaker)
     ss.show()
     splash.finish(ss)

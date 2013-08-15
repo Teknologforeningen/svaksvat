@@ -67,6 +67,7 @@ delldapuser(Member):
 
 """
 
+
 def encode_base64_ondemand(s):
     """
     Decode string to base64 if it isn't ascii. Also put leading ': ' so that LDAP
@@ -93,7 +94,7 @@ class LDAPAccountManager:
         self.ldappasswdpath = which("ldappasswd")
         self.ldapdeletepath = which("ldapdelete")
 
-        self.ps = passwordsafe.PasswordSafe()
+        self.ps = passwordsafe.PasswordSafe(enablegui=True)
         self.ldaphost = self.ps.get_config_value("ldap", "host")
         auth, self.servicelogin, self.servicepassword = self.ps.askcredentials(
                 self.check_ldap_login, "ldap", "servicelogin")
@@ -113,7 +114,6 @@ class LDAPAccountManager:
 
         return False
 
-
     def get_bill_balance(self, member):
         try:
             return self.pykotasession.execute(
@@ -121,7 +121,6 @@ class LDAPAccountManager:
                 member.username_fld).fetchone()['balance']
         except:
             return None
-
 
     def get_bill_code(self, member):
         try:
@@ -209,7 +208,7 @@ memberUid: %s
 
         output = self.ldapsearch("uidNumber")
         uidnumbers = [int(line.split(": ")[1]) for line in output.splitlines() if
-                "uidNumber: " in line]
+                      "uidNumber: " in line]
         uidnumbers.sort()
 
         # Find first free uid over 1000.
@@ -230,8 +229,8 @@ memberUid: %s
 
     def getPosixGroups(self, member):
         output = self.ldapsearch(
-                "(&(objectClass=posixGroup)(memberUid=%s))" %
-                member.username_fld)
+            "(&(objectClass=posixGroup)(memberUid=%s))" %
+            member.username_fld)
 
         groups = [line.split(": ")[1] for line in output.splitlines() if "cn: " in line]
         return groups
@@ -278,6 +277,7 @@ memberUid: """ + member.username_fld
         check_output(changepwcommand, universal_newlines=True)
         print("New password set for user %s." % username)
 
+
     def create_bill_account(self, member):
         """Create BILL account and return BILL-code."""
         if not member.username_fld:
@@ -285,26 +285,26 @@ memberUid: """ + member.username_fld
         username = member.username_fld
 
         self.pykotasession.execute(
-        "INSERT INTO users(username, name, pin) VALUES('%s', '%s',\
+            "INSERT INTO users(username, name, pin) VALUES('%s', '%s',\
                 '%s');" % (username,
-                    member.getName(), str(randint(1000, 9999))))
+                           member.getName(), str(randint(1000, 9999))))
 
         self.pykotasession.execute(
-        "INSERT INTO userpquota(userid,printerid,balancelimit) \
+            "INSERT INTO userpquota(userid,printerid,balancelimit) \
                 SELECT (SELECT id FROM users WHERE username='%s'\
                 ),id,deflimit_u FROM printers WHERE defactivate_u='t';" %
-                username)
+            username)
 
         self.pykotasession.commit()
 
         return self.get_bill_code(member)
 
-
     def addldapuser(self, member, passwd):
         uidnumber = self.get_next_uidnumber()
-        userldif, usergroupldif = self.generate_ldifs(member, uidnumber, passwd)
+        userldif, usergroupldif = self.generate_ldifs(
+            member, uidnumber, passwd)
 
-        if not userldif: # Something is missing in member.
+        if not userldif:  # Something is missing in member.
             return False
 
         # Add the user to LDAP
@@ -320,7 +320,7 @@ memberUid: """ + member.username_fld
         if not self.dry_run:
             self.change_ldap_password(member.username_fld, passwd)
 
-        if self.checkldapuser(member): # if user add successful
+        if self.checkldapuser(member):  # if user add successful
             # Add the user to Members-group
             groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
             out2 = groupmodproc.communicate(input=usergroupldif.encode())
