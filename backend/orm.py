@@ -11,7 +11,10 @@ from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
         Numeric)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.serializer import loads, dumps
 import sqlalchemy
+
+from PyQt4 import QtCore, QtGui
 
 # constants
 Base = declarative_base()
@@ -27,42 +30,63 @@ class TooLongValueException(Exception):
         return ("The value %s for the field %s is over %d in length." %
                 (self.value, self.field, self.maxlength))
 
+
 # interface functions
 def backup_everything(session):
-    # Get all objects.
+    meta = get_declarative_base().metadata
     backupdict = {}
-    for table in [x.__table__ for x in MEMBERSDBTABLES]:
-        data = fetchall_from_table(table, session)
-        backupdict[table] = data
+    for table in reversed(meta.sorted_tables):
+        query = session.query(table)
+        queryresults = query.all()
+        backupdict[table.name] = dumps(queryresults)
 
-    serialized_backupdict = None
-    pickle.dump(backupdict, serialized_backupdict)
-    return serialized_backupdict
+    return backupdict
 
-def fetchall_from_table(table, session):
-    data = session.execute(table.__table__.select()).fetchall()
-    return data
 
-def restore_everything(session, serialized_data):
+def restore_everything(session, backupdict):
+    meta = get_declarative_base().metadata
     # Truncate tables
-    for table in [x.__table__ for x in MEMBERSDBTABLES]:
+    progress = QtGui.QProgressDialog()
+    progress.show()
+    progress.setAutoClose(True)
+    progress.setLabelText("Tömmer databas")
+    progress.setMaximum(len(meta.sorted_tables) + 1)
+    for table in reversed(meta.sorted_tables):
         session.execute(table.delete())
-
-    # Add recovered objects
     session.commit()
     session.close()
-    restore_objects = loads(serialized_data, get_declarative_base().metadata, session)
-    failured_objects = []
-    for obj in restore_objects:
-        try:
-            session.merge(obj)
 
-        except sqlalchemy.exc.IntegrityError:
-            failured_objects.append(obj)
+    progress.setLabelText("Återställer")
+    
+    # Add recovered objects
+    for i, table in enumerate(meta.sorted_tables):
+        progress.setValue(i + 1)
+        if progress.wasCanceled():
+            return False
+        if table.name in backupdict:
+            progress.setLabelText('Återställer tabellen %s' % table.name)
+            QtCore.QCoreApplication.processEvents()
+            serialized_table = backupdict[table.name]
+            restored_objects = loads(serialized_table, meta, session)
+            for restored_object in restored_objects:
 
-    for obj in failured_objects:
-        session.merge(obj)
+                table_class = table.name.replace("Table", "")
+                if (table_class == "MembershipType"):
+                    table_class = "Membership"
+                if (table_class == 'members_sequence'):
+                    table_class = "Sequence"
 
+                row = eval(table_class)()
+                i = 0
+                for key in restored_object.keys():
+                    setattr(row, key, restored_object[i])
+                    i += 1
+                session.merge(row)
+
+    session.commit()
+    session.close()
+
+    progress.close()
     return True
 
 
@@ -71,8 +95,13 @@ def create_row(table_orm, session):
     sequence = session.query(Sequence).filter(Sequence.objectname ==
             row.sequence_name).one()
 
-    row.objectId = number_to_string(sequence.next)
-    sequence.next += 1
+    hexstring = number_to_string(sequence.next)
+    # Integrity error avoidance due to corrupt sequence.
+    while session.query(table_orm).filter_by(objectId = hexstring).count() != 0:
+        sequence.next += 1
+        hexstring = number_to_string(sequence.next)
+
+    row.objectId = hexstring
 
     return row
 

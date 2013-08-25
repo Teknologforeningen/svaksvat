@@ -12,7 +12,7 @@ class ExecutableNotFound(Exception):
         self.path = path
 
     def __str__(self):
-        print("Executable %s not found" % self.query)
+        return "Executable %s not found" % self.path
 
 # interface functions
 def is_exe(fpath):

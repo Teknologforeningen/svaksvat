@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../svaksvat.qrc">
+    <normaloff>:/images/res/mainicon.svg</normaloff>:/images/res/mainicon.svg</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
@@ -164,6 +168,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../svaksvat.qrc"/>
+ </resources>
  <connections/>
 </ui>

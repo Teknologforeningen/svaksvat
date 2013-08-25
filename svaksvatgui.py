@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """SvakSvat Member register GUI."""
 import sys
-import os
-import subprocess
-import datetime
+import pickle
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from sqlalchemy.orm import scoped_session
 
-from backend import connect
 from backend.orm import (Member, ContactInformation, get_field_max_length,
-        create_member, create_phux, backup_everything, restore_everything)
+                         create_member, create_phux, backup_everything,
+                         restore_everything)
 from backend.listmodels import (GroupListModel, PostListModel,
-        DepartmentListModel, MembershipListModel, MembershipDelegate,
-        configure_membership_qcombobox, assign_membership_to_member)
+                                DepartmentListModel, MembershipListModel,
+                                MembershipDelegate,
+                                configure_membership_qcombobox,
+                                assign_membership_to_member)
 
 from ui.mainwindow import Ui_MainWindow
 from ui.memberedit import Ui_MemberEdit
@@ -23,7 +23,9 @@ from ui.newmember import Ui_NewMember
 
 import passwordsafe
 import useraccounts
+import mailutil
 
+import svaksvat_rc
 
 def init_gender_combobox(combobox, member=None):
     """Initializes a QComboBox to gender_fld.
@@ -270,7 +272,7 @@ class MemberEdit(QWidget):
         surname = self.ui.surName_fld.text()
 
         if (username and email and preferredname and surname
-                and self.member.ifOrdinarieMedlem()):
+            and self.member.ifOrdinarieMedlem()):
             self.member.username_fld = username
             self.member.email_fld = email
             self.member.preferredName_fld = preferredname
@@ -278,12 +280,16 @@ class MemberEdit(QWidget):
             self.session.commit()
             self.ldapmanager.addldapuser(self.member, password)
             self.refreshUserAccounts()
+            mailutil.send_mail(self.ldapmanager.ps, self.member.email_fld,
+                               'Lösenord', password)
+            QMessageBox.information(self, "Användare skapad!",
+                                    "Lösenordet skickat till användarens e-post.", 1)
+
             return
 
         QMessageBox.information(self, "Kunde inte skapa användarkonto",
-                "Felaktigt användarnamn, email, efternamn, tilltalsnamn eller" +
-                "medlemen tillhör inte gruppen 'Ordinarie medlem'.", 1)
-
+                                "Felaktigt användarnamn, email, efternamn, tilltalsnamn eller " +
+                                "medlemen tillhör inte gruppen 'Ordinarie medlem'.", 1)
 
     def removeAccount(self):
         if QMessageBox.question(self, "Ta bort användarkonto?",
@@ -360,6 +366,9 @@ class MemberEdit(QWidget):
         self.ui.makeStAlMButton.clicked.connect(lambda:
                 membershiplistmodel.insertMembership("StÄlM"))
 
+        self.ui.makeJuniorStAlMButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("JuniorStÄlM"))
+
         self.ui.makeEjMedlemButton.clicked.connect(lambda:
                 membershiplistmodel.insertMembership("Ej längre medlem"))
 
@@ -372,7 +381,6 @@ class MemberEdit(QWidget):
                     self.removeAccount())
             self.ui.tabWidget.setTabEnabled(1, True)
             self.refreshUserAccounts()
-
 
     def removeSelectedMembership(self, listview):
         """Remove selected items from a QListView."""
@@ -474,12 +482,15 @@ class SvakSvat(QMainWindow):
         filename = QFileDialog.getSaveFileName(self,
                 'Välj namn för säkerhetskopia', '.')
         with open(filename, 'wb') as f:
-            f.write(backup_everything(self.session))
+            pickler = pickle.Pickler(f)
+            pickler.dump(backup_everything(self.session))
 
     def restoreFromBackup(self):
-        filename = QFileDialog.getOpenFileName(self, 'Öppna säkerthetskopia', '.')
+        filename = QFileDialog.getOpenFileName(self,
+                                               'Öppna säkerthetskopia',
+                                               '.')
         with open(filename, 'rb') as f:
-            data = f.read()
+            data = pickle.Unpickler(f).load()
             if restore_everything(self.session, data):
                 self.session.commit()
                 self.populateMemberList()
@@ -492,10 +503,17 @@ class SvakSvat(QMainWindow):
         """Remove selected member."""
         member = self.currentMember()
         wholename = member.getWholeName()
-        self.session.delete(member)
-        self.session.commit()
-        self.populateMemberList()
-        self.setStatusMessage("Användare %s borttagen!" % wholename)
+
+        confirm = "Är du säker att du vill ta bort användaren %s?" % wholename
+        reply = QMessageBox.question(self, 'Bekräfta',
+                                           confirm, QMessageBox.Yes,
+                                           QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.session.delete(member)
+            self.session.commit()
+            self.populateMemberList()
+            self.setStatusMessage("Användare %s borttagen!" % wholename)
 
     def populateMemberList(self, choosemember=None):
         """Fill the memberlist from the database."""
@@ -586,11 +604,21 @@ Användarnamn: %s
 
 
 def main():
-    ps = passwordsafe.PasswordSafe()
-    SessionMaker = scoped_session(ps.connect_with_config("memberslocalhost"))
     app = QApplication(sys.argv)
-    sr = SvakSvat(SessionMaker)
-    sr.show()
+
+    # Create and display the splash screen
+    splash_pix = QPixmap(":/images/res/splashscreen.png")
+    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+    splash.setMask(splash_pix.mask())
+    splash.show()
+    app.processEvents()
+
+    # Initialize SvakSvat
+    ps = passwordsafe.PasswordSafe(enablegui=True)
+    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
+    ss = SvakSvat(SessionMaker)
+    ss.show()
+    splash.finish(ss)
 
     return app.exec_()
 

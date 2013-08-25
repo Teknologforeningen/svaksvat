@@ -161,7 +161,6 @@ class MembershipListModel(QAbstractListModel):
 
         return self.insertMembership(membershipname)
 
-
     def endRemoveRows(self):
         self.session.commit()
         self.internalDataRefresh()

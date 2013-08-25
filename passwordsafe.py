@@ -61,7 +61,6 @@ class CredentialDialog(QtGui.QDialog):
         else:
             self.formlayout.addRow(context, self.username_le)
 
-
         self.okbutton = QtGui.QPushButton('OK', self)
         self.okbutton.clicked.connect(self.accept)
 
@@ -89,8 +88,8 @@ class CredentialDialog(QtGui.QDialog):
 
         raise CredentialDialogReject()
 
+
 class PasswordSafe:
-    """Class that"""
     def __init__(self, configfile="svaksvat.cfg", enablegui=False):
         self.configfile = configfile
         self.configparser = configparser.ConfigParser()
@@ -98,7 +97,7 @@ class PasswordSafe:
 
         self.inputfunc = input
         self.askcredentialsfunc = self.askcredentialsCLI
-        if enablegui:# or not sys.stdin.isatty():
+        if enablegui or not sys.stdin.isatty():
             self.askcredentialsfunc = self.askcredentialsQt
             self.inputfunc = self.inputfuncGUI
 
@@ -107,12 +106,13 @@ class PasswordSafe:
         return service + ":" + usernameparameter
 
     def get_password(self, service, usernameparameter, username):
-        return keyring.get_password(self.get_passid(service, usernameparameter),
+        return keyring.get_password(
+            self.get_passid(service, usernameparameter),
             username)
 
     def set_password(self, service, usernameparameter, username, password):
         keyring.set_password(self.get_passid(service, usernameparameter),
-                username, password)
+                             username, password)
 
     def get_config_value(self, section, parameter):
         try:
@@ -131,9 +131,9 @@ class PasswordSafe:
         username = self.configparser.get(section, usernameparameter)
         password = None
         if username != '':
-            password = self.get_password(
-                    section, usernameparameter,
-                    username)
+            password = self.get_password(section,
+                                         usernameparameter,
+                                         username)
 
         authreturn = None
         passwordchanged = False
@@ -145,7 +145,7 @@ class PasswordSafe:
                     break
                 passwordchanged = True
                 username, password = self.askcredentialsfunc(section + " " +
-                        usernameparameter)
+                                                             usernameparameter)
 
         except Exception as e:
                 print(e)
@@ -153,12 +153,12 @@ class PasswordSafe:
 
         if passwordchanged:
             self.store_credentials(self.configfile, section, usernameparameter,
-                    username, password)
+                                   username, password)
 
         return authreturn, username, password
 
     def store_credentials(self, configfile, section,
-            usernameparameter, username, password):
+                          usernameparameter, username, password):
         # store the username
         self.configparser.set(section, usernameparameter, username)
         self.configparser.write(open(configfile, 'w'))
@@ -188,7 +188,6 @@ class PasswordSafe:
         if askpassword:
             return username, password
         return username
-
 
     def askcredentialsCLI(self, context=""):
         print(context)
@@ -251,9 +250,8 @@ class PasswordSafe:
                     sshconnecting = True
                     host = "localhost"
 
-
                 elif re.match(".*could not connect to server: Connection refused.*",
-                        repr(e)) and sshconnecting:
+                              repr(e)) and sshconnecting:
                     time.sleep(1)
                     if threadfinishedmutex.locked(): # SSH-thread exited
                         threadfinishedmutex.release()
@@ -262,9 +260,11 @@ class PasswordSafe:
                 else:
                     raise(e)
 
+
 # internal functions & classes
 def testauth(username, password):
     return username == password
+
 
 def testfunction():
     import tempfile
@@ -286,6 +286,7 @@ def testfunction():
     "testusername")
 
     return True
+
 
 def main():
     #ps = PasswordSafe(enablegui=True)

@@ -5,5 +5,7 @@
     <file>res/editdelete.png</file>
     <file>res/list_remove.png</file>
     <file>res/remove.png</file>
+    <file>res/splashscreen.png</file>
+    <file>res/mainicon.svg</file>
   </qresource>
 </RCC>
