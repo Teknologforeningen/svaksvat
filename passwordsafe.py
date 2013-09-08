@@ -198,6 +198,7 @@ class PasswordSafe:
     def connect_with_config(self, configsection):
         usernameparameter = "dbusername"
         host = self.configparser.get(configsection, "host")
+        remote_port = self.configparser.get(configsection, "remote_port")
         port = self.configparser.get(configsection, "port")
         database = self.configparser.get(configsection, "database")
         dbtype = self.configparser.get(configsection, "dbtype")
@@ -238,7 +239,7 @@ class PasswordSafe:
                         print("Nätverksporten är redan öppen. Testar om" +
                                 " portforwarding är redan igång...")
 
-                    except: # Port not open. Commence SSH port forwarding.
+                    except:  # Port not open. Commence SSH port forwarding.
                         print("Du måste logga in på servern.")
                         if not sshusername:
                             sshusername = self.inputfunc("SSH användarnamn:")

@@ -2,7 +2,6 @@
 This will be a platform independent wrapper around the plink or ssh libraries.
 
 Some code borrowed from github.com/NetAngels/openssh-wrapper.
-TODO: Windows support
 """
 
 import re
@@ -17,21 +16,6 @@ from .commonutils import which
 
 __all__ = 'SSHConnection SSHResult SSHError'.split()
 
-def which(program):
-    import os
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if is_exe(program):
-        return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
 
 class SSHConnection(object):
     """
@@ -40,8 +24,8 @@ class SSHConnection(object):
     """
 
     def __init__(self, server, login=None, port=None, configfile=None,
-            identity_file=None, ssh_agent_socket=None, portforward_local=None,
-            timeout=60):
+                 identity_file=None, ssh_agent_socket=None,
+                 portforward_local=None, timeout=60):
         """
         Create new object to establish SSH connection to remote
         servers.
@@ -75,7 +59,7 @@ class SSHConnection(object):
         if configfile:
             self.configfile = os.path.expanduser(configfile)
             if not os.path.isfile(self.configfile):
-                raise SSHError('Config file %s is not found' % self.configfile )
+                raise SSHError('Config file %s is not found' % self.configfile)
         else:
             self.configfile = None
         if identity_file:
@@ -163,8 +147,8 @@ class SSHConnection(object):
 
         scp_command = self.scp_command(filenames, target)
         pipe = subprocess.Popen(scp_command,
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE, env=self.get_env())
+                                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, env=self.get_env())
         signal.signal(signal.SIGALRM, _timeout_handler)
         signal.alarm(self.timeout)
         err = ""
@@ -331,21 +315,24 @@ class SSHResult(object):
         ret.append('returncode: %s' % str(self.returncode))
         return '\n'.join(ret)
 
+
 class SSHError(Exception):
     """
     This exception is used for all errors raised by this module.
     """
     pass
 
+
 def portforward_to_localhost(host, login, port, threadfinishedmutex=None):
     """Convenience function to forward to localhost. Locks threadfinishedmutex
     on failure."""
     conn = SSHConnection(host, login,
-            portforward_local=str(port) + ":localhost:" + str(port),
-            timeout=None)
+                         portforward_local=str(port) +
+                         ":localhost:" + str(port),
+                         timeout=None)
     try:
         conn.run(None)
-        threadfinishedmutex.acquire() # Signal that thread has finished
+        threadfinishedmutex.acquire()  # Signal that thread has finished
 
     except SSHError:
         threadfinishedmutex.acquire()

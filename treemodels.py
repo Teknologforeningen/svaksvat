@@ -118,6 +118,7 @@ class MembershipTreeModel(QtCore.QAbstractItemModel):
                     newchild.appendChild(newsubchild)
 
 
+#TODO: columns with convenient information like how many members or mandate time. checkbox for filtering out only current memberships 
 app = QtGui.QApplication([])
 
 import passwordsafe
@@ -134,7 +135,6 @@ tv = QtGui.QTreeView(dialog)
 tv.setModel(model)
 tv.setAlternatingRowColors(True)
 layout.addWidget(tv)
-
 
 dialog.exec_()
 
