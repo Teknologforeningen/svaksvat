@@ -158,37 +158,37 @@ class NewMemberDialog(QDialog):
 
     def accept(self):
         """Commit the new member to the database."""
-        member = None
+        self.member = None
         if self.ui.makePhux_CheckBox.isChecked():
-            member = create_phux(self.session)
+            self.member = create_phux(self.session)
 
         else:
-            member = create_member(self.session)
+            self.member = create_member(self.session)
 
         for field in Member.editable_text_fields:
             if (field == "username_fld" and not
                     self.ui.username_fld.hasAcceptableInput()):
                 continue
 
-            update_qtextfield_to_db(self.ui, field, member)
+            update_qtextfield_to_db(self.ui, field, self.member)
 
-        self.member.gender_fld = self.ui.gender_fld.currentIndex()
-        self.member.birthDate_fld = self.ui.birthDate_fld.dateTime(
-                ).toPyDateTime()
-
-        contactinfo = member.contactinfo
+        contactinfo = self.member.contactinfo
         for field in contactinfo.publicfields:
             update_qtextfield_to_db(self.ui, field, contactinfo)
 
         if not assign_membership_to_member(self.session, "Department",
-                self.ui.department_comboBox.currentText(), member, parent=self,
+                self.ui.department_comboBox.currentText(), self.member, parent=self,
                 combobox=self.ui.department_comboBox, indefinite_time=True):
             return # Don't yet commit if Department not chosen.
 
+        self.member.gender_fld = self.ui.gender_fld.currentIndex()
+        self.member.birthDate_fld = self.ui.birthDate_fld.dateTime().toPyDateTime()
+
         self.session.commit()
-        self.parent.populateMemberList(choosemember=member)
+
+        self.parent.populateMemberList(choosemember=self.member)
         self.parent.setStatusMessage("Medlem %s skapad!" %
-                member.getWholeName())
+                self.member.getWholeName())
         super().accept()
 
     def reject(self):
