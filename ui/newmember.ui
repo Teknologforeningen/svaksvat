@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>370</width>
-    <height>439</height>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,6 +51,26 @@
        <item row="2" column="1">
         <widget class="QLineEdit" name="preferredName_fld"/>
        </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="kNLabel">
+         <property name="text">
+          <string>Kön</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="gender_fld"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="birthDateLabel">
+         <property name="text">
+          <string>Födelsedatum</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QDateEdit" name="birthDate_fld"/>
+       </item>
        <item row="5" column="0">
         <widget class="QLabel" name="adressLabel">
          <property name="text">
@@ -60,6 +80,26 @@
        </item>
        <item row="5" column="1">
         <widget class="QLineEdit" name="streetAddress_fld"/>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="postnummerLabel">
+         <property name="text">
+          <string>Postnummer</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="postalCode_fld"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="postanstaltLabel">
+         <property name="text">
+          <string>Postanstalt</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLineEdit" name="city_fld"/>
        </item>
        <item row="8" column="0">
         <widget class="QLabel" name="telefonLabel">
@@ -95,65 +135,35 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
+       <item row="12" column="0">
         <widget class="QLabel" name="anvNdarnamnLabel">
          <property name="text">
           <string>Användarnamn</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="1">
+       <item row="12" column="1">
         <widget class="QLineEdit" name="username_fld"/>
        </item>
-       <item row="12" column="0">
+       <item row="13" column="0">
         <widget class="QLabel" name="gRTillPhuxLabel">
          <property name="text">
           <string>Gör till Phux</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
+       <item row="13" column="1">
         <widget class="QCheckBox" name="makePhux_CheckBox"/>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="kNLabel">
+       <item row="11" column="0">
+        <widget class="QLabel" name="studentId_label">
          <property name="text">
-          <string>Kön</string>
+          <string>Studienummer</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="gender_fld"/>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="postnummerLabel">
-         <property name="text">
-          <string>Postnummer</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLineEdit" name="postalCode_fld"/>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="postanstaltLabel">
-         <property name="text">
-          <string>Postanstalt</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QLineEdit" name="city_fld"/>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="birthDateLabel">
-         <property name="text">
-          <string>Födelsedatum</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QDateEdit" name="birthDate_fld"/>
+       <item row="11" column="1">
+        <widget class="QLineEdit" name="studentId_fld"/>
        </item>
       </layout>
      </item>
@@ -176,12 +186,14 @@
   <tabstop>givenNames_fld</tabstop>
   <tabstop>preferredName_fld</tabstop>
   <tabstop>gender_fld</tabstop>
+  <tabstop>birthDate_fld</tabstop>
   <tabstop>streetAddress_fld</tabstop>
   <tabstop>postalCode_fld</tabstop>
   <tabstop>city_fld</tabstop>
   <tabstop>phone_fld</tabstop>
   <tabstop>email_fld</tabstop>
   <tabstop>department_comboBox</tabstop>
+  <tabstop>studentId_fld</tabstop>
   <tabstop>username_fld</tabstop>
   <tabstop>makePhux_CheckBox</tabstop>
   <tabstop>buttonBox</tabstop>

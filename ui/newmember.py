@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'newmember.ui'
+# Form implementation generated from reading ui file 'ui/newmember.ui'
 #
-# Created: Sat Sep  8 18:01:42 2012
-#      by: PyQt4 UI code generator 4.9.1
+# Created: Wed Sep 11 09:54:50 2013
+#      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,12 +12,21 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_NewMember(object):
     def setupUi(self, NewMember):
         NewMember.setObjectName(_fromUtf8("NewMember"))
-        NewMember.resize(370, 439)
+        NewMember.resize(370, 540)
         self.verticalLayout_2 = QtGui.QVBoxLayout(NewMember)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.verticalLayout = QtGui.QVBoxLayout()
@@ -43,12 +52,36 @@ class Ui_NewMember(object):
         self.preferredName_fld = QtGui.QLineEdit(NewMember)
         self.preferredName_fld.setObjectName(_fromUtf8("preferredName_fld"))
         self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.preferredName_fld)
+        self.kNLabel = QtGui.QLabel(NewMember)
+        self.kNLabel.setObjectName(_fromUtf8("kNLabel"))
+        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.kNLabel)
+        self.gender_fld = QtGui.QComboBox(NewMember)
+        self.gender_fld.setObjectName(_fromUtf8("gender_fld"))
+        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.gender_fld)
+        self.birthDateLabel = QtGui.QLabel(NewMember)
+        self.birthDateLabel.setObjectName(_fromUtf8("birthDateLabel"))
+        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.birthDateLabel)
+        self.birthDate_fld = QtGui.QDateEdit(NewMember)
+        self.birthDate_fld.setObjectName(_fromUtf8("birthDate_fld"))
+        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.birthDate_fld)
         self.adressLabel = QtGui.QLabel(NewMember)
         self.adressLabel.setObjectName(_fromUtf8("adressLabel"))
         self.formLayout.setWidget(5, QtGui.QFormLayout.LabelRole, self.adressLabel)
         self.streetAddress_fld = QtGui.QLineEdit(NewMember)
         self.streetAddress_fld.setObjectName(_fromUtf8("streetAddress_fld"))
         self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.streetAddress_fld)
+        self.postnummerLabel = QtGui.QLabel(NewMember)
+        self.postnummerLabel.setObjectName(_fromUtf8("postnummerLabel"))
+        self.formLayout.setWidget(6, QtGui.QFormLayout.LabelRole, self.postnummerLabel)
+        self.postalCode_fld = QtGui.QLineEdit(NewMember)
+        self.postalCode_fld.setObjectName(_fromUtf8("postalCode_fld"))
+        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.postalCode_fld)
+        self.postanstaltLabel = QtGui.QLabel(NewMember)
+        self.postanstaltLabel.setObjectName(_fromUtf8("postanstaltLabel"))
+        self.formLayout.setWidget(7, QtGui.QFormLayout.LabelRole, self.postanstaltLabel)
+        self.city_fld = QtGui.QLineEdit(NewMember)
+        self.city_fld.setObjectName(_fromUtf8("city_fld"))
+        self.formLayout.setWidget(7, QtGui.QFormLayout.FieldRole, self.city_fld)
         self.telefonLabel = QtGui.QLabel(NewMember)
         self.telefonLabel.setObjectName(_fromUtf8("telefonLabel"))
         self.formLayout.setWidget(8, QtGui.QFormLayout.LabelRole, self.telefonLabel)
@@ -70,40 +103,22 @@ class Ui_NewMember(object):
         self.formLayout.setWidget(10, QtGui.QFormLayout.FieldRole, self.department_comboBox)
         self.anvNdarnamnLabel = QtGui.QLabel(NewMember)
         self.anvNdarnamnLabel.setObjectName(_fromUtf8("anvNdarnamnLabel"))
-        self.formLayout.setWidget(11, QtGui.QFormLayout.LabelRole, self.anvNdarnamnLabel)
+        self.formLayout.setWidget(12, QtGui.QFormLayout.LabelRole, self.anvNdarnamnLabel)
         self.username_fld = QtGui.QLineEdit(NewMember)
         self.username_fld.setObjectName(_fromUtf8("username_fld"))
-        self.formLayout.setWidget(11, QtGui.QFormLayout.FieldRole, self.username_fld)
+        self.formLayout.setWidget(12, QtGui.QFormLayout.FieldRole, self.username_fld)
         self.gRTillPhuxLabel = QtGui.QLabel(NewMember)
         self.gRTillPhuxLabel.setObjectName(_fromUtf8("gRTillPhuxLabel"))
-        self.formLayout.setWidget(12, QtGui.QFormLayout.LabelRole, self.gRTillPhuxLabel)
+        self.formLayout.setWidget(13, QtGui.QFormLayout.LabelRole, self.gRTillPhuxLabel)
         self.makePhux_CheckBox = QtGui.QCheckBox(NewMember)
         self.makePhux_CheckBox.setObjectName(_fromUtf8("makePhux_CheckBox"))
-        self.formLayout.setWidget(12, QtGui.QFormLayout.FieldRole, self.makePhux_CheckBox)
-        self.kNLabel = QtGui.QLabel(NewMember)
-        self.kNLabel.setObjectName(_fromUtf8("kNLabel"))
-        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.kNLabel)
-        self.gender_fld = QtGui.QComboBox(NewMember)
-        self.gender_fld.setObjectName(_fromUtf8("gender_fld"))
-        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.gender_fld)
-        self.postnummerLabel = QtGui.QLabel(NewMember)
-        self.postnummerLabel.setObjectName(_fromUtf8("postnummerLabel"))
-        self.formLayout.setWidget(6, QtGui.QFormLayout.LabelRole, self.postnummerLabel)
-        self.postalCode_fld = QtGui.QLineEdit(NewMember)
-        self.postalCode_fld.setObjectName(_fromUtf8("postalCode_fld"))
-        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.postalCode_fld)
-        self.postanstaltLabel = QtGui.QLabel(NewMember)
-        self.postanstaltLabel.setObjectName(_fromUtf8("postanstaltLabel"))
-        self.formLayout.setWidget(7, QtGui.QFormLayout.LabelRole, self.postanstaltLabel)
-        self.city_fld = QtGui.QLineEdit(NewMember)
-        self.city_fld.setObjectName(_fromUtf8("city_fld"))
-        self.formLayout.setWidget(7, QtGui.QFormLayout.FieldRole, self.city_fld)
-        self.birthDateLabel = QtGui.QLabel(NewMember)
-        self.birthDateLabel.setObjectName(_fromUtf8("birthDateLabel"))
-        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.birthDateLabel)
-        self.birthDate_fld = QtGui.QDateEdit(NewMember)
-        self.birthDate_fld.setObjectName(_fromUtf8("birthDate_fld"))
-        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.birthDate_fld)
+        self.formLayout.setWidget(13, QtGui.QFormLayout.FieldRole, self.makePhux_CheckBox)
+        self.studentId_label = QtGui.QLabel(NewMember)
+        self.studentId_label.setObjectName(_fromUtf8("studentId_label"))
+        self.formLayout.setWidget(11, QtGui.QFormLayout.LabelRole, self.studentId_label)
+        self.studentId_fld = QtGui.QLineEdit(NewMember)
+        self.studentId_fld.setObjectName(_fromUtf8("studentId_fld"))
+        self.formLayout.setWidget(11, QtGui.QFormLayout.FieldRole, self.studentId_fld)
         self.verticalLayout.addLayout(self.formLayout)
         self.buttonBox = QtGui.QDialogButtonBox(NewMember)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -119,29 +134,32 @@ class Ui_NewMember(object):
         NewMember.setTabOrder(self.surName_fld, self.givenNames_fld)
         NewMember.setTabOrder(self.givenNames_fld, self.preferredName_fld)
         NewMember.setTabOrder(self.preferredName_fld, self.gender_fld)
-        NewMember.setTabOrder(self.gender_fld, self.streetAddress_fld)
+        NewMember.setTabOrder(self.gender_fld, self.birthDate_fld)
+        NewMember.setTabOrder(self.birthDate_fld, self.streetAddress_fld)
         NewMember.setTabOrder(self.streetAddress_fld, self.postalCode_fld)
         NewMember.setTabOrder(self.postalCode_fld, self.city_fld)
         NewMember.setTabOrder(self.city_fld, self.phone_fld)
         NewMember.setTabOrder(self.phone_fld, self.email_fld)
         NewMember.setTabOrder(self.email_fld, self.department_comboBox)
-        NewMember.setTabOrder(self.department_comboBox, self.username_fld)
+        NewMember.setTabOrder(self.department_comboBox, self.studentId_fld)
+        NewMember.setTabOrder(self.studentId_fld, self.username_fld)
         NewMember.setTabOrder(self.username_fld, self.makePhux_CheckBox)
         NewMember.setTabOrder(self.makePhux_CheckBox, self.buttonBox)
 
     def retranslateUi(self, NewMember):
-        NewMember.setWindowTitle(QtGui.QApplication.translate("NewMember", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.efternamnLabel.setText(QtGui.QApplication.translate("NewMember", "Efternamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.allaFRnamnLabel.setText(QtGui.QApplication.translate("NewMember", "Alla förnamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.tilltalsnamnLabel.setText(QtGui.QApplication.translate("NewMember", "Tilltalsnamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.adressLabel.setText(QtGui.QApplication.translate("NewMember", "Gatuadress", None, QtGui.QApplication.UnicodeUTF8))
-        self.telefonLabel.setText(QtGui.QApplication.translate("NewMember", "Telefon", None, QtGui.QApplication.UnicodeUTF8))
-        self.emailLabel.setText(QtGui.QApplication.translate("NewMember", "Email", None, QtGui.QApplication.UnicodeUTF8))
-        self.avdelningLabel.setText(QtGui.QApplication.translate("NewMember", "Avdelning", None, QtGui.QApplication.UnicodeUTF8))
-        self.anvNdarnamnLabel.setText(QtGui.QApplication.translate("NewMember", "Användarnamn", None, QtGui.QApplication.UnicodeUTF8))
-        self.gRTillPhuxLabel.setText(QtGui.QApplication.translate("NewMember", "Gör till Phux", None, QtGui.QApplication.UnicodeUTF8))
-        self.kNLabel.setText(QtGui.QApplication.translate("NewMember", "Kön", None, QtGui.QApplication.UnicodeUTF8))
-        self.postnummerLabel.setText(QtGui.QApplication.translate("NewMember", "Postnummer", None, QtGui.QApplication.UnicodeUTF8))
-        self.postanstaltLabel.setText(QtGui.QApplication.translate("NewMember", "Postanstalt", None, QtGui.QApplication.UnicodeUTF8))
-        self.birthDateLabel.setText(QtGui.QApplication.translate("NewMember", "Födelsedatum", None, QtGui.QApplication.UnicodeUTF8))
+        NewMember.setWindowTitle(_translate("NewMember", "Dialog", None))
+        self.efternamnLabel.setText(_translate("NewMember", "Efternamn", None))
+        self.allaFRnamnLabel.setText(_translate("NewMember", "Alla förnamn", None))
+        self.tilltalsnamnLabel.setText(_translate("NewMember", "Tilltalsnamn", None))
+        self.kNLabel.setText(_translate("NewMember", "Kön", None))
+        self.birthDateLabel.setText(_translate("NewMember", "Födelsedatum", None))
+        self.adressLabel.setText(_translate("NewMember", "Gatuadress", None))
+        self.postnummerLabel.setText(_translate("NewMember", "Postnummer", None))
+        self.postanstaltLabel.setText(_translate("NewMember", "Postanstalt", None))
+        self.telefonLabel.setText(_translate("NewMember", "Telefon", None))
+        self.emailLabel.setText(_translate("NewMember", "Email", None))
+        self.avdelningLabel.setText(_translate("NewMember", "Avdelning", None))
+        self.anvNdarnamnLabel.setText(_translate("NewMember", "Användarnamn", None))
+        self.gRTillPhuxLabel.setText(_translate("NewMember", "Gör till Phux", None))
+        self.studentId_label.setText(_translate("NewMember", "Studienummer", None))
 
