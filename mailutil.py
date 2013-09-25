@@ -19,9 +19,9 @@ def try_login(mail_server, username, password):
 def send_mail(password_safe, to_adress, subject, text):
     sender = password_safe.get_config_value(MAIL_CONFIG_SECTION,
                                             MAIL_CONFIG_USERNAME)
-    recipient = 'martin.yrjola@aalto.fi'
+    recipient = to_adress
     msg = MIMEText(text)
-    msg['From'] = sender
+    msg['From'] = 'infochef@teknolog.fi'
     msg['To'] = recipient
     msg['Subject'] = subject
     smtp_server = password_safe.get_config_value(
@@ -31,16 +31,16 @@ def send_mail(password_safe, to_adress, subject, text):
         MAIL_CONFIG_SECTION,
         MAIL_CONFIG_SMTP_PORT)
 
-    with smtplib.SMTP(smtp_server, smtp_port) as mail_server:
-        mail_server.ehlo()
-        try:
-            mail_server.sendmail(sender, recipient, msg.as_string())
+    mail_server = smtplib.SMTP(smtp_server, smtp_port)
+    mail_server.ehlo()
+    try:
+        mail_server.sendmail(sender, recipient, msg.as_string())
 
-        except smtplib.SMTPSenderRefused as e:
-            if handle_user_authentication(mail_server, password_safe):
-                mail_server.sendmail(sender, recipient, msg.as_string())
-                return
-            raise e
+    except smtplib.SMTPSenderRefused as e:
+        if handle_user_authentication(mail_server, password_safe):
+            mail_server.sendmail(sender, recipient, msg.as_string())
+            return
+        raise e
 
 
 def handle_user_authentication(mail_server, password_safe):

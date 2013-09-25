@@ -281,7 +281,7 @@ class MemberEdit(QWidget):
             self.ldapmanager.addldapuser(self.member, password)
             self.refreshUserAccounts()
             mailutil.send_mail(self.ldapmanager.ps, self.member.email_fld,
-                               'Lösenord', password)
+                               'Losenord', password)
             QMessageBox.information(self, "Användare skapad!",
                                     "Lösenordet skickat till användarens e-post.", 1)
 
