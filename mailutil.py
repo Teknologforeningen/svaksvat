@@ -1,6 +1,7 @@
 import smtplib
 
 from email.mime.text import MIMEText
+from email.header import Header
 
 MAIL_CONFIG_SECTION = 'emailaccount'
 MAIL_CONFIG_USERNAME = 'username'
@@ -20,10 +21,10 @@ def send_mail(password_safe, to_adress, subject, text):
     sender = password_safe.get_config_value(MAIL_CONFIG_SECTION,
                                             MAIL_CONFIG_USERNAME)
     recipient = to_adress
-    msg = MIMEText(text)
+    msg = MIMEText(text.encode('utf-8'), 'plain', 'utf-8')
     msg['From'] = 'infochef@teknolog.fi'
     msg['To'] = recipient
-    msg['Subject'] = subject
+    msg['Subject'] = Header(subject,'utf-8')
     smtp_server = password_safe.get_config_value(
         MAIL_CONFIG_SECTION,
         MAIL_CONFIG_SMTP_SERVER)
