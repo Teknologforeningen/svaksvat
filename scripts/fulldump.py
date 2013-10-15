@@ -57,14 +57,23 @@ def dump_member(member, writer):
                     postmembership.endTime_fld.date().year + 1):
                 posts += "%s %d," % (post.name_fld, year)
 
+    probablyphuxyear = 9999
+    probablyphuxmembership = ''
+    stalmstart = ''
     for membership in member.membershipmemberships:
         mship = membership.membership
+        if mship.name_fld == 'StÄlM' and membership.startTime_fld:
+            stalmstart = membership.startTime_fld.year
+
         if membership.isCurrent():
             currentmembership += mship.name_fld + " "
 
         begin = end = ""
         try:
             begin = membership.startTime_fld.year
+            if begin < probablyphuxyear:
+                probablyphuxyear = begin
+                probablyphuxmembership = mship.name_fld
             end = membership.endTime_fld.year
 
         except:
@@ -73,7 +82,7 @@ def dump_member(member, writer):
         finally:
             memberships += "%s %s - %s," % (mship.name_fld, begin or "", end or "")
 
-    writer.writerow([currentmembership] + [getattr(member, x.__str__().split('.')[1]) for x in Member.__table__.columns] + [getattr(member.contactinfo, x.__str__().split('.')[1]) for x in ContactInformation.__table__.columns] + [groups] + [posts] + [memberships])
+    writer.writerow([str(probablyphuxyear) + " " + probablyphuxmembership, stalmstart] + [currentmembership] + [getattr(member, x.__str__().split('.')[1]) for x in Member.__table__.columns] + [getattr(member.contactinfo, x.__str__().split('.')[1]) for x in ContactInformation.__table__.columns] + [groups] + [posts] + [memberships])
 
 def main():
     ps = passwordsafe.PasswordSafe()
@@ -100,7 +109,7 @@ def main():
                                                   True, False).all()
     print("Ordinarie medlemmar: ", len(allmembers))
 
-    header = ["Nuvarande medlemskapstyp"] + [x.__str__().split('.')[1] for x in Member.__table__.columns]
+    header = ["första år samt medlemskapstyp", "StälMstart", "Nuvarande medlemskapstyp"] + [x.__str__().split('.')[1] for x in Member.__table__.columns]
     header += [x.__str__().split('.')[1] for x in
                ContactInformation.__table__.columns]
     header += ["grupper", "poster", "medlemskap"]
