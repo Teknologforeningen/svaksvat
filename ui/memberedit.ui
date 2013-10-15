@@ -576,6 +576,24 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="makeEjMedlemButton">
+               <property name="text">
+                <string>Ej medlem</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QPushButton" name="makeActiveAlumnButton">
+               <property name="text">
+                <string>Aktiv alumn</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="makeStAlMButton">
                <property name="text">
                 <string>StÄlM</string>
@@ -586,13 +604,6 @@
               <widget class="QPushButton" name="makeJuniorStAlMButton">
                <property name="text">
                 <string>JuniorStÄlM</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="makeEjMedlemButton">
-               <property name="text">
-                <string>Ej medlem</string>
                </property>
               </widget>
              </item>

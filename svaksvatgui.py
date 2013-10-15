@@ -363,6 +363,9 @@ class MemberEdit(QWidget):
         self.ui.makeOrdinarieButton.clicked.connect(lambda:
                 membershiplistmodel.insertMembership("Ordinarie medlem"))
 
+        self.ui.makeActiveAlumnButton.clicked.connect(lambda:
+                membershiplistmodel.insertMembership("Aktiv alumn"))
+
         self.ui.makeStAlMButton.clicked.connect(lambda:
                 membershiplistmodel.insertMembership("StÄlM"))
 

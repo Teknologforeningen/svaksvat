@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'ui/memberedit.ui'
 #
-# Created: Mon Aug 12 14:22:17 2013
-#      by: PyQt4 UI code generator 4.10.2
+# Created: Tue Oct 15 15:47:08 2013
+#      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -307,16 +307,22 @@ class Ui_MemberEdit(object):
         self.makeOrdinarieButton = QtGui.QPushButton(self.tab_2)
         self.makeOrdinarieButton.setObjectName(_fromUtf8("makeOrdinarieButton"))
         self.horizontalLayout_14.addWidget(self.makeOrdinarieButton)
-        self.makeStAlMButton = QtGui.QPushButton(self.tab_2)
-        self.makeStAlMButton.setObjectName(_fromUtf8("makeStAlMButton"))
-        self.horizontalLayout_14.addWidget(self.makeStAlMButton)
-        self.makeJuniorStAlMButton = QtGui.QPushButton(self.tab_2)
-        self.makeJuniorStAlMButton.setObjectName(_fromUtf8("makeJuniorStAlMButton"))
-        self.horizontalLayout_14.addWidget(self.makeJuniorStAlMButton)
         self.makeEjMedlemButton = QtGui.QPushButton(self.tab_2)
         self.makeEjMedlemButton.setObjectName(_fromUtf8("makeEjMedlemButton"))
         self.horizontalLayout_14.addWidget(self.makeEjMedlemButton)
         self.verticalLayout_5.addLayout(self.horizontalLayout_14)
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+        self.makeActiveAlumnButton = QtGui.QPushButton(self.tab_2)
+        self.makeActiveAlumnButton.setObjectName(_fromUtf8("makeActiveAlumnButton"))
+        self.horizontalLayout_4.addWidget(self.makeActiveAlumnButton)
+        self.makeStAlMButton = QtGui.QPushButton(self.tab_2)
+        self.makeStAlMButton.setObjectName(_fromUtf8("makeStAlMButton"))
+        self.horizontalLayout_4.addWidget(self.makeStAlMButton)
+        self.makeJuniorStAlMButton = QtGui.QPushButton(self.tab_2)
+        self.makeJuniorStAlMButton.setObjectName(_fromUtf8("makeJuniorStAlMButton"))
+        self.horizontalLayout_4.addWidget(self.makeJuniorStAlMButton)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_9 = QtGui.QHBoxLayout()
         self.horizontalLayout_9.setObjectName(_fromUtf8("horizontalLayout_9"))
         self.label_11 = QtGui.QLabel(self.tab_2)
@@ -430,9 +436,10 @@ class Ui_MemberEdit(object):
         self.label_12.setText(_translate("MemberEdit", "TF Medlemskapstyper:", None))
         self.makePhuxButton.setText(_translate("MemberEdit", "Phux", None))
         self.makeOrdinarieButton.setText(_translate("MemberEdit", "Ordinarie", None))
+        self.makeEjMedlemButton.setText(_translate("MemberEdit", "Ej medlem", None))
+        self.makeActiveAlumnButton.setText(_translate("MemberEdit", "Aktiv alumn", None))
         self.makeStAlMButton.setText(_translate("MemberEdit", "StÄlM", None))
         self.makeJuniorStAlMButton.setText(_translate("MemberEdit", "JuniorStÄlM", None))
-        self.makeEjMedlemButton.setText(_translate("MemberEdit", "Ej medlem", None))
         self.label_11.setText(_translate("MemberEdit", "Lägg till medlemskapstyp:", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MemberEdit", "Aalto och TF medlemskap", None))
 
