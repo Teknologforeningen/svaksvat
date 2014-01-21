@@ -271,8 +271,14 @@ class MemberEdit(QWidget):
         preferredname = self.ui.preferredName_fld.text()
         surname = self.ui.surName_fld.text()
 
-        if (username and email and preferredname and surname
-            and self.member.ifOrdinarieMedlem()):
+        if (username and email and preferredname and surname):
+            if not self.member.ifOrdinarieMedlem():
+                
+                if not QMessageBox.question(self, "Skapa användarkonto?",
+                "Användaren är inte ordinarie medlem, skapa konto ändå?",
+                "Nej", "Ja", defaultButtonNumber=0, escapeButtonNumber=0):
+                    return
+
             self.member.username_fld = username
             self.member.email_fld = email
             self.member.preferredName_fld = preferredname
@@ -288,8 +294,7 @@ class MemberEdit(QWidget):
             return
 
         QMessageBox.information(self, "Kunde inte skapa användarkonto",
-                                "Felaktigt användarnamn, email, efternamn, tilltalsnamn eller " +
-                                "medlemen tillhör inte gruppen 'Ordinarie medlem'.", 1)
+                                "Felaktigt användarnamn, email, efternamn eller tilltalsnamn", 1)
 
     def removeAccount(self):
         if QMessageBox.question(self, "Ta bort användarkonto?",
