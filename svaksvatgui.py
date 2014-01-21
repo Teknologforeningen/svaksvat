@@ -281,7 +281,7 @@ class MemberEdit(QWidget):
             self.ldapmanager.addldapuser(self.member, password)
             self.refreshUserAccounts()
             mailutil.send_mail(self.ldapmanager.ps, self.member.email_fld,
-                               'Ditt konto vid Teknologföreningen', 'Du har skapat ett konto till Teknologföreningens IT-system.\nDitt användarnamn är {:s}\noch ditt lösenord är {:s}\n\nGå in på http://bill.teknologforeningen.fi/code för att ta reda på din BILL-kod som du kan använda till kopiering o.dyl.\n\nLäs igenom reglerna för användandet av TF:s IT-tjänster på denna sida:\nhttps://www.teknologforeningen.fi/index.php?option=com_content&view=article&id=115&Itemid=177&lang=sv\n\nKom ihåg att användarkonto och BILL-kod är ett privilegium, inte en rätt. De kan tas bort vid missbruk.\n\n/Infochefen & TF-IC'.format(username,password))
+                               'Ditt konto vid Teknologföreningen', 'Du har skapat ett konto till Teknologföreningens IT-system.\nDitt användarnamn är {:s}\noch ditt lösenord är {:s}\n\nGå in på http://bill.teknologforeningen.fi/code för att ta reda på din BILL-kod som du kan använda till kopiering o.dyl.\n\nLäs igenom reglerna för användandet av TF:s IT-tjänster på denna sida (fyll dock inte i blanketten; reglerna berör dig ändå):\nhttps://www.teknologforeningen.fi/index.php?option=com_content&view=article&id=115&Itemid=177&lang=sv\n\nKom ihåg att användarkonto och BILL-kod är ett privilegium, inte en rätt. De kan tas bort vid missbruk.\n\n/Infochefen & TF-IC'.format(username,password))
             QMessageBox.information(self, "Användare skapad!",
                                     "Lösenordet skickat till användarens e-post.", 1)
 
