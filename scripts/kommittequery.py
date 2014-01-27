@@ -15,6 +15,8 @@ from backend.orm import *
 
 import common
 
+import passwordsafe
+
 # constants
 # exception classes
 # interface functions
@@ -22,17 +24,19 @@ import common
 # internal functions & classes
 
 def main():
-    SessionMaker = connect.connect_localhost_readwrite()
+    ps = passwordsafe.PasswordSafe()
+    SessionMaker = ps.connect_with_config("mimer")
     session = SessionMaker()
 
     groups = session.query(Group).filter(
             Group.name_fld=="Styrelsen")
 
-    for group in groups:
-        for membership in group.memberships:
-            print(str(membership.startTime_fld.date().year) + "\t"
-                    + membership.member.getName() + "\t" +
-                    membership.member.contactinfo.email_fld)
+    with open("test.csv", "w") as f:
+        for group in groups:
+            for membership in group.memberships:
+                f.write(str(membership.startTime_fld.date().year) + "\t"
+                        + membership.member.getName() + "\t" +
+                        membership.member.contactinfo.email_fld + "\n")
 
 
 if __name__ == '__main__':
