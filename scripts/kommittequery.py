@@ -6,6 +6,7 @@ import os
 import sqlalchemy
 import datetime
 
+sys.path.append(os.getcwd())  # Add . to path
 sys.path.append(os.path.dirname(os.getcwd()))  # Add .. to path
 from backend.ldaplogin import (get_member_with_real_name,
         DuplicateNamesException, PersonNotFoundException)
