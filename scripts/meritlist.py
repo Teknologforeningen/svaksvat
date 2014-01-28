@@ -6,11 +6,13 @@ import os
 import sqlalchemy
 import csv
 
+sys.path.append(os.getcwd())  # Add . to path
 sys.path.append(os.path.dirname(os.getcwd()))  # Add .. to path
 from backend.ldaplogin import (get_member_with_real_name,
-        DuplicateNamesException, PersonNotFoundException)
+                DuplicateNamesException, PersonNotFoundException)
 from backend import connect
 from backend.orm import *
+import passwordsafe
 
 import common
 
@@ -21,9 +23,10 @@ import common
 # internal functions & classes
 
 def main():
-    SessionMaker = connect.connect_localhost_readwrite()
+    ps = passwordsafe.PasswordSafe()
+    SessionMaker = ps.connect_with_config("mimer")
     session = SessionMaker()
-    writer = csv.writer(sys.stdout)
+    writer = csv.writer(open("meritlist.csv", "w"))
     members = session.query(Member).order_by(Member.surName_fld).all()
     for member in members:
         if member.notes_fld:
@@ -45,4 +48,3 @@ def main():
 if __name__ == '__main__':
     status = main()
     sys.exit(status)
-
