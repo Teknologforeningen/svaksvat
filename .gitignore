@@ -1,3 +1,4 @@
 *.pyc
 *.py~
 svaksvat.cfg
+*.csv
