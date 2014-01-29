@@ -2,3 +2,4 @@
 *.py~
 svaksvat.cfg
 *.csv
+doc/build
