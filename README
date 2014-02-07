@@ -20,3 +20,16 @@ python3 svaksvatgui.py
 To run svaksvat scripts:
 ex.
 python3 scripts/modulenadresser.py
+
+
+Install on windows:
+
+1. Install python3 from official website, and clone the Git Repo.
+2. Install pip installer http://www.pip-installer.org/en/latest/installing.html
+3. Add C:\python33 and C:\python33\Scripts (Dependent on your installation path) to the Path system variable. http://stackoverflow.com/questions/3701646/how-to-add-to-the-pythonpath-in-windows-7
+4. Install PyQt4 http://www.riverbankcomputing.com/software/pyqt/download
+5. Install psycopg2 http://www.stickpeople.com/projects/python/win-psycopg/
+6. Open a command line, by pressing  windows+r buttons
+7. Install following packages with pip by writing "pip install package_name". Replace package_name with sqlalchemy and keyring
+8. Fix the config file.
+9. Copypaste a putty.exe to the Svaksvat folder. http://www.putty.org/
