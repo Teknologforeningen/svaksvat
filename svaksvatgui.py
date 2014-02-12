@@ -273,7 +273,7 @@ class MemberEdit(QWidget):
 
         if (username and email and preferredname and surname):
             if not self.member.ifOrdinarieMedlem():
-                
+
                 if not QMessageBox.question(self, "Skapa användarkonto?",
                 "Användaren är inte ordinarie medlem, skapa konto ändå?",
                 "Nej", "Ja", defaultButtonNumber=0, escapeButtonNumber=0):
@@ -623,7 +623,7 @@ def main():
 
     # Initialize SvakSvat
     ps = passwordsafe.PasswordSafe(enablegui=True)
-    SessionMaker = scoped_session(ps.connect_with_config("mimer"))
+    SessionMaker = scoped_session(ps.connect_with_config("members"))
     ss = SvakSvat(SessionMaker)
     ss.show()
     splash.finish(ss)
