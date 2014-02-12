@@ -1,3 +1,4 @@
 *.pyc
 *.py~
 svaksvat.cfg
+svaksvat_ve/*
