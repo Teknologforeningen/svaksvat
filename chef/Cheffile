@@ -1,0 +1,9 @@
+site "http://community.opscode.com/api/v1"
+
+cookbook "openldap"
+cookbook "postgresql"
+cookbook "database"
+cookbook "apt"
+
+cookbook "svaksvat",
+  :path => "svaksvat"

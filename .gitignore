@@ -2,3 +2,7 @@
 *.py~
 svaksvat.cfg
 svaksvat_ve/*
+.*
+*.lock
+/chef/tmp/*
+/chef/cookbooks/*
