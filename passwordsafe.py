@@ -238,16 +238,24 @@ class PasswordSafe:
 
                     except: # Port not open. Commence SSH port forwarding.
                         print("Du måste logga in på servern.")
+
+                        authfunc = lambda user, passwd: sshwrapper.connect_ssh(
+                            host, user, passwd)
+                        sshport = int(self.configparser.get(
+                            configsection, "sshport"))
+                        if (sshport):
+                            print("Using ssh port:", sshport)
+                            authfunc = lambda user, passwd: (
+                                sshwrapper.connect_ssh(
+                                    host, user, passwd, sshport))
+
                         client = self.askcredentials(
-                            lambda username, password:
-                            sshwrapper.connect_ssh(host, username, password),
-                            configsection, "sshusername")[0]
+                            authfunc, configsection, "sshusername")[0]
                         thread.start_new_thread(
-                            lambda:
-                            sshwrapper.portforward(
+                            lambda: sshwrapper.portforward(
                                 client,
                                 threadfinishedmutex,
-                                "mimer.teknolog.fi",
+                                'localhost',
                                 port,
                                 port), ())
 
