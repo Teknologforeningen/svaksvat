@@ -198,22 +198,20 @@ class PasswordSafe:
     def connect_with_config(self, configsection):
         usernameparameter = "dbusername"
         host = self.configparser.get(configsection, "host")
-        port = self.configparser.get(configsection, "port")
+        port = int(self.configparser.get(configsection, "port"))
         database = self.configparser.get(configsection, "database")
         dbtype = self.configparser.get(configsection, "dbtype")
         dbusername = self.configparser.get(configsection, usernameparameter)
         dbpassword = self.get_password(configsection, usernameparameter,
                 dbusername) or "" # Can be None which doesn't store.
         create_metadata = bool(self.configparser.get(configsection, "create_metadata"))
-        sshusername = self.configparser.get(configsection,
-                "sshusername")
 
         sshconnecting = False
         threadfinishedmutex = thread.allocate_lock()
         while True:
             try:
                 SessionMaker = connect.connect(dbusername,
-                        dbpassword, host+":"+port,
+                                               dbpassword, host+":"+str(port),
                         database, dbtype, create_metadata)
 
                 self.store_credentials(self.configfile, configsection,
@@ -240,12 +238,18 @@ class PasswordSafe:
 
                     except: # Port not open. Commence SSH port forwarding.
                         print("Du måste logga in på servern.")
-                        if not sshusername:
-                            sshusername = self.inputfunc("SSH användarnamn:")
-
-                        thread.start_new_thread(lambda: sshwrapper.portforward_to_localhost(host,
-                            sshusername, port, threadfinishedmutex), ())
-                        time.sleep(2)
+                        client = self.askcredentials(
+                            lambda username, password:
+                            sshwrapper.connect_ssh(host, username, password),
+                            configsection, "sshusername")[0]
+                        thread.start_new_thread(
+                            lambda:
+                            sshwrapper.portforward(
+                                client,
+                                threadfinishedmutex,
+                                "mimer.teknolog.fi",
+                                port,
+                                port), ())
 
                     sshconnecting = True
                     host = "localhost"
@@ -306,4 +310,3 @@ if __name__ == '__main__':
     #print(pd.getCredentials())
     status = main()
     sys.exit(status)
-
