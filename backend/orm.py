@@ -57,7 +57,7 @@ def restore_everything(session, backupdict):
     session.close()
 
     progress.setLabelText("Återställer")
-    
+
     # Add recovered objects
     for i, table in enumerate(meta.sorted_tables):
         progress.setValue(i + 1)
@@ -91,16 +91,22 @@ def restore_everything(session, backupdict):
 
 
 def create_row(table_orm, session):
-    row = table_orm()
-    sequence = session.query(Sequence).filter(Sequence.objectname ==
-            row.sequence_name).one()
+    # We have to determine the correct objectId for from the sequence-table
+    sequence_query = session.query(Sequence).filter(Sequence.objectname ==
+                                                    table_orm.sequence_name)
+    if sequence_query.count() == 0:
+        session.add(Sequence(objectname=table_orm.sequence_name))
+        session.commit()
+    sequence = sequence_query.one()
 
     hexstring = number_to_string(sequence.next)
     # Integrity error avoidance due to corrupt sequence.
-    while session.query(table_orm).filter_by(objectId = hexstring).count() != 0:
+    while session.query(table_orm).filter_by(objectId=hexstring).count() != 0:
         sequence.next += 1
         hexstring = number_to_string(sequence.next)
 
+    # Create the row
+    row = table_orm()
     row.objectId = hexstring
 
     return row
@@ -496,7 +502,7 @@ class Presence(get_declarative_base(), MemberRegistryCommon, MembershipCommon):
 
 class Sequence(get_declarative_base()):
     __tablename__ = "members_sequence"
-    next = Column(Numeric(19))
+    next = Column(Numeric(19), default=1)
     objectname = Column(String, primary_key=True)
 
 

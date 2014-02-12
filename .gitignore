@@ -6,3 +6,4 @@ svaksvat_ve/*
 *.lock
 /chef/tmp/*
 /chef/cookbooks/*
+/svaksvat.cfg.production
