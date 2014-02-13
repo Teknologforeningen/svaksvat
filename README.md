@@ -1,4 +1,4 @@
-Svaksvat
+SvakSvat
 ========
 
 Dependencies for SvakSvatGUI as Ubuntu packages:
@@ -14,7 +14,8 @@ Dependencies on Windows:
 # Install these #
 Python 3.X http://www.python.org/download/
 psycopg2 (For Python 3.X) http://www.stickpeople.com/projects/python/win-psycopg/
-git - I recommend http://windows.github.com/ and use it's Git Shell from now on
+git - My recommendation is http://windows.github.com/ and use its Git Shell to
+run SvakSvat
 
 # To get pip and virtualenv working on windows: #
 - Run these scripts on Windows:
@@ -36,13 +37,30 @@ Activate the virtualenv
 Install dependencies with pip:
 `pip install -I -r requirements.txt`
 
-Running
-=======
-To run on Ubuntu:
+Running with Vagrant
+====================
+
+Vagrant brings up a virtual machine, that hosts the database and maybe ldap in
+the future. It is meant to make starting development easier.
+
+You can install vagrant from http://vagrantup.com
+
+You'll also need VirtualBox to manage the virtual machines http://virtualbox.org
+
+Navigate to the repo root with the Vagrantfile and run:
 `
-cp svaksvat.cfg.cp svaksvat.cfg
+vagrant plugin install vagrant-omnibus vagrant-librarian-chef
+vagrant up
+`
+
+Now is a good time to fetch a coffee. After the 'vagrant up' command finishes
+you can run SvakSvat with the following commands:
+
+`
+cp svaksvat.cfg.vagrant svaksvat.cfg
 python3 svaksvatgui.py
 `
+
 To run svaksvat scripts:
 ex.
 `
