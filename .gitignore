@@ -7,3 +7,4 @@ svaksvat_ve/*
 /chef/tmp/*
 /chef/cookbooks/*
 /svaksvat.cfg.production
+doc/build
