@@ -4,7 +4,7 @@ run_list(
          'recipe[apt]',
          'recipe[postgresql::server]',
          'recipe[svaksvat]',
-         'recipe[openldap::server]',
+         #'recipe[openldap::server]',
          )
 
 
