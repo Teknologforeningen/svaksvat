@@ -1,21 +1,27 @@
 SvakSvat
 ========
 
+* Branches
+* master - stable branch
+* staging - development branch
+
+master should rebased from staging always when new functionality is needed.
+
 Dependencies for SvakSvatGUI as Ubuntu packages:
 ================================================
-python3
-python3-virtualenv
-python3-pyqt4
-ldap-utils (for LDAP support)
+* python3
+* python3-virtualenv
+* python3-pyqt4
+* ldap-utils (for LDAP support)
 
 Dependencies on Windows:
 ========================
 
 # Install these #
-Python 3.X http://www.python.org/download/
-psycopg2 (For Python 3.X) http://www.stickpeople.com/projects/python/win-psycopg/
-git - My recommendation is http://windows.github.com/ and use its Git Shell to
-run SvakSvat
+* Python 3.X http://www.python.org/download/
+* psycopg2 (For Python 3.X) http://www.stickpeople.com/projects/python/win-psycopg/
+* git - My recommendation is http://windows.github.com/ and use its Git Shell to
+* run SvakSvat
 
 # To get pip and virtualenv working on windows: #
 - Run these scripts on Windows:
@@ -60,6 +66,8 @@ you can run SvakSvat with the following commands:
 cp svaksvat.cfg.vagrant svaksvat.cfg
 python3 svaksvatgui.py
 `
+
+Enter members as username and password everywhere
 
 To run svaksvat scripts:
 ex.

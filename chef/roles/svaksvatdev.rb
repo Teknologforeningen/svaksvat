@@ -1,11 +1,11 @@
 name 'svaksvatdev'
 description 'Setups postgresql and ldap for SvakSvat'
-run_list(
+run_list [
          'recipe[apt]',
          'recipe[postgresql::server]',
          'recipe[svaksvat]',
          #'recipe[openldap::server]',
-         )
+         ]
 
 
 default_attributes :postgresql => {
