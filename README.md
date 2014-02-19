@@ -54,20 +54,17 @@ You can install vagrant from http://vagrantup.com
 You'll also need VirtualBox to manage the virtual machines http://virtualbox.org
 
 Navigate to the repo root with the Vagrantfile and run:
-`
+```
 vagrant plugin install vagrant-omnibus
-
 vagrant plugin install vagrant-librarian-chef
-
 vagrant up
 `
 
 Now is a good time to fetch a coffee. After the 'vagrant up' command finishes
 you can run SvakSvat with the following commands:
 
-`
+```
 cp svaksvat.cfg.vagrant svaksvat.cfg
-
 python3 svaksvatgui.py
 `
 
