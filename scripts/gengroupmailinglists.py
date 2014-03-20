@@ -6,11 +6,13 @@ import os
 import sqlalchemy
 import datetime
 
+sys.path.append(os.getcwd())  # Add . to path
 sys.path.append(os.path.dirname(os.getcwd()))  # Add .. to path
 from backend.ldaplogin import (get_member_with_real_name,
         DuplicateNamesException, PersonNotFoundException)
 from backend import connect
 from backend.orm import *
+import passwordsafe
 
 import common
 
@@ -21,14 +23,15 @@ import common
 # internal functions & classes
 
 def main():
-    SessionMaker = connect.connect_localhost_readwrite()
+    ps = passwordsafe.PasswordSafe()
+    SessionMaker = ps.connect_with_config("members")
     session = SessionMaker()
 
     groups = session.query(Group).all()
 
     print("Generating mailing lists for:")
 
-    thisyear = str(datetime.datetime.now().year)[-2:]
+    thisyear = str(datetime.now().year)[-2:]
 
     listdir = "lists"
     if not os.path.exists(listdir):
@@ -45,9 +48,9 @@ def main():
             mailinglist = open(os.path.join(listdir, group.abbreviation_fld +
                 thisyear), "w")
             mailinglist.write("# " + group.name_fld + " generated " +
-                    datetime.date.today().isoformat())
+                    date.today().isoformat())
             for membership in group.memberships:
-                if membership.isCurrent():
+                if (membership.isCurrent() and membership.member):
                     mailinglist.write("\n# %s\n%s" %
                             (membership.member.getWholeName(),
                                 membership.member.contactinfo.email_fld))
@@ -56,4 +59,3 @@ def main():
 if __name__ == '__main__':
     status = main()
     sys.exit(status)
-

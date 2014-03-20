@@ -8,7 +8,7 @@ from datetime import (date, datetime, timedelta)
 import pickle
 
 from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
-        Numeric)
+                        Numeric)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.serializer import loads, dumps
@@ -370,7 +370,7 @@ class Member(get_declarative_base(), MemberRegistryCommon):
             ForeignKey('ContactInformationTable.objectId', use_alter=True,
                 name="fk_primary_contactinfo"))
     dead_fld = Column(Integer)
-    subscribedtomodulen_fld = Column(Integer, default=1)
+    subscribedtomodulen_fld = Column(Integer, default=0)
     username_fld = Column(String(150))
     lastsync_fld = Column(DateTime, default=datetime.min)
 

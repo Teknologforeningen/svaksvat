@@ -47,7 +47,7 @@ def get_allinfo_tuple(member):
         pass
 
 
-    return (member.preferredName_fld, 
+    return (member.preferredName_fld,
             member.surName_fld,
             member.givenNames_fld,
             member.maidenName_fld,
@@ -65,15 +65,15 @@ def get_allinfo_tuple(member):
             member.username_fld,
             member.lastsync_fld,
             contactinfo.email_fld,
-            contactinfo.streetAddress_fld, 
+            contactinfo.streetAddress_fld,
             contactinfo.postalCode_fld,
-            contactinfo.city_fld, 
+            contactinfo.city_fld,
             contactinfo.country_fld,
             contactinfo.fax_fld,
             contactinfo.url_fld,
             contactinfo.location_fld,
             contactinfo.phone_fld,
-            contactinfo.cellPhone_fld, 
+            contactinfo.cellPhone_fld,
             department)
 
 
@@ -90,7 +90,6 @@ def get_modulenaddresses(session):
 
     return ordinarie + alumni
 
-<<<<<<< Updated upstream
 def get_stalmar(session):
 
     print("Hamtar StAlM")
@@ -107,8 +106,6 @@ def get_ordinarie(session):
             Member.subscribedtomodulen_fld == 1).all()
 
     return ordinarie
-=======
->>>>>>> Stashed changes
 
 def get_funkisar(session):
     posts = session.query(Post).all()
@@ -187,18 +184,16 @@ def get_christmascardaddressess(session):
 
 def main():
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = ps.connect_with_config("mimer")
+    SessionMaker = ps.connect_with_config("members")
     session = SessionMaker()
 
     print("Detta script get ut adresser i csv format.")
     print("Alternativ:")
     print("1. Modulen")
-<<<<<<< Updated upstream
     print("2. StÄlMar")
     print("3. Ordinarie")
-=======
-    print("2. Julkort")
->>>>>>> Stashed changes
+    print("4. Julkort")
+
     choice = input("Vilka adresser vill du ha?\n")
 
     if choice[0] == "1":
@@ -214,7 +209,7 @@ def main():
         filename = "ordinarie.csv"
         members = get_ordinarie(session)
 
-    elif choice[0] == "2":
+    elif choice[0] == "4":
         print("Julkort vald")
         filename = "modulenadresser.csv"
         members = get_christmascardaddressess(session)
@@ -267,4 +262,3 @@ def main():
 if __name__ == '__main__':
     status = main()
     sys.exit(status)
-
