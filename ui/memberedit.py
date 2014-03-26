@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/memberedit.ui'
+# Form implementation generated from reading ui file 'memberedit.ui'
 #
-# Created: Tue Oct 15 15:47:08 2013
+# Created: Wed Mar 26 13:03:04 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -152,6 +152,12 @@ class Ui_MemberEdit(object):
         self.email_fld = QtGui.QLineEdit(MemberEdit)
         self.email_fld.setObjectName(_fromUtf8("email_fld"))
         self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.email_fld)
+        self.lbl_noPublishing = QtGui.QLabel(MemberEdit)
+        self.lbl_noPublishing.setObjectName(_fromUtf8("lbl_noPublishing"))
+        self.formLayout.setWidget(6, QtGui.QFormLayout.LabelRole, self.lbl_noPublishing)
+        self.noPublishContactInfo_fld_checkbox = QtGui.QCheckBox(MemberEdit)
+        self.noPublishContactInfo_fld_checkbox.setObjectName(_fromUtf8("noPublishContactInfo_fld_checkbox"))
+        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.noPublishContactInfo_fld_checkbox)
         self.verticalLayout_2.addLayout(self.formLayout)
         self.tabWidget = QtGui.QTabWidget(MemberEdit)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
@@ -416,6 +422,7 @@ class Ui_MemberEdit(object):
         self.landLabel.setText(_translate("MemberEdit", "Land", None))
         self.telefonLabel.setText(_translate("MemberEdit", "Telefon", None))
         self.emailLabel.setText(_translate("MemberEdit", "Email", None))
+        self.lbl_noPublishing.setText(_translate("MemberEdit", "Publicera INTE addressuppgifter", None))
         self.label.setText(_translate("MemberEdit", "Grupper:", None))
         self.label_3.setText(_translate("MemberEdit", "Lägg till grupp:", None))
         self.label_2.setText(_translate("MemberEdit", "Poster:", None))

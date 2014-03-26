@@ -316,6 +316,8 @@ class MemberEdit(QWidget):
             self.ui.birthDate_fld.setDateTime(self.member.birthDate_fld)
         self.ui.subscribedToModulen_fld_checkbox.setChecked(
                 bool(self.member.subscribedtomodulen_fld))
+        self.ui.noPublishContactInfo_fld_checkbox.setChecked(
+                bool(self.member.noPublishContactInfo_fld))
 
         init_gender_combobox(self.ui.gender_fld, self.member)
 
@@ -422,6 +424,8 @@ class MemberEdit(QWidget):
 
         self.member.subscribedtomodulen_fld = int(
                 self.ui.subscribedToModulen_fld_checkbox.isChecked())
+        self.member.noPublishContactInfo_fld = int(
+            self.ui.noPublishContactInfo_fld_checkbox.isChecked())
 
         contactinfo = self.member.contactinfo
 
