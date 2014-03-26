@@ -101,7 +101,11 @@ def get_member_through_ldap_login(username, password, session):
     firstname, surname = split_ldap_common_name(common_name)
 
     # Construct SQL query to fetch user from database
-    return get_member_with_real_name(firstname, surname, session)
+    return get_member_with_username(firstname, surname, session)
+
+
+def get_member_with_username(username, session=None):
+    return session.query(Member).filter_by(username_fld=username).one()
 
 
 def get_member_with_real_name(firstname, surname,
