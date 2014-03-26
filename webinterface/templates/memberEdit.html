@@ -7,13 +7,13 @@
     <form method="POST" action="updateMember">
 
         {% for publicfield in member.publicfields %}
-            {% set fieldvalue = member.__dict__[publicfield] %}
+            {% set fieldvalue = member.__dict__[publicfield] or "" %}
             {{ publicfield }} {{ forms.input(publicfield, value=fieldvalue) }} <br>
         {% endfor %}
 
         {% set contactinfo = member.contactinfo %}
         {% for publicfield in contactinfo.publicfields %}
-            {% set field = contactinfo.__dict__[publicfield] %}
+            {% set field = contactinfo.__dict__[publicfield] or "" %}
             {{ publicfield }} {{ forms.input(publicfield, value=field) }} <br>
         {% endfor %}
 

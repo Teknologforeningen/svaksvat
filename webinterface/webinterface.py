@@ -24,7 +24,7 @@ class WebInterface(object):
     def __init__(self):
         # Create database session
         ps = passwordsafe.PasswordSafe("../svaksvat.cfg")
-        SessionMaker = ps.connect_with_config("memberslocalhost")
+        SessionMaker = ps.connect_with_config("members")
         self.dbsession = SessionMaker()
 
     def index(self, message=''):
