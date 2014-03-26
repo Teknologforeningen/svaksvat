@@ -17,7 +17,17 @@
             {{ publicfield }} {{ forms.input(publicfield, value=field) }} <br>
         {% endfor %}
 
-        <div align="center">
+        {% for checkbox in member.editable_checkboxes %}
+          {% set field = member.__dict__[checkbox] %}
+          {% set checked = '' %}
+          {% if field %}
+            {% set checked = 'checked' %}
+          {% endif %}
+
+          {{ checkbox }} {{ forms.input(checkbox, value=1, type='checkbox', tail=checked)}} <br>
+        {% endfor %}
+
+        <div align="left">
             <p><input type="submit" value="Spara" /></p>
         </div>
     </form>

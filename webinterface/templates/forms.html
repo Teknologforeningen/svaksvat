@@ -1,4 +1,4 @@
-{% macro input(name, value='', size='', type='text') -%}
+{% macro input(name, value='', size='', type='text', tail='') -%}
 <input type="{{ type }}" value="{{ value|e }}" name="{{ name }}"
-enctype="multipart/form-data" accept-charset="utf-8" size="">
+enctype="multipart/form-data" accept-charset="utf-8" size="" {{ tail }}>
 {%- endmacro %}

@@ -6,6 +6,7 @@ databases and related functions.
 # imports
 from datetime import (date, datetime, timedelta)
 import pickle
+import sys
 
 from sqlalchemy import (Column, ForeignKey, String, DateTime, Integer, Text,
                         Numeric)
@@ -208,8 +209,13 @@ def update_fields(table, fielddict, dry_run=False, verbose=False):
             update_field(table, field, value, dry_run, verbose)
 
 def get_field_max_length(row, field):
-    """Returns maximum length for field."""
-    return getattr(row.__class__, field).property.columns[0].type.length
+    """Returns maximum length for fields with length,
+
+    if field has no maximum length then return sys.maxsize."""
+    field_type = getattr(row.__class__, field).property.columns[0].type
+    if hasattr(field_type, "length"):
+        return field_type.length
+    return sys.maxsize
 
 def update_field(row, field, value, dry_run=False, verbose=False):
     maxlength = get_field_max_length(row, field)
@@ -396,6 +402,8 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     editable_text_fields = ['givenNames_fld', 'preferredName_fld',
             'surName_fld', 'maidenName_fld', 'nickName_fld', 'studentId_fld',
             'occupation_fld', 'title_fld', 'nationality_fld', 'username_fld']
+
+    editable_checkboxes = ['subscribedtomodulen_fld', 'noPublishContactInfo_fld']
 
     publicfields = ['nickName_fld', 'occupation_fld',
             'nationality_fld']
