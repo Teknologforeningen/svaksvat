@@ -227,7 +227,9 @@ class PasswordSafe:
                     dbusername, dbpassword = self.askcredentialsfunc(
                            "Fel inloggningsinformation för databasen!")
 
-                elif re.match(".*no pg_hba.conf entry for host.*", repr(e)):
+                elif re.match("(.*no pg_hba.conf entry for host.*)|" +
+                              "(.*pg_hba.conf rejects connection for host.*)",
+                              repr(e)):
                     # Test if port is open
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     try:
