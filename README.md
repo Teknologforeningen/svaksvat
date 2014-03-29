@@ -38,7 +38,7 @@ virtualenv3 --system-site-packages svaksvat_ve
 `
 Activate the virtualenv
 - Linux/Mac: `source svaksvat_ve/bin/activate`
-- Windows: `svaksvat_ve/bin/activate`
+- Windows: `svaksvat_ve/Scripts/activate`
 
 Install dependencies with pip:
 `pip install -I -r requirements.txt`
