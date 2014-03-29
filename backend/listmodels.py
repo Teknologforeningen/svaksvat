@@ -3,8 +3,9 @@
 import time
 import datetime
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from ui.membershipedit import Ui_MembershipEdit
 

@@ -12,7 +12,7 @@ import time
 import socket
 import _thread as thread
 
-from PyQt4 import QtGui
+from PyQt5 import QtGui, QtCore, QtWidgets
 import sqlalchemy
 
 import keyring
@@ -32,7 +32,7 @@ class UnsuccesfulPortforward(Exception):
 # interface functions
 # classes
 
-class CredentialDialog(QtGui.QDialog):
+class CredentialDialog(QtWidgets.QDialog):
     """Asks for credentials."""
     def __init__(self, context="", askpassword=True):
         """Creates a dialog that asks for username and optionally password."""
@@ -47,27 +47,27 @@ class CredentialDialog(QtGui.QDialog):
         context -- String to set as windowtitle.
 
         """
-        self.formlayout = QtGui.QFormLayout(self)
+        self.formlayout = QtWidgets.QFormLayout(self)
 
-        self.username_le = QtGui.QLineEdit(self)
+        self.username_le = QtWidgets.QLineEdit(self)
         self.username_le.returnPressed.connect(self.accept)
 
         if self.askpassword:
             self.formlayout.addRow("Användarnamn:", self.username_le)
-            self.password_le = QtGui.QLineEdit(self)
-            self.password_le.setEchoMode(QtGui.QLineEdit.Password)
+            self.password_le = QtWidgets.QLineEdit(self)
+            self.password_le.setEchoMode(QtWidgets.QLineEdit.Password)
             self.password_le.returnPressed.connect(self.accept)
             self.formlayout.addRow("Lösenord:", self.password_le)
         else:
             self.formlayout.addRow(context, self.username_le)
 
-        self.okbutton = QtGui.QPushButton('OK', self)
+        self.okbutton = QtWidgets.QPushButton('OK', self)
         self.okbutton.clicked.connect(self.accept)
 
-        self.cancelbutton = QtGui.QPushButton('Avbryt', self)
+        self.cancelbutton = QtWidgets.QPushButton('Avbryt', self)
         self.cancelbutton.clicked.connect(self.reject)
 
-        self.buttonrow = QtGui.QHBoxLayout()
+        self.buttonrow = QtWidgets.QHBoxLayout()
         self.buttonrow.addWidget(self.okbutton)
         self.buttonrow.addWidget(self.cancelbutton)
         self.formlayout.addRow("", self.buttonrow)
@@ -173,8 +173,8 @@ class PasswordSafe:
 
     def inputfuncGUI(self, context="", askpassword=False):
         app = None
-        if not QtGui.QApplication.topLevelWidgets(): # If no QApplication
-            app = QtGui.QApplication(sys.argv)
+        if not QtWidgets.QApplication.topLevelWidgets(): # If no QApplication
+            app = QtWidgets.QApplication(sys.argv)
 
         cd = CredentialDialog(context, askpassword)
 
@@ -220,6 +220,7 @@ class PasswordSafe:
                 return SessionMaker
 
             except sqlalchemy.exc.OperationalError as e:
+                print(repr(e))
                 if re.match(
                     "(.*role .* does not exist.*)|" +
                     "(.*password authentication failed for user.*)|" +
@@ -313,7 +314,7 @@ def main():
 if __name__ == '__main__':
     #print( QtGui.QInputDialog.getText(None, "",""))
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     #pd = CredentialDialog("Hello")
     #ps = PasswordSafe(enablegui=True)
     #print(ps.inputfuncGUI("Hello"))

@@ -3,8 +3,9 @@
 import sys
 import pickle
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from sqlalchemy.orm import scoped_session
 
@@ -24,6 +25,7 @@ from ui.newmember import Ui_NewMember
 import passwordsafe
 import useraccounts
 import mailutil
+import atexit
 
 import svaksvat_rc
 
@@ -175,9 +177,10 @@ class NewMemberDialog(QDialog):
         contactinfo = self.member.contactinfo
         for field in contactinfo.publicfields:
             update_qtextfield_to_db(self.ui, field, contactinfo)
-
-        if not assign_membership_to_member(self.session, "Department",
-                self.ui.department_comboBox.currentText(), self.member, parent=self,
+        department = self.ui.department_comboBox.currentText()
+		
+        if department and not assign_membership_to_member(self.session, "Department",
+                department, self.member, parent=self,
                 combobox=self.ui.department_comboBox, indefinite_time=True):
             return # Don't yet commit if Department not chosen.
 
@@ -492,7 +495,7 @@ class SvakSvat(QMainWindow):
 
     def makeBackup(self):
         filename = QFileDialog.getSaveFileName(self,
-                'Välj namn för säkerhetskopia', '.')
+                'Välj namn för säkerhetskopia', '.')[0]
         with open(filename, 'wb') as f:
             pickler = pickle.Pickler(f)
             pickler.dump(backup_everything(self.session))
@@ -618,19 +621,11 @@ Användarnamn: %s
 def main():
     app = QApplication(sys.argv)
 
-    # Create and display the splash screen
-    splash_pix = QPixmap(":/images/res/splashscreen.png")
-    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
-    splash.setMask(splash_pix.mask())
-    splash.show()
-    app.processEvents()
-
     # Initialize SvakSvat
     ps = passwordsafe.PasswordSafe(enablegui=True)
     SessionMaker = scoped_session(ps.connect_with_config("members"))
     ss = SvakSvat(SessionMaker)
     ss.show()
-    splash.finish(ss)
 
     return app.exec_()
 

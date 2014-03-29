@@ -9,3 +9,4 @@ svaksvat_ve/*
 /svaksvat.cfg.production
 doc/build
 lists/*
+/build/

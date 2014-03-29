@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.serializer import loads, dumps
 import sqlalchemy
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
 
 # constants
 Base = declarative_base()
