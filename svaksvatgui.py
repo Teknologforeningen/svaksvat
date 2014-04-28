@@ -257,6 +257,16 @@ class MemberEdit(QWidget):
         password, ok = QInputDialog.getText(self, "Ange lösenord", "Lösenord",
                 QLineEdit.Password)
 
+        password2, ok2 = QInputDialog.getText(self, "Lösenord igen", "Lösenord",
+                QLineEdit.Password)
+
+        if password != password2:
+            QMessageBox.information(self, "Åtgärden misslyckades!",
+                    "Lösenorden matchar inte.", 1)
+            return
+        if not ok2:
+            return
+
         if not ok:
             return
 
@@ -273,7 +283,7 @@ class MemberEdit(QWidget):
 
         if (username and email and preferredname and surname):
             if not self.member.ifOrdinarieMedlem():
-                
+
                 if not QMessageBox.question(self, "Skapa användarkonto?",
                 "Användaren är inte ordinarie medlem, skapa konto ändå?",
                 "Nej", "Ja", defaultButtonNumber=0, escapeButtonNumber=0):
