@@ -3,6 +3,7 @@
 svaksvat.cfg
 svaksvat_ve/*
 .*
+*.csv
 *.lock
 /chef/tmp/*
 /chef/cookbooks/*
