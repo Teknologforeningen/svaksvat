@@ -13,6 +13,7 @@ Dependencies for SvakSvatGUI as Ubuntu packages:
 * python3-virtualenv
 * python3-pyqt4
 * ldap-utils (for LDAP support)
+* libpq-dev (for compiling psycopg2)
 
 Dependencies on Windows:
 ========================
