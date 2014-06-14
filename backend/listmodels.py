@@ -40,9 +40,7 @@ def assign_membership_to_member(session, membershiptypename, membershipname,
     if not membership:
         questiontext = "%s finns inte. Skall den skapas?" % (membershipname)
 
-        if QMessageBox.question(parent, membershipname + " hittades inte!",
-                questiontext, "Nej", "Ja",
-                escapeButtonNumber=0):
+        if QMessageBox.question(parent, membershipname + " hittades inte!", questiontext) == QMessageBox.Yes:
             membership = orm.create_membership(session,
                     membershiptypename, membershipname,
                     create_nonexistent_target=True)
@@ -231,14 +229,16 @@ class MembershipDelegate(QStyledItemDelegate):
         editor.ui.startYear_spinBox.setRange(datetime.MINYEAR, datetime.MAXYEAR)
 
         # Connect signals to slots.
-        editor.ui.buttonBox.accepted.connect(lambda:
-                (self.commitData.emit(editor),self.closeEditor.emit(editor,
-                    QAbstractItemDelegate.NoHint)))
+        editor.ui.buttonBox.accepted.connect(self.acceptEdit(editor))
         editor.ui.buttonBox.rejected.connect(
                 lambda: self.closeEditor.emit(editor,
                     QAbstractItemDelegate.NoHint))
 
         return editor
+
+    def acceptEdit(self, editor):
+        self.commitData.emit(editor)
+        self.closeEditor.emit(editor, QAbstractItemDelegate.NoHint)
 
     def setEditorData(self, editor, index):
         membership = index.data(Qt.EditRole)
