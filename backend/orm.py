@@ -156,7 +156,7 @@ def create_membership(session, membershiptargetname, name_fld,
 
 def create_phux(session):
     new_phux = create_member(session)
-    new_phuxmembership = create_membership(session, "Membership", "Phux")
+    new_phuxmembership = create_membership(session, "Membership", "Phux", True)
     new_phuxmembership.member = new_phux
 
     today = datetime.today()
@@ -380,6 +380,8 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     noPublishContactInfo_fld = Column(Integer, default=0)
     username_fld = Column(String(150))
     lastsync_fld = Column(DateTime, default=datetime.min)
+    
+    # Support for several contact infos exists in the database, but is not for now implemented in this frontend
 
     contactinfos = relationship(ContactInformation,
             backref='member', cascade="all, delete, delete-orphan",
@@ -387,6 +389,7 @@ class Member(get_declarative_base(), MemberRegistryCommon):
     contactinfo = relationship(ContactInformation,
             primaryjoin=primaryContactId_fld==ContactInformation.objectId,
             post_update=True)
+
 
     departmentmemberships = relationship("DepartmentMembership",
             backref='member', cascade="all, delete, delete-orphan")
