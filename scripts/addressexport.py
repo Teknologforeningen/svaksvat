@@ -23,14 +23,24 @@ import common
 # classes
 # internal functions & classes
 
-def get_contactinfo_tuple(member):
-    """Returns tuple with the member's contact information for posting."""
+def get_contactinfo_tuple(member, considerNoPublish=False):
+    """Returns tuple with the member's contact information
+
+    If considerNoPublish is True a member with noPublishContactInfo_fld == 1
+    will get empty contact information fields.
+    """
     contactinfo = member.contactinfo
     department = '?'
     try:
         department = member.department[0].department.name_fld
     except:
         pass
+
+    return
+
+    if considerNoPublish:
+        return (member.preferredName_fld, member.surName_fld,
+                "", "", "", "", "", "")
 
     return (member.preferredName_fld, member.surName_fld,
             contactinfo.email_fld,
@@ -89,6 +99,19 @@ def get_modulenaddresses(session):
             Member.subscribedtomodulen_fld == 1).all()
 
     return ordinarie + alumni
+
+
+def get_contactinfoforpublishing(session):
+    print("Hamtar ordinarie")
+    ordinarie = common.get_members_with_membership(
+        session, "Ordinarie medlem", True).all()
+
+    print("Hamtar StAlM")
+    alumni = common.get_members_with_membership(
+        session, "StÄlM", True).all()
+
+    return ordinarie + alumni
+
 
 def get_stalmar(session):
 
