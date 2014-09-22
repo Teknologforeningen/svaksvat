@@ -3,3 +3,4 @@
 svaksvat.cfg
 *.csv
 doc/build
+venv/
