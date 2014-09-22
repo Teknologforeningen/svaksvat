@@ -87,6 +87,9 @@ def encode_base64_ondemand(s):
 
 class LDAPAccountManager:
     def __init__(self, dry_run=False):
+        # Set environment variable for LDAP to accept self signed certs
+        os.environ["LDAPTLS_REQCERT"] = "never"
+
         self.dry_run = dry_run
 
         self.ldapmodifypath = which("ldapmodify")
@@ -102,9 +105,11 @@ class LDAPAccountManager:
         SessionMaker = self.ps.connect_with_config("pykota")
         self.pykotasession = SessionMaker()
 
-        self.LDAPMODIFY_CMD = shlex.split("""%s -h \
+        self.LDAPMODIFY_CMD = shlex.split("""%s -H \
             %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (self.ldapmodifypath,
                 self.ldaphost, self.servicelogin, self.servicepassword))
+
+
 
     def check_bill_account(self, member):
         if member.username_fld:
@@ -137,7 +142,7 @@ class LDAPAccountManager:
 
     def ldapsearch_with_credentials(self, username, password, query):
         """"Execute ldapsearch command."""
-        ldapquery = shlex.split("""%s -h %s\
+        ldapquery = shlex.split("""%s -H %s\
                 -b dc=fi -D cn=%s,dc=teknologforeningen,dc=fi -w\
                 %s %s""" % (self.ldapsearchpath, self.ldaphost, username, password, query))
 
@@ -240,7 +245,7 @@ memberUid: %s
             return
 
         # Delete LDAP user account
-        delusercmd = shlex.split("""%s -h \
+        delusercmd = shlex.split("""%s -H \
                 %s -xD  cn=%s,dc=teknologforeningen,dc=fi -w \
                 %s uid=%s,ou=People,dc=teknologforeningen,dc=fi""" % (
 
@@ -268,7 +273,7 @@ memberUid: """ + member.username_fld
 
     def change_ldap_password(self, username, newpassword):
         """Change password for user account."""
-        changepwcommand = shlex.split("""%s -h %s -D \
+        changepwcommand = shlex.split("""%s -H %s -D \
                 cn=%s,dc=teknologforeningen,dc=fi -w %s -s %s \
                 uid=%s,ou=People,dc=teknologforeningen,dc=fi""" %
                 (self.ldappasswdpath, self.ldaphost, self.servicelogin, self.servicepassword,
