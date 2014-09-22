@@ -1,6 +1,7 @@
 *.pyc
 *.py~
 svaksvat.cfg
+
 svaksvat_ve/*
 .*
 *.csv
@@ -11,3 +12,8 @@ svaksvat_ve/*
 doc/build
 lists/*
 /build/
+
+
+doc/build
+venv/
+

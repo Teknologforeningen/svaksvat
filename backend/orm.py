@@ -377,7 +377,9 @@ class Member(get_declarative_base(), MemberRegistryCommon):
                 name="fk_primary_contactinfo"))
     dead_fld = Column(Integer)
     subscribedtomodulen_fld = Column(Integer, default=0)
+
     noPublishContactInfo_fld = Column(Integer, default=0)
+
     username_fld = Column(String(150))
     lastsync_fld = Column(DateTime, default=datetime.min)
     

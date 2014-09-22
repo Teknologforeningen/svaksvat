@@ -100,19 +100,6 @@ def get_modulenaddresses(session):
 
     return ordinarie + alumni
 
-
-def get_contactinfoforpublishing(session):
-    print("Hamtar ordinarie")
-    ordinarie = common.get_members_with_membership(
-        session, "Ordinarie medlem", True).all()
-
-    print("Hamtar StAlM")
-    alumni = common.get_members_with_membership(
-        session, "StÄlM", True).all()
-
-    return ordinarie + alumni
-
-
 def get_stalmar(session):
 
     print("Hamtar StAlM")

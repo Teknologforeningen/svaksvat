@@ -259,14 +259,29 @@ class MemberEdit(QWidget):
     def createAccountOrChangePassword(self):
         password, ok = QInputDialog.getText(self, "Ange lösenord", "Lösenord",
                 QLineEdit.Password)
-
+        
         if not ok:
+            return
+
+        password2, ok2 = QInputDialog.getText(self, "Lösenord igen", "Lösenord",
+                QLineEdit.Password)
+        
+        if not ok2:
+            return
+        
+        if password != password2:
+            QMessageBox.information(self, "Åtgärden misslyckades!",
+                    "Lösenorden matchar inte.", 1)
             return
 
         if self.ldapmanager.checkldapuser(self.member):
             # Change only password if account exists
             self.ldapmanager.change_ldap_password(self.member.username_fld, password)
             self.refreshUserAccounts()
+            mailutil.send_mail(self.ldapmanager.ps, self.ui.email_fld.text(),
+                               'Ditt konto vid Teknologföreningen', 'Hejsan\n\nDitt lösenord vid Teknologföreningen har blivit bytt.\n\nDitt nya lösenord är: {:s}\n\nVid frågor eller ifall du inte begärt detta, kontakta infochef@teknolog.fi\n\nDetta är ett automatiskt meddelande, du behöver inte svara på det.'.format(password))
+            QMessageBox.information(self, "Lösenord bytt!",
+                                    "Lösenordet skickat till användarens e-post.", 1)
             return
 
         username = self.ui.username_fld.text()
