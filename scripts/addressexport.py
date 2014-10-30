@@ -221,7 +221,7 @@ def main():
 
     elif choice[0] == "4":
         print("Julkort vald")
-        filename = "modulenadresser.csv"
+        filename = "julkortadresser.csv"
         members = get_christmascardaddressess(session)
 
     print("Oppnar fil.")
