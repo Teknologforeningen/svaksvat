@@ -36,11 +36,9 @@ def get_contactinfo_tuple(member, considerNoPublish=False):
     except:
         pass
 
-    return
-
-    if considerNoPublish:
-        return (member.preferredName_fld, member.surName_fld,
-                "", "", "", "", "", "")
+    if considerNoPublish and member.noPublishContactInfo_fld == 1:
+            return (member.preferredName_fld, member.surName_fld,
+                    "", "", "", "", "", "")
 
     return (member.preferredName_fld, member.surName_fld,
             contactinfo.email_fld,
@@ -191,11 +189,15 @@ def get_christmascardaddressess(session):
 
     return xmascardmembers
 
+def get_katalogenlist(session):
+    return common.get_members_with_membership(session, "Ordinarie medlem", True, False).all()
 
 def main():
     ps = passwordsafe.PasswordSafe()
     SessionMaker = ps.connect_with_config("members")
     session = SessionMaker()
+
+    ignoreKatalogen = False
 
     print("Detta script get ut adresser i csv format.")
     print("Alternativ:")
@@ -203,6 +205,7 @@ def main():
     print("2. StÄlMar")
     print("3. Ordinarie")
     print("4. Julkort")
+    print("5. Katalogen-lista")
 
     choice = input("Vilka adresser vill du ha?\n")
 
@@ -224,10 +227,16 @@ def main():
         filename = "julkortadresser.csv"
         members = get_christmascardaddressess(session)
 
+    elif choice[0] == "5":
+        print("Katalogen-lista vald")
+        filename = "katalogen-lista.csv"
+        members = get_katalogenlist(session)
+        ignoreKatalogen = True
+
     print("Oppnar fil.")
     writer = csv.writer(open(filename, "w"))
 
-    choice = input("Vill du ha all info(1) eller adresser(2)?[2]")
+    choice = input("Vill du ha all info(1) eller kontaktuppgifter(2)?[2]")
     if choice[0] == "1":
         print("All info vald")
         print("Skriver fil: %s/%s" % (os.getcwd(), filename))
@@ -237,9 +246,10 @@ def main():
         print("Endast adresser valda")
         print("Skriver fil: %s/%s" % (os.getcwd(), filename))
         for member in members:
-            writer.writerow(get_contactinfo_tuple(member))
+            writer.writerow(get_contactinfo_tuple(member, ignoreKatalogen))
 
     print("Fardig")
+
     """
     radlist = ["dar", "ar", "fr", "far", "konrad"]
     members = []
