@@ -36,7 +36,7 @@ def get_contactinfo_tuple(member, considerNoPublish=False):
     except:
         pass
 
-    if considerNoPublish and member.noPublishContactInfo_fld == 1:
+    if considerNoPublish and member.dead_fld == 0 and member.noPublishContactInfo_fld == 1:
             return (member.preferredName_fld, member.surName_fld,
                     "", "", "", "", "", "")
 
@@ -189,8 +189,18 @@ def get_christmascardaddressess(session):
 
     return xmascardmembers
 
-def get_katalogenlist(session):
-    return common.get_members_with_membership(session, "Ordinarie medlem", True, False).all()
+def get_katalogenlist_stalm(session):
+    print("Hamtar StAlM")
+    alumni = common.get_members_with_membership(
+            session, "StÄlM", True).all()
+
+    return alumni
+
+def get_katalogenlist_ordinarie(session):
+    print("Hamtar ordinarie")
+    ordinarie = common.get_members_with_membership(session,
+            "Ordinarie medlem", True).all()
+    return ordinarie
 
 def main():
     ps = passwordsafe.PasswordSafe()
@@ -205,7 +215,9 @@ def main():
     print("2. StÄlMar")
     print("3. Ordinarie")
     print("4. Julkort")
-    print("5. Katalogen-lista")
+    print("5. Katalogen-lista-Stalm")
+    print("6. Katalogen-lista-ordinarie")
+
 
     choice = input("Vilka adresser vill du ha?\n")
 
@@ -228,10 +240,16 @@ def main():
         members = get_christmascardaddressess(session)
 
     elif choice[0] == "5":
-        print("Katalogen-lista vald")
-        filename = "katalogen-lista.csv"
-        members = get_katalogenlist(session)
+        print("Katalogen-lista-stalm vald")
+        filename = "katalogen-lista-stalm.csv"
+        members = get_katalogenlist_stalm(session)
         ignoreKatalogen = True
+
+    elif choice[0] == "6":
+        print("katalogen-lista-ordinarie vald")
+        filename = "katalogen-lista-ordinarie.csv"
+        members = get_katalogenlist_ordinarie(session)
+        ignoreKatalogen = True  
 
     print("Oppnar fil.")
     writer = csv.writer(open(filename, "w"))
