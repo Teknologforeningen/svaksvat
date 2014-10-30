@@ -118,8 +118,10 @@ def main():
     for member in members:
         dump_member(member, writer)
 
+    print("All done.")
     return
 
+    """
     for member in members:
         if member.notes_fld:
             writer.writerow([member.getWholeName(), "Hedersbetygelser:",
@@ -136,6 +138,8 @@ def main():
                 for year in range(postmembership.startTime_fld.date().year,
                         postmembership.endTime_fld.date().year + 1):
                     writer.writerow([member.getWholeName(), post.name_fld, year])
+
+    """
 
 if __name__ == '__main__':
     status = main()
