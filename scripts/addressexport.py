@@ -209,17 +209,24 @@ def main():
 
     ignoreKatalogen = False
 
-    print("Detta script get ut adresser i csv format.")
+    print("Detta script get ut adresser/info i csv format.")
     print("Alternativ:")
     print("1. Modulen")
+    print(" -Lista för alla som Modulen skall skickas till")
     print("2. StÄlMar")
+    print(" -Lista på alla stämar")
     print("3. Ordinarie")
+    print(" -Lista på alla Ordinarie")
     print("4. Julkort")
+    print(" -Vem skall få julkort?")
     print("5. Katalogen-lista-Stalm")
+    print(" -Lista på alla stälmar, utom dom som inte vill ge ut info")
     print("6. Katalogen-lista-ordinarie")
+    print(" -Lista på alla ordinarie, utom dom som inte vill ge ut info\n")
+    print("Du får välja om du vill ha address, eller all info sedan.")
 
 
-    choice = input("Vilka adresser vill du ha?\n")
+    choice = input("Ange siffra:\n")
 
     if choice[0] == "1":
         print("Modulen vald")
