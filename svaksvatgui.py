@@ -292,9 +292,9 @@ class MemberEdit(QWidget):
         if (username and email and preferredname and surname):
             if not self.member.ifOrdinarieMedlem():
 
-                if not QMessageBox.question(self, "Skapa användarkonto?",
+                if QMessageBox.question(self, "Skapa användarkonto?",
                 "Användaren är inte ordinarie medlem, skapa konto ändå?",
-                "Nej", "Ja", defaultButtonNumber=0, escapeButtonNumber=0):
+                QMessageBox.Yes, QMessageBox.No) == QMessageBox.No:
                     return
 
             self.member.username_fld = username
@@ -318,7 +318,7 @@ class MemberEdit(QWidget):
         if QMessageBox.question(self, "Ta bort användarkonto?",
                 "Är du säker att du vill radera användarkontot för användaren %s?"
                 % self.member.username_fld + " BILL krediter kommer att bevaras.",
-                "Nej", "Ja", defaultButtonNumber=0, escapeButtonNumber=0):
+                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes:
             self.ldapmanager.delldapuser(self.member)
             self.refreshUserAccounts()
 
