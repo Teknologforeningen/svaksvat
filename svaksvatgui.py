@@ -271,7 +271,7 @@ class MemberEdit(QWidget):
         
         if password != password2:
             QMessageBox.information(self, "Åtgärden misslyckades!",
-                    "Lösenorden matchar inte.", 1)
+                    "Lösenorden matchar inte.", QMessageBox.Ok)
             return
 
         if self.ldapmanager.checkldapuser(self.member):
@@ -281,7 +281,7 @@ class MemberEdit(QWidget):
             mailutil.send_mail(self.ldapmanager.ps, self.ui.email_fld.text(),
                                'Ditt konto vid Teknologföreningen', 'Hejsan\n\nDitt lösenord vid Teknologföreningen har blivit bytt.\n\nDitt nya lösenord är: {:s}\n\nVid frågor eller ifall du inte begärt detta, kontakta infochef@teknolog.fi\n\nDetta är ett automatiskt meddelande, du behöver inte svara på det.'.format(password))
             QMessageBox.information(self, "Lösenord bytt!",
-                                    "Lösenordet skickat till användarens e-post.", 1)
+                                    "Lösenordet skickat till användarens e-post.", QMessageBox.Ok)
             return
 
         username = self.ui.username_fld.text()
@@ -307,12 +307,12 @@ class MemberEdit(QWidget):
             mailutil.send_mail(self.ldapmanager.ps, self.member.email_fld,
                                'Ditt konto vid Teknologföreningen', 'Du har skapat ett konto till Teknologföreningens IT-system.\nDitt användarnamn är {:s}\noch ditt lösenord är {:s}\n\nGå in på http://bill.teknologforeningen.fi/code för att ta reda på din BILL-kod som du kan använda till kopiering o.dyl.\n\nLäs igenom reglerna för användandet av TF:s IT-tjänster på denna sida (fyll dock inte i blanketten; reglerna berör dig ändå):\nhttps://www.teknologforeningen.fi/index.php?option=com_content&view=article&id=115&Itemid=177&lang=sv\n\nKom ihåg att användarkonto och BILL-kod är ett privilegium, inte en rätt. De kan tas bort vid missbruk.\n\n/Infochefen & TF-IC'.format(username,password))
             QMessageBox.information(self, "Användare skapad!",
-                                    "Lösenordet skickat till användarens e-post.", 1)
+                                    "Lösenordet skickat till användarens e-post.", QMessageBox.Ok)
 
             return
 
         QMessageBox.information(self, "Kunde inte skapa användarkonto",
-                                "Felaktigt användarnamn, email, efternamn eller tilltalsnamn", 1)
+                                "Felaktigt användarnamn, email, efternamn eller tilltalsnamn", QMessageBox.Ok)
 
     def removeAccount(self):
         if QMessageBox.question(self, "Ta bort användarkonto?",
