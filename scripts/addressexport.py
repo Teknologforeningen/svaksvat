@@ -261,6 +261,7 @@ def main():
     print("Oppnar fil.")
     writer = csv.writer(open(filename, "w"))
 
+    choice = "2"
     choice = input("Vill du ha all info(1) eller kontaktuppgifter(2)?[2]")
     if choice[0] == "1":
         print("All info vald")
