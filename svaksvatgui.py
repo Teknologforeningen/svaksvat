@@ -257,6 +257,7 @@ class MemberEdit(QWidget):
 
 
     def createAccountOrChangePassword(self):
+        
         password, ok = QInputDialog.getText(self, "Ange lösenord", "Lösenord",
                 QLineEdit.Password)
         
@@ -274,12 +275,19 @@ class MemberEdit(QWidget):
                     "Lösenorden matchar inte.", QMessageBox.Ok)
             return
 
+        send_password= (password + '.')[:-1]
+
+        if QMessageBox.question(self, "Hemligt lösenord?",
+                "Ett hemligt lösenord synns inte i mailet som skickas.",
+                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes:
+                    send_password = "*****"
+
         if self.ldapmanager.checkldapuser(self.member):
             # Change only password if account exists
             self.ldapmanager.change_ldap_password(self.member.username_fld, password)
             self.refreshUserAccounts()
             mailutil.send_mail(self.ldapmanager.ps, self.ui.email_fld.text(),
-                               'Ditt konto vid Teknologföreningen', 'Hejsan\n\nDitt lösenord vid Teknologföreningen har blivit bytt.\n\nDitt nya lösenord är: {:s}\n\nVid frågor eller ifall du inte begärt detta, kontakta infochef@teknolog.fi\n\nDetta är ett automatiskt meddelande, du behöver inte svara på det.'.format(password))
+                               'Ditt konto vid Teknologföreningen', 'Hejsan\n\nDitt lösenord vid Teknologföreningen har blivit bytt.\n\nDitt nya lösenord är: {:s}\n\nVid frågor eller ifall du inte begärt detta, kontakta infochef@teknolog.fi\n\nDetta är ett automatiskt meddelande, du behöver inte svara på det.'.format(send_password))
             QMessageBox.information(self, "Lösenord bytt!",
                                     "Lösenordet skickat till användarens e-post.", QMessageBox.Ok)
             return
@@ -305,7 +313,7 @@ class MemberEdit(QWidget):
             self.ldapmanager.addldapuser(self.member, password)
             self.refreshUserAccounts()
             mailutil.send_mail(self.ldapmanager.ps, self.member.email_fld,
-                               'Ditt konto vid Teknologföreningen', 'Du har skapat ett konto till Teknologföreningens IT-system.\nDitt användarnamn är {:s}\noch ditt lösenord är {:s}\n\nGå in på http://bill.teknologforeningen.fi/code för att ta reda på din BILL-kod som du kan använda till kopiering o.dyl.\n\nLäs igenom reglerna för användandet av TF:s IT-tjänster på denna sida (fyll dock inte i blanketten; reglerna berör dig ändå):\nhttps://www.teknologforeningen.fi/index.php?option=com_content&view=article&id=115&Itemid=177&lang=sv\n\nKom ihåg att användarkonto och BILL-kod är ett privilegium, inte en rätt. De kan tas bort vid missbruk.\n\n/Infochefen & TF-IC'.format(username,password))
+                               'Ditt konto vid Teknologföreningen', 'Du har skapat ett konto till Teknologföreningens IT-system.\nDitt användarnamn är {:s}\noch ditt lösenord är {:s}\n\nGå in på http://bill.teknologforeningen.fi/code för att ta reda på din BILL-kod som du kan använda till kopiering o.dyl.\n\nLäs igenom reglerna för användandet av TF:s IT-tjänster på denna sida (fyll dock inte i blanketten; reglerna berör dig ändå):\nhttps://www.teknologforeningen.fi/index.php?option=com_content&view=article&id=115&Itemid=177&lang=sv\n\nKom ihåg att användarkonto och BILL-kod är ett privilegium, inte en rätt. De kan tas bort vid missbruk.\n\n/Infochefen & TF-IC'.format(username,send_password))
             QMessageBox.information(self, "Användare skapad!",
                                     "Lösenordet skickat till användarens e-post.", QMessageBox.Ok)
 
