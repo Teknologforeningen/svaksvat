@@ -12,6 +12,9 @@ import sys
 import os
 import datetime
 import argparse
+import hashlib
+import time
+import codecs
 
 import sqlalchemy
 
@@ -166,6 +169,8 @@ class LDAPAccountManager:
         name = member.getName()
         surname = member.surName_fld
         email = member.contactinfo.email_fld
+        nt_password = codecs.encode(hashlib.new( 'md4', passwd.encode('utf-16le')).digest(),'hex_codec').decode('utf-8').upper()
+        sambaSID = "S-1-0-0-" + str(uidnumber*2+1000)
 
         if not all([username, preferredname, name, surname, email]):
             return None, None
@@ -195,9 +200,13 @@ objectClass: billAccount
 krbName: %s
 mail: %s
 userPassword: %s
-        """ % (username, username, name, username,
-                uidnumber, surname, preferredname, username, email, passwd)
-
+objectClass: sambaSamAccount
+sambaSID: %s
+sambaNTPassword: %s
+sambaPwdLastSet: %d
+""" % (username, username, name, username,
+                uidnumber, surname, preferredname, username, email, passwd, sambaSID, nt_password, int(time.time()))
+        print(userldif)
         # LDIF used to add the user to the medlem group.
         usergroupldif = """
 dn: cn=medlem,ou=Group,dc=teknologforeningen,dc=fi
@@ -280,6 +289,24 @@ memberUid: """ + member.username_fld
                     newpassword, username))
 
         check_output(changepwcommand, universal_newlines=True)
+
+        nt_password = codecs.encode(hashlib.new( 'md4', newpassword.encode('utf-16le')).digest(),'hex_codec').decode('utf-8').upper()
+
+        updateNTPasswdLDIF = """
+dn: uid=%s,ou=People,dc=teknologforeningen,dc=fi
+changetype: modify
+replace: sambaNTPassword
+sambaNTPassword: %s
+-
+replace: sambaPwdLastSet
+sambaPwdLastSet: %d
+""" % (username, nt_password, int(time.time()))
+        
+        cmd = self.LDAPMODIFY_CMD
+        groupmodproc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        out = groupmodproc.communicate(input=updateNTPasswdLDIF.encode())
+        print(out[0].decode())
+
         print("New password set for user %s." % username)
 
 
