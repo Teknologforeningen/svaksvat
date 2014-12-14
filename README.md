@@ -9,9 +9,9 @@ master should rebased from staging always when new functionality is needed.
 
 Dependencies for SvakSvatGUI as Ubuntu packages:
 ================================================
-* python3
+* python3-dev
 * python3-virtualenv
-* python3-pyqt4
+* python3-pyqt5
 * ldap-utils (for LDAP support)
 * libpq-dev (for compiling psycopg2)
 
