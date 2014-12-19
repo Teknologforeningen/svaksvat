@@ -44,6 +44,8 @@ def main():
                 for year in range(postmembership.startTime_fld.date().year,
                         postmembership.endTime_fld.date().year + 1):
                     writer.writerow([member.getWholeName(), post.name_fld, year])
+    print("I am all done, kill me please.")
+    sys.exit(0)
 
 if __name__ == '__main__':
     status = main()
