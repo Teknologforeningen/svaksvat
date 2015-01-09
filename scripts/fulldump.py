@@ -98,11 +98,11 @@ def main():
     members = common.get_members_with_membership(session,
                                                  "Ordinarie medlem",
                                                  False, True).all()
-    print("member length without ordinarie medlem", len(members))
+    print("member length without ordinarie medlem: ", len(members))
     members += common.get_members_with_membership(session,
                                                   "Ordinarie medlem",
                                                   True, True).all()
-    print("member length after noncurrent ordinarie medlem", len(members))
+    print("member length after noncurrent ordinarie medlem: ", len(members))
 
     allmembers = common.get_members_with_membership(session,
                                                   "Ordinarie medlem",
@@ -114,8 +114,12 @@ def main():
                ContactInformation.__table__.columns]
     header += ["grupper", "poster", "medlemskap"]
     writer.writerow(header)
-    #dump_member(members[0], writer)
+    
+
     for member in members:
+        dump_member(member, writer)
+
+    for member in allmembers:
         dump_member(member, writer)
 
     print("All done.")
