@@ -89,8 +89,7 @@ def main():
     SessionMaker = ps.connect_with_config("mimer")
     session = SessionMaker()
     writer = csv.writer(open("alltut.csv", "w"))
-    members = session.query(Member).all()
-    print("all members: ", len(members))
+    
 
     #members = [m for m in session.query(Member).all() if not m.membershipmemberships]
     #print ("all members without memberships: ", len(members))
@@ -99,15 +98,19 @@ def main():
                                                  "Ordinarie medlem",
                                                  False, True).all()
     print("member length without ordinarie medlem: ", len(members))
+
     members += common.get_members_with_membership(session,
                                                   "Ordinarie medlem",
                                                   True, True).all()
     print("member length after noncurrent ordinarie medlem: ", len(members))
 
-    allmembers = common.get_members_with_membership(session,
+    members = common.get_members_with_membership(session,
                                                   "Ordinarie medlem",
                                                   True, False).all()
-    print("Ordinarie medlemmar: ", len(allmembers))
+    print("Ordinarie medlemmar: ", len(members))
+
+    members = session.query(Member).all()
+    print("All members: ", len(members))
 
     header = ["första år samt medlemskapstyp", "StälMstart", "Nuvarande medlemskapstyp"] + [x.__str__().split('.')[1] for x in Member.__table__.columns]
     header += [x.__str__().split('.')[1] for x in
@@ -115,14 +118,14 @@ def main():
     header += ["grupper", "poster", "medlemskap"]
     writer.writerow(header)
     
-
+    counter = 0
     for member in members:
         dump_member(member, writer)
+        counter += 1
+        if counter % 50 == 0:
+            print(int((counter/len(members))*100), "%")
 
-    for member in allmembers:
-        dump_member(member, writer)
-
-    print("All done.")
+    print("All done. Kill me if I wont quit...")
     return
 
     """
