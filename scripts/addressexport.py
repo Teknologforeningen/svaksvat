@@ -102,16 +102,14 @@ def get_stalmar(session):
 
     print("Hamtar StAlM")
     alumni = common.get_members_with_membership(
-            session, "StÄlM", True).filter(
-            Member.subscribedtomodulen_fld == 1).all()
+            session, "StÄlM", True).all()
 
     return alumni
 
 def get_ordinarie(session):
     print("Hamtar ordinarie")
     ordinarie = common.get_members_with_membership(session,
-            "Ordinarie medlem", True).filter(
-            Member.subscribedtomodulen_fld == 1).all()
+            "Ordinarie medlem", True).all()
 
     return ordinarie
 
