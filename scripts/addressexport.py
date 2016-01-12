@@ -220,8 +220,8 @@ def main():
     print("5. Katalogen-lista-Stalm")
     print(" -Lista på alla stälmar, utom dom som inte vill ge ut info")
     print("6. Katalogen-lista-ordinarie")
-    print(" -Lista på alla ordinarie, utom dom som inte vill ge ut info\n")
-    print("Du får välja om du vill ha address, eller all info sedan.")
+    print(" -Lista på alla ordinarie, utom dom som inte vill ge ut info")
+    print("\nDu får välja om du vill ha address, eller all info sedan.")
 
 
     choice = input("Ange siffra:\n")
