@@ -274,34 +274,6 @@ def main():
 
     print("Fardig")
 
-    """
-    radlist = ["dar", "ar", "fr", "far", "konrad"]
-    members = []
-    rads = session.query(Group).filter(Group.abbreviation_fld.in_(radlist)).all()
-
-    for rad in rads:
-        for membership in rad.memberships:
-            if membership.isCurrent():
-                m = membership.member
-                writer.writerow([m.surName_fld + " " + m.preferredName_fld,
-                    rad.name_fld])
-
-    memberships = session.query(MembershipType).filter(MembershipType.name_fld
-            == "Ordinarie medlem").one().membership
-    mships = [mship for mship in memberships if mship.isCurrent()]
-    for mship in mships:
-        m = mship.member
-        writer.writerow(get_contactinfo_tuple(m))
-    #members = get_funkisar(session)
-    thisyear = datetime.date.today().year
-    #members = get_dekadenskontakter(session)
-    #members = members | get_radmembers(session)
-    for year in range(thisyear - 10, thisyear):
-        members = get_tfs(year)
-        writer.writerow(year)
-        for member in members:
-            writer.writerow(get_contactinfo_tuple(member))
-    """
 
 if __name__ == '__main__':
     status = main()
