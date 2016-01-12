@@ -35,7 +35,7 @@ Platform independent dependencies
 =================================
 Navigate to the repo root and run:
 `
-virtualenv3 --system-site-packages svaksvat_ve
+virtualenv -p /usr/bin/python3 --system-site-packages svaksvat_ve
 `
 Activate the virtualenv
 - Linux/Mac: `source svaksvat_ve/bin/activate`
