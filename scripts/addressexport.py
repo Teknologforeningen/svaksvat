@@ -113,6 +113,21 @@ def get_ordinarie(session):
 
     return ordinarie
 
+def get_ordinarie_without_phux(session):
+    print("Hamtar ordinarie utan phuxar")
+    phux = common.get_members_with_membership(session,
+            "Phux", True).all()
+    ordinarie = common.get_members_with_membership(session,
+            "Ordinarie medlem", True).all()
+
+    result = []
+
+    for x in ordinarie:
+        if x not in phux:
+            result.append(x)
+
+    return result
+
 def get_funkisar(session):
     posts = session.query(Post).all()
     funkisar = set()
@@ -221,6 +236,8 @@ def main():
     print(" -Lista på alla stälmar, utom dom som inte vill ge ut info")
     print("6. Katalogen-lista-ordinarie")
     print(" -Lista på alla ordinarie, utom dom som inte vill ge ut info")
+    print("7. Ordinarie utan phuxar?")
+    print(" -Lista på alla Ordinarie utan phuxar")
     print("\nDu får välja om du vill ha address, eller all info sedan.")
 
 
@@ -254,7 +271,11 @@ def main():
         print("katalogen-lista-ordinarie vald")
         filename = "katalogen-lista-ordinarie.csv"
         members = get_katalogenlist_ordinarie(session)
-        ignoreKatalogen = True  
+        ignoreKatalogen = True
+    elif choice[0] == "7":
+        print("Ordinarie utan phuxar valda")
+        filename = "ordinarie_utan_phux.csv"
+        members = get_ordinarie_without_phux(session)
 
     print("Oppnar fil.")
     writer = csv.writer(open(filename, "w"))
