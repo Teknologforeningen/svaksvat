@@ -24,7 +24,7 @@ import common
 
 def main():
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = ps.connect_with_config("mimer")
+    SessionMaker = ps.connect_with_config("members")
     session = SessionMaker()
     writer = csv.writer(open("meritlist.csv", "w"))
     members = session.query(Member).order_by(Member.surName_fld).all()

@@ -25,7 +25,7 @@ import passwordsafe
 
 def main():
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = ps.connect_with_config("mimer")
+    SessionMaker = ps.connect_with_config("members")
     session = SessionMaker()
 
     groups = session.query(Group).filter(

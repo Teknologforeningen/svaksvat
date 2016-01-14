@@ -166,12 +166,12 @@ def sync_databases(joomlasession, registrysession):
 
 def main():
     JoomlaSessionMaker = connect.connect('joomla',
-        'joomla', 'mimer.teknolog.fi', 'joomla', 'mysql+oursql',
+        'joomla', 'postgre.teknolog.fi', 'joomla', 'mysql+oursql',
         create_metadata=False)
     joomlasession = JoomlaSessionMaker()
 
     RegistrySessionMaker = connect.connect('members',
-        'members', 'mimer.teknolog.fi', 'members')
+        'members', 'postgre.teknolog.fi', 'members')
     registrysession = RegistrySessionMaker()
 
     sync_databases(joomlasession, registrysession)

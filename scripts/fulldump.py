@@ -86,7 +86,7 @@ def dump_member(member, writer):
 
 def main():
     ps = passwordsafe.PasswordSafe()
-    SessionMaker = ps.connect_with_config("mimer")
+    SessionMaker = ps.connect_with_config("members")
     session = SessionMaker()
     writer = csv.writer(open("alltut.csv", "w"))
     
