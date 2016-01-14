@@ -166,7 +166,7 @@ def sync_databases(joomlasession, registrysession):
 
 def main():
     JoomlaSessionMaker = connect.connect('joomla',
-        'joomla', 'postgre.teknolog.fi', 'joomla', 'mysql+oursql',
+        'joomla', 'mysql.teknolog.fi', 'joomla', 'mysql+oursql',
         create_metadata=False)
     joomlasession = JoomlaSessionMaker()
 
