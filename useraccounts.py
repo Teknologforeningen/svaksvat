@@ -128,6 +128,7 @@ class LDAPAccountManager:
                 "select balance from users where username='%s';" %
                 member.username_fld).fetchone()['balance']
         except:
+            print ("Unexpected error:", sys.exc_info())
             return None
 
     def get_bill_code(self, member):
@@ -137,6 +138,7 @@ class LDAPAccountManager:
                 member.username_fld).fetchone()[:])
 
         except:
+            print ("Unexpected error:", sys.exc_info())
             return None
 
     def ldapsearch(self, query):
