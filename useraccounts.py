@@ -141,7 +141,8 @@ class LDAPAccountManager:
                 "select id, pin from users where username='%s';" %
                 member.username_fld)
             bill_code = self.pykotasession.fetchone()
-            return "".joint(bill_code[:])
+
+            return "".join(bill_code[:])
         except:
             print ("Unexpected error:", sys.exc_info())
             return None
@@ -334,7 +335,7 @@ sambaPwdLastSet: %d
                 ),id,deflimit_u FROM printers WHERE defactivate_u='t';" %
             username)
 
-        self.pykotasession.commit()
+        self.pykotaconnection.commit()
 
         return self.get_bill_code(member)
 
