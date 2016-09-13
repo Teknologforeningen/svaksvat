@@ -116,27 +116,32 @@ class LDAPAccountManager:
 
     def check_bill_account(self, member):
         if member.username_fld:
-            return bool(self.pykotasession.execute(
-            "select * from users where username='%s'" %
-            member.username_fld).rowcount)
+            self.pykotasession.execute(
+                "select * from users where username='%s'" %
+                member.username_fld)
+
+            return bool(self.pykotasession.rowcount)
 
         return False
 
     def get_bill_balance(self, member):
         try:
-            return self.pykotasession.execute(
+            self.pykotasession.execute(
                 "select balance from users where username='%s';" %
-                member.username_fld).fetchone()['balance']
+                member.username_fld)
+            bill_account = self.pykotasession.fetchone()
+            return bill_account[0]
         except:
             print ("Unexpected error:", sys.exc_info())
             return None
 
     def get_bill_code(self, member):
         try:
-            return "".joint(self.pykotasession.execute(
+            self.pykotasession.execute(
                 "select id, pin from users where username='%s';" %
-                member.username_fld).fetchone()[:])
-
+                member.username_fld)
+            bill_code = self.pykotasession.fetchone()
+            return "".joint(bill_code[:])
         except:
             print ("Unexpected error:", sys.exc_info())
             return None
