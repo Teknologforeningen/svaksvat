@@ -105,8 +105,8 @@ class LDAPAccountManager:
         auth, self.servicelogin, self.servicepassword = self.ps.askcredentials(
                 self.check_ldap_login, "ldap", "servicelogin")
 
-        SessionMaker = self.ps.connect_with_config("pykota")
-        self.pykotasession = SessionMaker()
+        SessionMaker = self.ps.connect_postgre_with_config("pykota")
+        self.pykotasession = SessionMaker.cursor()
 
         self.LDAPMODIFY_CMD = shlex.split("""%s -H \
             %s -xD cn=%s,dc=teknologforeningen,dc=fi -w %s""" % (self.ldapmodifypath,

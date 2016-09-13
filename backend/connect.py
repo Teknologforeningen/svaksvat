@@ -24,6 +24,13 @@ def connect(user, password, server, database,
     SessionMaker = sqlalchemy.orm.sessionmaker(bind=connection)
     return SessionMaker
 
+def connect_postgre(user, password, host, port, database):
+    '''
+    Connects to postgre directly using psycopg2 to not mess with schemas...
+    '''
+    connection = psycopg2.connect(host=host, port=port, database=database, user=user, password=password)
+
+    return connection
 
 def connect_localhost_readonly(password='members'):
     '''Convenience function for connecting to localhost readonly.'''

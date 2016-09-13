@@ -276,6 +276,84 @@ class PasswordSafe:
                     raise(e)
 
 
+    def connect_postgre_with_config(self, configsection):
+        usernameparameter = "dbusername"
+        host = self.configparser.get(configsection, "host")
+        port = int(self.configparser.get(configsection, "port"))
+        database = self.configparser.get(configsection, "database")
+        dbusername = self.configparser.get(configsection, usernameparameter)
+        dbpassword = self.get_password(configsection, usernameparameter,
+                dbusername) or "" # Can be None which doesn't store.
+
+        sshconnecting = False
+        threadfinishedmutex = thread.allocate_lock()
+        while True:
+            try:
+                SessionMaker = connect.connect_postgre(dbusername,
+                                    dbpassword, host, port, database)
+
+                self.store_credentials(self.configfile, configsection,
+                        usernameparameter, dbusername, dbpassword)
+
+                return SessionMaker
+
+            except sqlalchemy.exc.OperationalError as e:
+                print(repr(e))
+                if re.match(
+                    "(.*role .* does not exist.*)|" +
+                    "(.*password authentication failed for user.*)|" +
+                    "(.*no password supplied.*)", repr(e)):
+                    dbusername, dbpassword = self.askcredentialsfunc(
+                           "Fel inloggningsinformation för databasen!")
+
+                elif re.match("(.*no pg_hba.conf entry for host.*)|" +
+                              "(.*pg_hba.conf rejects connection for host.*)",
+                              repr(e)):
+                    # Test if port is open
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    try:
+                        s.connect(("localhost", int(port)))
+                        s.shutdown(2)
+                        print("Nätverksporten är redan öppen. Testar om" +
+                                " portforwarding är redan igång...")
+
+                    except: # Port not open. Commence SSH port forwarding.
+                        print("Du måste logga in på servern.")
+
+                        authfunc = lambda user, passwd: sshwrapper.connect_ssh(
+                            host, user, passwd)
+                        sshport = int(self.configparser.get(
+                            configsection, "sshport"))
+                        if (sshport):
+                            print("Using ssh port:", sshport)
+                            authfunc = lambda user, passwd: (
+                                sshwrapper.connect_ssh(
+                                    host, user, passwd, sshport))
+
+                        client = self.askcredentials(
+                            authfunc, configsection, "sshusername")[0]
+                        thread.start_new_thread(
+                            lambda: sshwrapper.portforward(
+                                client,
+                                threadfinishedmutex,
+                                'localhost',
+                                port,
+                                port), ())
+
+                    sshconnecting = True
+                    host = "localhost"
+
+                elif re.match(".*could not connect to server: Connection refused.*",
+                              repr(e)) and sshconnecting:
+                    time.sleep(1)
+                    if threadfinishedmutex.locked(): # SSH-thread exited
+                        threadfinishedmutex.release()
+                        raise UnsuccesfulPortforward()
+
+                else:
+                    raise(e)
+
+
 # internal functions & classes
 def testauth(username, password):
     return username == password
