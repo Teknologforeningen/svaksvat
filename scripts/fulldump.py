@@ -13,7 +13,6 @@ from backend.ldaplogin import (get_member_with_real_name,
 from backend import connect
 from backend.orm import *
 import passwordsafe
-
 import common
 
 # constants
@@ -39,50 +38,68 @@ def get_contactinfo_tuple(member):
 
 
 def dump_member(member, writer):
-    groups = ""
-    posts = ""
-    memberships = ""
-    currentmembership = ""
+    groups = []
+    posts = []
+    memberships = []
+    #currentmembership = ""
+
     for groupmembership in member.groupmemberships:
         if groupmembership.startTime_fld and groupmembership.endTime_fld:
             group = groupmembership.group
-            for year in range(groupmembership.startTime_fld.date().year,
-                    groupmembership.endTime_fld.date().year + 1):
-                groups += "%s %d," % (group.name_fld, year)
+            s = "{};{};{}".format(group.name_fld, groupmembership.startTime_fld, groupmembership.endTime_fld)
+            groups.append(s)
+            # for year in range(groupmembership.startTime_fld.date().year,
+            #         groupmembership.endTime_fld.date().year + 1):
+            #     groups += "%s %d," % (group.name_fld, year)
 
     for postmembership in member.postmemberships:
         if postmembership.startTime_fld and postmembership.endTime_fld:
             post = postmembership.post
-            for year in range(postmembership.startTime_fld.date().year,
-                    postmembership.endTime_fld.date().year + 1):
-                posts += "%s %d," % (post.name_fld, year)
+            s = "{};{};{}".format(post.name_fld, postmembership.startTime_fld, postmembership.endTime_fld)
+            posts.append(s)
+            #for year in range(postmembership.startTime_fld.date().year,
+            #        postmembership.endTime_fld.date().year + 1):
+            #    posts += "%s %d," % (post.name_fld, year)
 
-    probablyphuxyear = 9999
-    probablyphuxmembership = ''
-    stalmstart = ''
+    #probablyphuxyear = 9999
+    #probablyphuxmembership = ''
+    #stalmstart = ''
     for membership in member.membershipmemberships:
         mship = membership.membership
-        if mship.name_fld == 'StÄlM' and membership.startTime_fld:
-            stalmstart = membership.startTime_fld.year
+        s = "{};{};{}".format(mship.name_fld, membership.startTime_fld, membership.endTime_fld)
+        memberships.append(s)
 
-        if membership.isCurrent():
-            currentmembership += mship.name_fld + " "
 
-        begin = end = ""
-        try:
-            begin = membership.startTime_fld.year
-            if begin < probablyphuxyear:
-                probablyphuxyear = begin
-                probablyphuxmembership = mship.name_fld
-            end = membership.endTime_fld.year
 
-        except:
-            continue
+        #if mship.name_fld == 'StÄlM' and membership.startTime_fld:
+        #    stalmstart = membership.startTime_fld.year
 
-        finally:
-            memberships += "%s %s - %s," % (mship.name_fld, begin or "", end or "")
+        #if membership.isCurrent():
+        #    currentmembership += mship.name_fld + " "
 
-    writer.writerow([str(probablyphuxyear) + " " + probablyphuxmembership, stalmstart] + [currentmembership] + [getattr(member, x.__str__().split('.')[1]) for x in Member.__table__.columns] + [getattr(member.contactinfo, x.__str__().split('.')[1]) for x in ContactInformation.__table__.columns] + [groups] + [posts] + [memberships])
+        #begin = end = ""
+        #try:
+        #    begin = membership.startTime_fld.year
+        #    if begin < probablyphuxyear:
+        #        probablyphuxyear = begin
+        #        probablyphuxmembership = mship.name_fld
+        #    end = membership.endTime_fld.year
+
+        #except:
+        #    continue
+
+        #finally:
+        #    memberships += "%s %s - %s," % (mship.name_fld, begin or "", end or "")
+
+    writer.writerow(
+        #[str(probablyphuxyear) + " " + probablyphuxmembership, stalmstart] + 
+        #[currentmembership] + 
+        [getattr(member, x.__str__().split('.')[1]) for x in Member.__table__.columns] + 
+        [getattr(member.contactinfo, x.__str__().split('.')[1]) for x in ContactInformation.__table__.columns] + 
+        [','.join(groups)] + 
+        [','.join(posts)] + 
+        [','.join(memberships)]
+    )
 
 def main():
     ps = passwordsafe.PasswordSafe()
