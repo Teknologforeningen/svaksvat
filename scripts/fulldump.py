@@ -41,6 +41,7 @@ def dump_member(member, writer):
     groups = []
     posts = []
     memberships = []
+    departments = []
     #currentmembership = ""
 
     for groupmembership in member.groupmemberships:
@@ -69,7 +70,10 @@ def dump_member(member, writer):
         s = "{};{};{}".format(mship.name_fld, membership.startTime_fld, membership.endTime_fld)
         memberships.append(s)
 
-
+    for department in member.departmentmemberships:
+        dep = department.department
+        s = "{}".format(dep.name_fld)
+        departments.append(s)
 
         #if mship.name_fld == 'StÄlM' and membership.startTime_fld:
         #    stalmstart = membership.startTime_fld.year
@@ -98,7 +102,8 @@ def dump_member(member, writer):
         [getattr(member.contactinfo, x.__str__().split('.')[1]) for x in ContactInformation.__table__.columns] + 
         [','.join(groups)] + 
         [','.join(posts)] + 
-        [','.join(memberships)]
+        [','.join(memberships)] +
+        [','.join(departments)]
     )
 
 def main():
